@@ -455,6 +455,11 @@ a:hover{text-decoration:underline}
         </div>
         <!-- Search results -->
         <div id="searchResults" style="max-height:300px;overflow-y:auto;display:none;margin-bottom:1rem;border:1px solid var(--gold-dim);border-radius:var(--radius-sm)"></div>
+        <!-- Suggested Packs -->
+        <div style="margin-bottom:1.25rem">
+          <div style="font-size:0.85rem;color:var(--gold);font-weight:600;margin-bottom:0.5rem">Suggested Packs</div>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap" id="starterPacks"></div>
+        </div>
         <!-- Browse by category -->
         <div style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center">
           <select class="filter-select" id="groupSelect" onchange="onGroupSelect()" style="min-width:180px">
@@ -2409,6 +2414,100 @@ function showFeatured(id) {
   renderAll();
 }
 
+/* ========== STARTER PACKS ========== */
+
+const STARTER_PACKS = [
+  {
+    name: "Living World Completionist",
+    desc: "Return To achievements, map collections, and story rewards",
+    color: "var(--gold)",
+    ids: [5790, 8732, 5350, 5773, 5816, 5803, 5716, 5761, 5776, 5768, 5746]
+  },
+  {
+    name: "Mount Collector",
+    desc: "Unlock all mount types and their collections",
+    color: "var(--orange)",
+    ids: [2488, 4610, 4291, 4375, 4660, 4845, 5765, 5894, 6254]
+  },
+  {
+    name: "Legendary Journey",
+    desc: "Aurora, Vision, and legendary trinket collections",
+    color: "var(--purple)",
+    ids: [3689, 3746, 3749, 3754, 3808, 4462, 4685, 4687, 4719, 4766]
+  },
+  {
+    name: "Jumping Puzzles",
+    desc: "All 47 jumping puzzles across Tyria",
+    color: "var(--green)",
+    categoryId: 14
+  },
+  {
+    name: "Fractal Progression",
+    desc: "Fractal achievements and Ad Infinitum legendary backpack",
+    color: "var(--blue)",
+    categoryId: 30
+  },
+  {
+    name: "Explorer",
+    desc: "Map completion, hidden areas, and exploration achievements",
+    color: "#60d6a5",
+    categoryId: 5
+  },
+  {
+    name: "Slayer",
+    desc: "Kill count achievements across all enemy types",
+    color: "var(--red)",
+    categoryId: 1
+  },
+  {
+    name: "Collections",
+    desc: "Basic weapon and armor skin collections",
+    color: "#f0a0d0",
+    categoryId: 77
+  }
+];
+
+function renderStarterPacks() {
+  const container = document.getElementById('starterPacks');
+  container.innerHTML = STARTER_PACKS.map((pack, i) => {
+    return `<button class="btn btn-sm" style="border-color:${pack.color};color:${pack.color};font-size:0.78rem" onclick="loadStarterPack(${i})" title="${pack.desc}">
+      ${pack.name}
+    </button>`;
+  }).join('');
+}
+
+async function loadStarterPack(index) {
+  const pack = STARTER_PACKS[index];
+  const status = document.getElementById('browseStatus');
+  const results = document.getElementById('browseResults');
+  status.textContent = 'Loading ' + pack.name + '...';
+  results.innerHTML = '';
+
+  try {
+    let ids;
+    if (pack.categoryId) {
+      // Fetch from category
+      const catResp = await fetch('https://api.guildwars2.com/v2/achievements/categories/' + pack.categoryId);
+      const cat = await catResp.json();
+      ids = cat.achievements;
+    } else {
+      ids = pack.ids;
+    }
+
+    let achievements = [];
+    for (let i = 0; i < ids.length; i += 200) {
+      const batch = ids.slice(i, i + 200);
+      const resp = await fetch('https://api.guildwars2.com/v2/achievements?ids=' + batch.join(','));
+      if (resp.ok) achievements = achievements.concat(await resp.json());
+    }
+    achievements.sort((a,b) => a.name.localeCompare(b.name));
+    status.textContent = pack.name + ': ' + achievements.length + ' achievements';
+    renderBrowseResults(achievements);
+  } catch(e) {
+    status.textContent = 'Error loading pack: ' + e.message;
+  }
+}
+
 /* ========== SEARCH INDEX ========== */
 
 const SEARCH_INDEX_KEY = 'gw2-search-index';
@@ -2530,16 +2629,38 @@ function onAchSearch(query) {
 
 /* ========== INIT ========== */
 renderAll();
-renderPinnedAchievements();
 populateGroups();
+renderStarterPacks();
 
-// Build or load search index
-if (!loadSearchIndex()) {
+// Load search index: try static file first, then localStorage cache, then build at runtime
+async function initSearchIndex() {
+  const statusEl = document.getElementById('searchIndexStatus');
+  // 1. Check localStorage cache
+  if (loadSearchIndex()) {
+    statusEl.textContent = `Search ready (${searchIndex.entries.length} achievements)`;
+    return;
+  }
+  // 2. Try static file
+  try {
+    statusEl.textContent = 'Loading search index...';
+    const resp = await fetch('search-index.json');
+    if (resp.ok) {
+      const entries = await resp.json();
+      // Map compact format {i,n,a,m,b,t} to full format {id,name,ap,max,bits,tiers}
+      searchIndex = {
+        version: SEARCH_INDEX_VERSION,
+        built: 'static',
+        entries: entries.map(e => ({id:e.i,name:e.n,ap:e.a,max:e.m,bits:e.b,tiers:e.t}))
+      };
+      localStorage.setItem(SEARCH_INDEX_KEY, JSON.stringify(searchIndex));
+      statusEl.textContent = `Search ready (${searchIndex.entries.length} achievements)`;
+      return;
+    }
+  } catch(e) { /* static file not available */ }
+  // 3. Fall back to runtime build
   buildSearchIndex();
-} else {
-  document.getElementById('searchIndexStatus').textContent =
-    `Search ready (${searchIndex.entries.length} achievements indexed)`;
 }
+initSearchIndex();
 
 // Show last sync time if available
 if (state.lastSync) {

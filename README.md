@@ -2,7 +2,7 @@
 
 Interactive tracker for three Guild Wars 2 achievements.
 
-**[Open the Tracker](https://tombrinton.github.io/GW2/)** (GitHub Pages)
+**[Open the Tracker](https://tbrinton11.github.io/gw2-achievement-tracking/)** (GitHub Pages)
 
 Or open `index.html` locally in your browser.
 

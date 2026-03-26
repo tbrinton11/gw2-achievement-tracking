@@ -402,6 +402,9 @@ a:hover{text-decoration:underline}
   <!-- ACHIEVEMENT CARDS (rendered by JS) -->
   <div id="achievementCards"></div>
 
+  <!-- PINNED CUSTOM ACHIEVEMENTS -->
+  <div id="pinnedCards"></div>
+
   <!-- EVENT TIMERS -->
   <section class="timers-section">
     <h2>Event Timers</h2>
@@ -426,6 +429,38 @@ a:hover{text-decoration:underline}
     <div class="combo-item"><strong>Drizzlewood Triple:</strong> Return to Drizzlewood Coast + farm Memories of Otter + buy Drizzlewood Coast Portal Scroll &mdash; three achievements, one map.</div>
     <div class="combo-item"><strong>Bjora Double:</strong> Return to Bjora Marches + complete Significant Otter prerequisites (Olaf Olafson's Secret, etc.) &mdash; both in Bjora.</div>
     <div class="combo-item"><strong>Lion's Arch Shopping Trip:</strong> Buy LA Teleportation Device + Hall of Monuments Portal Stone from vendors in Hooligan's Route.</div>
+  </section>
+</div>
+
+<!-- BROWSE & ADD ACHIEVEMENTS -->
+<div class="main-content" style="padding-top:0">
+  <section class="achievement-card" style="border-top-color:var(--blue)">
+    <div class="card-header" aria-expanded="false" onclick="toggleCard(this)">
+      <div class="card-title-area">
+        <h2 style="color:var(--blue)">+ Browse &amp; Add Any Achievement</h2>
+        <div class="card-subtitle">Search the entire GW2 achievement database and pin achievements to your tracker</div>
+      </div>
+      <span class="card-chevron">&#9662;</span>
+    </div>
+    <div class="card-body">
+      <div class="card-body-inner">
+        <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:1rem">
+          <input type="number" id="achIdInput" placeholder="Achievement ID" class="search-input" style="width:140px">
+          <button class="btn btn-primary" onclick="lookupAchievementById()">Look Up by ID</button>
+          <span style="color:var(--text-dim);font-size:0.8rem">or browse by category below</span>
+        </div>
+        <div style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center">
+          <select class="filter-select" id="groupSelect" onchange="onGroupSelect()" style="min-width:180px">
+            <option value="">Select a group...</option>
+          </select>
+          <select class="filter-select" id="categorySelect" onchange="onCategorySelect()" disabled style="min-width:220px">
+            <option value="">Select a category...</option>
+          </select>
+          <span id="browseStatus" style="font-size:0.8rem;color:var(--text-dim)"></span>
+        </div>
+        <div id="browseResults" style="max-height:400px;overflow-y:auto"></div>
+      </div>
+    </div>
   </section>
 </div>
 
@@ -2017,9 +2052,25 @@ document.getElementById('syncBtn').addEventListener('click', async () => {
       }
     }
 
+    // Sync pinned achievement progress
+    if (state.pinnedAchievements && state.pinnedAchievements.length) {
+      try {
+        const pinnedIds = state.pinnedAchievements.map(a => a.id).join(',');
+        const pinnedResp = await fetch(`${base}/account/achievements?ids=${pinnedIds}&access_token=${token}`);
+        if (pinnedResp.ok) {
+          const pinnedData = await pinnedResp.json();
+          if (!state.pinnedProgress) state.pinnedProgress = {};
+          pinnedData.forEach(p => {
+            state.pinnedProgress[p.id] = { current: p.current || 0, max: p.max || 0, done: !!p.done, bits: p.bits || [] };
+          });
+        }
+      } catch(e) { /* non-fatal */ }
+    }
+
     state.lastSync = new Date().toISOString();
     saveState();
     renderAll();
+    renderPinnedAchievements();
 
     let statusParts = [`${updated} item${updated!==1?'s':''} updated`];
     if (state.wallet) statusParts.push('wallet synced');
@@ -2082,8 +2133,229 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   }
 });
 
+/* ========== BROWSE & PIN ACHIEVEMENTS ========== */
+
+const ACH_GROUPS = [
+  {id:"56A82BB9-6B07-4AB0-89EE-E4A6D68F5C47",name:"General",order:6,categories:[1,2,4,5,6,7,10,11,14,16,27,47,51,58,69,80,133,169,206,245,247,284,361]},
+  {id:"A4ED8379-5B6B-4ECC-B6E1-70C350C902D2",name:"Story Journal",order:5,categories:[43,44,53,54,56,62,65,68,70,71,72,81,82,83,100,104,121,122,123,139,144,147,154,164,171,183,187,188,196,203,209,216,224,226,236,241,246,251,253,254,266,311,312,319,322,325,328,329,347,353,354,355,360,368,405,408,417,424,427,442,445,457,469,471]},
+  {id:"65B4B678-607E-4D97-B458-076C3E96A810",name:"Heart of Thorns",order:19,categories:[108,109,110,111,112,116]},
+  {id:"B42E2379-9599-46CA-9D4A-40A27E192BBE",name:"Path of Fire",order:18,categories:[174,176,178,179,181,182,185,189,190]},
+  {id:"B1311A68-2F67-4718-AB57-5E1750C1410B",name:"End of Dragons",order:17,categories:[313,314,315,316,317,318,320,323,324,326]},
+  {id:"345BA893-F022-40B8-A881-DB7422D95AE5",name:"Secrets of the Obscure",order:16,categories:[357,358,364,365,366,369,403,404,409,416]},
+  {id:"43167413-6A41-4407-8A42-EEB33825EDC5",name:"Janthir Wilds",order:15,categories:[423,425,426,428,429,430,431,432,439,441,446,453,455]},
+  {id:"1869FD2C-6305-4A75-8305-78AE94E1404A",name:"Visions of Eternity",order:14,categories:[463,464,465,466,467,468,470,472]},
+  {id:"45410F60-AB66-4146-A0F7-CE99250C4CB0",name:"Collections",order:23,categories:[75,76,77,114,117,118,125,173,237]},
+  {id:"4E6A6CE7-B131-40BB-81A3-235CDBACDAA9",name:"Fractals of the Mists",order:23,categories:[30,148,170,258,261,356,418,454,461]},
+  {id:"1CAFA333-0C2B-4782-BC4C-7DA30E9CE289",name:"Raids",order:22,categories:[124,134,138,155,195,215,229,438,476,477,480]},
+  {id:"BE8B9954-5B55-4FCB-9022-B871AD00EAAB",name:"Player vs. Player",order:21,categories:[3,31,35,38,39,40,126,127,129,130,141,143,152,153,156,157,158,160,161,218,248,412,435,450,460]},
+  {id:"9B66605F-6589-4CBD-8E19-5368C9F33338",name:"World vs. World",order:11,categories:[13,60,225,346,440]},
+  {id:"3A185655-09A5-4F6C-8B21-F1FCF62587B1",name:"Side Stories",order:20,categories:[59,137,175,177,180,184,186,220,285,286,287,288,289,290,291,292,293,294,295,296,298,299,300,301,302,303,304,305,306,307,308,309,310,338,422,456]},
+  {id:"F59FFE23-4616-47D2-86B4-00F15819AD45",name:"Strike Missions",order:25,categories:[333,362]},
+  {id:"AACBCEF3-BFEE-405B-967D-30A989589AD7",name:"Bonus Events",order:3,categories:[221,262,263,265,267,268,270,271,272,273,274,275,276,277,278,279,280,281,282,350,359,363,372,393,462,473]},
+  {id:"EFADEE67-588F-412F-A1BD-6C9AFF782988",name:"Character Adventure Guide",order:2,categories:[331,332,334,335,336]},
+  {id:"18DB115A-8637-4290-A636-821362A3C4A8",name:"Daily",order:1,categories:[79,88,98,102,162,201,213,233,238,243,321,330,367,475]},
+  {id:"A9F7378E-9C8A-48CC-9505-3094E661D5F6",name:"Historical",order:99,categories:[22,23,25,28,29,34,36,37,41,42,45,46,48,49,50,52,55,57,61,66,67,73,74,78,99,101,119,131,132,136,146,150,151,191,192,193,197,198,199,200,202,205,210,211,212,214,228,230,231,232,256,257,260,297,342,345,351,386,392,400,401,402,413,420,447,448,452]}
+];
+
+function populateGroups() {
+  const sel = document.getElementById('groupSelect');
+  ACH_GROUPS.sort((a,b) => a.order - b.order).forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g.id;
+    opt.textContent = g.name;
+    sel.appendChild(opt);
+  });
+}
+
+async function onGroupSelect() {
+  const groupId = document.getElementById('groupSelect').value;
+  const catSel = document.getElementById('categorySelect');
+  catSel.innerHTML = '<option value="">Loading categories...</option>';
+  catSel.disabled = true;
+  document.getElementById('browseResults').innerHTML = '';
+  document.getElementById('browseStatus').textContent = '';
+  if (!groupId) { catSel.innerHTML = '<option value="">Select a category...</option>'; return; }
+
+  const group = ACH_GROUPS.find(g => g.id === groupId);
+  if (!group) return;
+
+  try {
+    // Fetch in batches of 200 (API limit)
+    let allCats = [];
+    for (let i = 0; i < group.categories.length; i += 200) {
+      const batch = group.categories.slice(i, i + 200);
+      const resp = await fetch('https://api.guildwars2.com/v2/achievements/categories?ids=' + batch.join(','));
+      if (resp.ok) allCats = allCats.concat(await resp.json());
+    }
+    allCats.sort((a,b) => (a.order || 0) - (b.order || 0));
+    catSel.innerHTML = '<option value="">Select a category...</option>';
+    allCats.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = JSON.stringify({id: c.id, achievements: c.achievements});
+      opt.textContent = c.name + ' (' + c.achievements.length + ')';
+      catSel.appendChild(opt);
+    });
+    catSel.disabled = false;
+  } catch(e) {
+    catSel.innerHTML = '<option value="">Error loading categories</option>';
+  }
+}
+
+async function onCategorySelect() {
+  const val = document.getElementById('categorySelect').value;
+  const results = document.getElementById('browseResults');
+  const status = document.getElementById('browseStatus');
+  if (!val) { results.innerHTML = ''; status.textContent = ''; return; }
+
+  const cat = JSON.parse(val);
+  status.textContent = 'Loading ' + cat.achievements.length + ' achievements...';
+  results.innerHTML = '';
+
+  try {
+    let achievements = [];
+    for (let i = 0; i < cat.achievements.length; i += 200) {
+      const batch = cat.achievements.slice(i, i + 200);
+      const resp = await fetch('https://api.guildwars2.com/v2/achievements?ids=' + batch.join(','));
+      if (resp.ok) achievements = achievements.concat(await resp.json());
+    }
+    achievements.sort((a,b) => a.name.localeCompare(b.name));
+    status.textContent = achievements.length + ' achievements';
+    renderBrowseResults(achievements);
+  } catch(e) {
+    status.textContent = 'Error: ' + e.message;
+  }
+}
+
+async function lookupAchievementById() {
+  const id = document.getElementById('achIdInput').value.trim();
+  if (!id) return;
+  const status = document.getElementById('browseStatus');
+  const results = document.getElementById('browseResults');
+  status.textContent = 'Looking up...';
+  try {
+    const resp = await fetch('https://api.guildwars2.com/v2/achievements?ids=' + id);
+    if (!resp.ok) throw new Error('Not found');
+    const data = await resp.json();
+    status.textContent = 'Found';
+    renderBrowseResults(data);
+  } catch(e) {
+    status.textContent = 'Not found — check the ID';
+    results.innerHTML = '';
+  }
+}
+
+function renderBrowseResults(achievements) {
+  const results = document.getElementById('browseResults');
+  const pinnedIds = (state.pinnedAchievements || []).map(a => a.id);
+
+  results.innerHTML = achievements.map(ach => {
+    const isPinned = pinnedIds.includes(ach.id);
+    const totalAP = (ach.tiers || []).reduce((s,t) => s + t.points, 0);
+    const bitCount = (ach.bits || []).length;
+    const maxCount = ach.tiers && ach.tiers.length ? ach.tiers[ach.tiers.length-1].count : 0;
+
+    return `<div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.6rem;border-bottom:1px solid rgba(138,114,52,0.12);flex-wrap:wrap">
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:0.88rem;font-weight:500;color:var(--text)">${ach.name}</div>
+        <div style="font-size:0.73rem;color:var(--text-secondary);max-width:500px">${ach.requirement || ach.description || ''}</div>
+        <div style="font-size:0.68rem;color:var(--text-dim)">ID: ${ach.id} &middot; ${totalAP} AP${maxCount > 1 ? ' &middot; Goal: ' + maxCount : ''}${bitCount ? ' &middot; ' + bitCount + ' sub-objectives' : ''}</div>
+      </div>
+      <button class="btn ${isPinned?'btn-danger':'btn-primary'} btn-sm" onclick="togglePinAchievement(${ach.id},this)" data-ach-id="${ach.id}">
+        ${isPinned ? 'Remove' : '+ Add'}
+      </button>
+    </div>`;
+  }).join('');
+}
+
+async function togglePinAchievement(id, btn) {
+  if (!state.pinnedAchievements) state.pinnedAchievements = [];
+  const idx = state.pinnedAchievements.findIndex(a => a.id === id);
+
+  if (idx >= 0) {
+    state.pinnedAchievements.splice(idx, 1);
+    if (state.pinnedProgress) delete state.pinnedProgress[id];
+    if (btn) { btn.textContent = '+ Add'; btn.className = 'btn btn-primary btn-sm'; }
+  } else {
+    try {
+      if (btn) btn.textContent = '...';
+      const resp = await fetch('https://api.guildwars2.com/v2/achievements?ids=' + id);
+      const [ach] = await resp.json();
+      state.pinnedAchievements.push(ach);
+      if (btn) { btn.textContent = 'Remove'; btn.className = 'btn btn-danger btn-sm'; }
+    } catch(e) { if (btn) btn.textContent = 'Error'; return; }
+  }
+
+  saveState();
+  renderPinnedAchievements();
+}
+
+function renderPinnedAchievements() {
+  const container = document.getElementById('pinnedCards');
+  if (!state.pinnedAchievements || !state.pinnedAchievements.length) {
+    container.innerHTML = '';
+    return;
+  }
+
+  container.innerHTML = state.pinnedAchievements.map(ach => {
+    const prog = (state.pinnedProgress || {})[ach.id];
+    const totalAP = (ach.tiers || []).reduce((s,t) => s + t.points, 0);
+    const maxTier = ach.tiers && ach.tiers.length ? ach.tiers[ach.tiers.length-1] : {count:1};
+    const maxCount = maxTier.count;
+
+    let current = 0, doneBits = [], isDone = false;
+    if (prog) { current = prog.current || 0; doneBits = prog.bits || []; isDone = !!prog.done; }
+
+    const pct = maxCount > 0 ? (Math.min(current, maxCount) / maxCount * 100).toFixed(1) : (isDone ? 100 : 0);
+
+    let tierHtml = (ach.tiers || []).map((t,i) => {
+      const reached = current >= t.count;
+      return `<span class="tier-dot ${reached?'reached':''}">Tier ${i+1}: ${t.count} (${t.points} AP)</span>`;
+    }).join('');
+
+    let bitsHtml = '';
+    if (ach.bits && ach.bits.length) {
+      bitsHtml = '<div style="margin-top:0.75rem">';
+      bitsHtml += ach.bits.map((b, i) => {
+        const done = doneBits.includes(i);
+        const text = b.text || (b.type === 'Text' ? 'Objective' : b.type + (b.id ? ' #' + b.id : ''));
+        return `<div style="font-size:0.78rem;padding:0.15rem 0 0.15rem 1.2rem;position:relative;color:${done?'var(--green)':'var(--text-secondary)'};${done?'opacity:0.6':''}">
+          <span style="position:absolute;left:0">${done?'&#10003;':'&#9675;'}</span> ${text}
+        </div>`;
+      }).join('');
+      bitsHtml += '</div>';
+    }
+
+    const wikiName = encodeURIComponent(ach.name.replace(/ /g, '_'));
+
+    return `<section class="achievement-card" style="border-top-color:var(--blue)">
+      <div class="card-header" aria-expanded="false" onclick="toggleCard(this)">
+        <div class="card-title-area">
+          <h2 style="font-size:1.05rem">${ach.name}${isDone?' <span style="color:var(--green);font-size:0.8rem;font-family:Inter,sans-serif">&#10003; Complete</span>':''}</h2>
+          <div class="card-subtitle">${totalAP} AP &middot; <a href="https://wiki.guildwars2.com/wiki/${wikiName}" target="_blank" class="wiki-link" onclick="event.stopPropagation()">Wiki</a> &middot; ID: ${ach.id}</div>
+        </div>
+        <div class="card-progress-area">
+          <span class="progress-text">${current} / ${maxCount}</span>
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;${isDone?'background:var(--green)':''}"></div></div>
+          <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();togglePinAchievement(${ach.id})" title="Remove from tracker" style="padding:0.15rem 0.4rem">&#10005;</button>
+          <span class="card-chevron">&#9662;</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          ${ach.requirement ? '<div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem">' + ach.requirement + '</div>' : ''}
+          ${ach.description ? '<div style="font-size:0.8rem;color:var(--text-dim);margin-bottom:0.5rem;font-style:italic">' + ach.description + '</div>' : ''}
+          <div class="tier-row">${tierHtml}</div>
+          ${bitsHtml}
+        </div>
+      </div>
+    </section>`;
+  }).join('');
+}
+
 /* ========== INIT ========== */
 renderAll();
+renderPinnedAchievements();
+populateGroups();
 
 // Show last sync time if available
 if (state.lastSync) {

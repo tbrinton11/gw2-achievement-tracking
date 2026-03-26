@@ -1739,11 +1739,12 @@ function renderOtterCard() {
 }
 
 function renderAll() {
-  const container = document.getElementById('achievementCards');
-  container.innerHTML = renderChecklistCard('seasons') + renderChecklistCard('gizmos') + renderOtterCard();
+  // Featured achievements render through the pinned system now
+  document.getElementById('achievementCards').innerHTML = '';
   renderHeaderProgress();
   renderDoNext();
   renderShoppingList();
+  renderPinnedAchievements();
   applyFilters();
 }
 
@@ -2298,14 +2299,33 @@ async function togglePinAchievement(id, btn) {
   renderPinnedAchievements();
 }
 
+const FEATURED_IDS = {5790:'seasons', 8732:'gizmos', 5350:'otter'};
+
 function renderPinnedAchievements() {
   const container = document.getElementById('pinnedCards');
-  if (!state.pinnedAchievements || !state.pinnedAchievements.length) {
-    container.innerHTML = '';
-    return;
-  }
+  let html = '';
 
-  container.innerHTML = state.pinnedAchievements.map(ach => {
+  // Render featured achievements first (unless hidden)
+  if (!state.hiddenFeatured) state.hiddenFeatured = [];
+  const featuredEntries = [
+    {id:5790, key:'seasons', render: () => renderChecklistCard('seasons')},
+    {id:8732, key:'gizmos', render: () => renderChecklistCard('gizmos')},
+    {id:5350, key:'otter', render: () => renderOtterCard()}
+  ];
+  featuredEntries.forEach(f => {
+    if (!state.hiddenFeatured.includes(f.id)) {
+      html += `<div class="featured-wrapper" data-featured-id="${f.id}">
+        <div style="display:flex;justify-content:flex-end;padding:0.3rem 0.5rem 0;margin-bottom:-0.3rem">
+          <button class="btn btn-danger btn-sm" onclick="hideFeatured(${f.id})" title="Remove from tracker" style="font-size:0.7rem;padding:0.15rem 0.5rem;opacity:0.7">Remove</button>
+        </div>
+        ${f.render()}
+      </div>`;
+    }
+  });
+
+  // Render generic pinned achievements
+  if (state.pinnedAchievements && state.pinnedAchievements.length) {
+    html += state.pinnedAchievements.filter(a => !FEATURED_IDS[a.id]).map(ach => {
     const prog = (state.pinnedProgress || {})[ach.id];
     const totalAP = (ach.tiers || []).reduce((s,t) => s + t.points, 0);
     const maxTier = ach.tiers && ach.tiers.length ? ach.tiers[ach.tiers.length-1] : {count:1};
@@ -2359,6 +2379,34 @@ function renderPinnedAchievements() {
       </div>
     </section>`;
   }).join('');
+  }
+
+  // Show "re-add" buttons for hidden featured achievements
+  const hiddenFeatured = (state.hiddenFeatured || []);
+  if (hiddenFeatured.length > 0) {
+    const names = {5790:'Seasons of the Dragons',8732:'Teleportation Gizmos Collector',5350:'Significant Otter'};
+    html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin:1rem 0">';
+    hiddenFeatured.forEach(id => {
+      html += `<button class="btn btn-sm" onclick="showFeatured(${id})" style="font-size:0.75rem">+ Re-add ${names[id] || 'Achievement #'+id}</button>`;
+    });
+    html += '</div>';
+  }
+
+  container.innerHTML = html;
+}
+
+function hideFeatured(id) {
+  if (!state.hiddenFeatured) state.hiddenFeatured = [];
+  if (!state.hiddenFeatured.includes(id)) state.hiddenFeatured.push(id);
+  saveState();
+  renderAll();
+}
+
+function showFeatured(id) {
+  if (!state.hiddenFeatured) return;
+  state.hiddenFeatured = state.hiddenFeatured.filter(x => x !== id);
+  saveState();
+  renderAll();
 }
 
 /* ========== SEARCH INDEX ========== */

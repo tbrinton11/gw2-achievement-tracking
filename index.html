@@ -308,6 +308,20 @@ a:hover{text-decoration:underline}
 .footer-actions{display:flex;gap:0.75rem;justify-content:center;margin-bottom:1rem;flex-wrap:wrap}
 .footer-info{font-size:0.75rem;color:var(--text-dim)}
 
+/* Objectives */
+.objectives-section{margin-top:0.6rem}
+.objectives-meta{font-size:0.75rem;color:var(--purple);margin-bottom:0.3rem;font-style:italic}
+.objectives-header{font-size:0.8rem;color:var(--gold);font-weight:600;margin-bottom:0.3rem}
+.objectives-list{list-style:none;padding:0;margin:0;columns:1}
+.objectives-list li{font-size:0.78rem;color:var(--text-secondary);padding:0.2rem 0 0.2rem 1.2rem;position:relative;break-inside:avoid}
+.objectives-list li::before{content:'';position:absolute;left:0;top:0.5rem;width:7px;height:7px;border:1.5px solid var(--gold-dim);border-radius:2px}
+.objectives-note{font-size:0.75rem;color:var(--text-dim);font-style:italic;margin-top:0.3rem}
+.guide-box{background:rgba(0,0,0,0.15);border-left:3px solid var(--gold-dim);padding:0.5rem 0.75rem;margin-top:0.5rem;border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+.guide-box p{font-size:0.78rem;color:var(--text-secondary);margin-bottom:0.3rem}
+.guide-box p:last-child{margin-bottom:0}
+.guide-box strong{color:var(--text)}
+@media(min-width:768px){.objectives-list.two-col{columns:2;column-gap:1.5rem}}
+
 /* Responsive */
 @media(max-width:768px){
   .site-header{padding:1rem}
@@ -537,6 +551,842 @@ const ACHIEVEMENTS = {
   }
 };
 
+/* ========== OBJECTIVES LOOKUP (wiki-sourced) ========== */
+
+const OBJECTIVES = {
+  // ==================== SEASONS OF THE DRAGONS ====================
+
+  // --- Season 2: Dry Top ---
+  "s-dry-top": {
+    meta: "Return to Gates of Maguuma & Entanglement",
+    req: "All 12",
+    list: [
+      "Complete story: Disturbance in Brisban Wildlands",
+      "Complete story: Fallen Hopes",
+      "Complete story: Cornered",
+      "Complete story: Discovering Scarlet's Breakthrough",
+      "Complete story: The Concordia Incident",
+      "Complete story: Trouble at Fort Salma",
+      "Treasure Hunter: Find & open 10 buried chests in Prospect Valley",
+      "Treasure Hunter: Find & open 10 buried chests in Treadrock Uplands/Uplands Oasis",
+      "Crop Harvester: Harvest plants 50 times in Dry Top",
+      "Ore Miner: Mine ore 50 times in Dry Top",
+      "Woodland Management: Log wood 50 times in Dry Top",
+      "Local Response: Complete 10 events in Dry Top"
+    ],
+    note: "Both this and 'Return to A Meeting of Ministers' are part of the same meta. Complete all 12 objectives across both S2 episodes."
+  },
+  "s-ministers": {
+    meta: "Return to Gates of Maguuma & Entanglement",
+    req: "All 12 (shared with Return to Dry Top)",
+    list: [
+      "Same 12 objectives as 'Return to Dry Top' above — both episodes are part of one meta-achievement",
+      "Story missions from Entanglement: Scarlet's Breakthrough, Concordia Incident, Trouble at Fort Salma",
+      "Open-world objectives are all in Dry Top (gathering, events, buried chests)"
+    ],
+    note: "Check the 'Return to Dry Top' entry above for the full objectives list."
+  },
+
+  // --- Season 2: Dragon's Reach ---
+  "s-hidden-arcana": {
+    meta: "Return to The Dragon's Reach (Part 1 & 2)",
+    req: "All 9",
+    list: [
+      "Complete story: The Waypoint Conundrum",
+      "Complete story: Foefire Cleansing",
+      "Complete story: Party Politics",
+      "Complete story: Recalibrating the Waypoints",
+      "Complete story: The World Summit",
+      "Treasure Hunter: Find & open 10 buried chests in Challenger Cliffs",
+      "Local Response: Complete 10 events in Dry Top",
+      "Reconquer the Crash Site: Climb wreckage to reach highest peak in Prospect Valley",
+      "Legacy of the Llama Locator: Find 3 llamas (Abandoned Mine, Uplands, Challenger Cliffs)"
+    ],
+    note: "Both this and 'Return to Dragon Vigil' are part of the same meta. Llamas are in Dry Top — look for interactive objects near landmarks."
+  },
+  "s-dragon-vigil": {
+    meta: "Return to The Dragon's Reach (Part 1 & 2)",
+    req: "All 9 (shared with Return to Hidden Arcana)",
+    list: [
+      "Same 9 objectives as 'Return to Hidden Arcana' above",
+      "Story missions from Dragon's Reach Pt 2: Party Politics, Recalibrating the Waypoints, The World Summit",
+      "Open-world: events, chests, crash site climb, and llama hunt all in Dry Top"
+    ],
+    note: "Check the 'Return to Hidden Arcana' entry above for the full objectives list."
+  },
+
+  // --- Season 2: Silverwastes (Echoes + Tangled Paths) ---
+  "s-meeting-asura": {
+    meta: "Return to Echoes of the Past & Tangled Paths",
+    req: "10 of 11",
+    list: [
+      "Complete story: Caithe's Reconnaissance Squad",
+      "Complete story: Hidden Arcana",
+      "Complete story: Tracking the Aspect Masters",
+      "Complete story: Into the Labyrinth",
+      "Treasure Hunter: Find & open 10 buried bandit chests in Silverwastes",
+      "Crop Harvester: Harvest plants 20 times in Silverwastes",
+      "Woodland Management: Log wood 50 times in Silverwastes",
+      "Ore Miner: Mine ore 50 times in Silverwastes",
+      "Local Response: Complete 10 events in Silverwastes",
+      "Reconquer the Hidden Depths: Collect key fragments from lesser nightmare pods, unlock greater pod while Hidden Depths is dark",
+      "Bonus: Additional objective available"
+    ],
+    note: "Need only 10 of 11 — skip the hardest one. Hidden Depths requires waiting for the dark phase of the Silverwastes night cycle."
+  },
+  "s-aspect-masters": {
+    meta: "Return to Echoes of the Past & Tangled Paths",
+    req: "10 of 11 (shared with Return to Meeting the Asura)",
+    list: [
+      "Same objectives as 'Return to Meeting the Asura' above",
+      "Story: Tracking the Aspect Masters is one of the 4 story missions needed",
+      "Silverwastes gathering (plants, ore, wood) can be done while waiting for events"
+    ],
+    note: "Check 'Return to Meeting the Asura' entry for the full objectives list."
+  },
+
+  // --- Season 2: Silverwastes (Seeds + Point of No Return) ---
+  "s-mystery-cave": {
+    meta: "Return to Seeds of Truth & Point of No Return",
+    req: "All 9",
+    list: [
+      "Complete story: Meeting the Asura",
+      "Complete story: No Refuge",
+      "Complete story: Arcana Obscura",
+      "Complete story: Pact Assaulted",
+      "Complete story: The Mystery Cave",
+      "Treasure Hunter: Find & open 10 buried bandit chests in Silverwastes",
+      "Local Response: Complete 10 events in Silverwastes",
+      "Reconquer the Retrospective Runaround: Complete JP in Sand Dune Caverns, Silverwastes",
+      "Revenge of the Vinewrath: Defeat the Mordrem Vinewrath (meta event boss)"
+    ],
+    note: "Vinewrath is part of the Silverwastes meta event — join via LFG for organized runs. The JP is inside the cave system."
+  },
+  "s-last-chance": {
+    meta: "Return to Seeds of Truth & Point of No Return",
+    req: "All 9 (shared with Return to The Mystery Cave)",
+    list: [
+      "Same objectives as 'Return to The Mystery Cave' above",
+      "Story: The Last Chance is not a separate objective — it's part of Point of No Return episode",
+      "Vinewrath boss + JP are the two special objectives beyond story and gathering"
+    ],
+    note: "Check 'Return to The Mystery Cave' entry for the full objectives list."
+  },
+
+  // --- Season 3: Bloodstone Fen ---
+  "s-bloodstone-fen": {
+    meta: "Return to Out of the Shadows",
+    req: "11 of 11",
+    list: [
+      "Complete story: Eir's Memorial in Hoelbrak",
+      "Complete story: Research in Rata Novus",
+      "Complete story: A Shadow's Deeds",
+      "Complete story: Confessor's Stronghold",
+      "Crop Harvester: Harvest plants 15 times in Bloodstone Fen",
+      "Woodland Management: Log wood 30 times in Bloodstone Fen",
+      "Ore Miner: Mine ore 30 times in Bloodstone Fen",
+      "Local Response: Complete 15 events in Bloodstone Fen",
+      "Hablion's Revenge: Defeat the Ghostly Justiciar in the Colosseum of the Faithful (above Bloodstone Fen)",
+      "Unbound Guardian's Revenge: Defeat the Unbound Guardian in the Cavern of Unseen Lights",
+      "Second Dive: Use diving goggles near the highest floating island"
+    ],
+    note: "Gliding is essential here. Buy Bloodstone Fen Portal Scroll from Natto while on the map. Two boss events run on timers — check GW2 Ninja timer."
+  },
+
+  // --- Season 3: Ember Bay ---
+  "s-ember-bay": {
+    meta: "Return to Rising Flames",
+    req: "8 of 9",
+    list: [
+      "Complete story: Taimi's Game",
+      "Complete story: Dragon Vigil",
+      "Crop Harvester: Harvest plants 15 times in Ember Bay",
+      "Woodland Management: Log wood 30 times in Ember Bay",
+      "Ore Miner: Mine ore 30 times in Ember Bay",
+      "Local Response: Complete 15 events in Ember Bay",
+      "Revenge of Vermignus: Slay the lava wurm near Fractured Caldera",
+      "Reconquer the Chalice of Tears: Reach the top of the volcano (jumping puzzle)",
+      "Bonus: 9th objective available"
+    ],
+    note: "Only need 8 of 9 — Chalice of Tears JP is notoriously difficult, skip it if needed. Buy Ember Bay Portal Scroll from Scholar Surra while here."
+  },
+
+  // --- Season 3: Bitterfrost Frontier ---
+  "s-bitterfrost": {
+    meta: "Return to A Crack in the Ice",
+    req: "All 8",
+    list: [
+      "Complete story: Precocious Aurene",
+      "Complete story: The Bitter Cold",
+      "Complete story: Frozen Out",
+      "Crop Harvester: Harvest plants 15 times in Bitterfrost Frontier",
+      "Woodland Management: Log wood 30 times in Bitterfrost Frontier",
+      "Ore Miner: Mine ore 30 times in Bitterfrost Frontier",
+      "Local Response: Complete 15 events in Bitterfrost Frontier",
+      "Second Dive — Cold Feet: Find & use diving goggles in the Bitter Cold area"
+    ],
+    note: "Farm Winterberries while gathering — they're valuable. Good map for daily farming even after completing the Return."
+  },
+
+  // --- Season 3: Lake Doric ---
+  "s-lake-doric": {
+    meta: "Return to The Head of the Snake",
+    req: "9 of 10",
+    list: [
+      "Complete story: A Meeting of Ministers",
+      "Complete story: Confessor's End",
+      "Crop Harvester: Harvest plants 15 times in Lake Doric",
+      "Woodland Management: Log wood 30 times in Lake Doric",
+      "Ore Miner: Mine ore 30 times in Lake Doric",
+      "Local Response: Complete 15 events in Lake Doric",
+      "Revenge of the High Sage: Defeat the Harathi High Sage and its earth elemental",
+      "Revisiting the Hidden Grove: Reach the peach grove and eat the fruit",
+      "Reconquer the Trap Maze: Navigate Noran's secret trap maze to the treasure room",
+      "Bonus: 10th objective available"
+    ],
+    note: "Only need 9 of 10. Centaur meta events run frequently. Buy Lake Doric Portal Scroll from Quartermaster Hitchens."
+  },
+
+  // --- Season 3: Draconis Mons ---
+  "s-draconis-mons": {
+    meta: "Return to Flashpoint",
+    req: "9 of 9",
+    list: [
+      "Complete story: Taimi's Pet Project",
+      "Complete story: Heart of the Volcano",
+      "Crop Harvester: Harvest plants 15 times in Draconis Mons",
+      "Woodland Management: Log wood 30 times in Draconis Mons",
+      "Ore Miner: Mine ore 30 times in Draconis Mons",
+      "Local Response: Complete 15 events in Draconis Mons",
+      "Revenge of the Destroyer Twins: Slay Destroyer Aestus or Ignis near the Boiling Sea",
+      "Second Dive — Hot Splashes: Use diving goggles near the fire gate, dive into the boiling sea bucket",
+      "Reconquering the Searing Ascent: Complete the Searing Ascent challenge"
+    ],
+    note: "Highly vertical map — grapple mechanics required. Buy Draconis Mons Portal Scroll from Supplymaster Hanjo."
+  },
+
+  // --- Season 3: Siren's Landing ---
+  "s-sirens-landing": {
+    meta: "Return to One Path Ends",
+    req: "9 of 10",
+    list: [
+      "Complete story: White Mantle Hideout",
+      "Complete story: Shining Blade Headquarters",
+      "Complete story: The Last Chance",
+      "Crop Harvester: Harvest plants 15 times in Siren's Landing",
+      "Woodland Management: Log wood 30 times in Siren's Landing",
+      "Ore Miner: Mine ore 30 times in Siren's Landing",
+      "Local Response: Complete 15 events in Siren's Landing",
+      "Treasure Hunter: Open 3 chests in Abaddon's Reliquary",
+      "Reconquering Abaddon's Ascent: Reach the top of the tower",
+      "Bonus: 10th objective available"
+    ],
+    note: "Only need 9 of 10. Abaddon's Reliquary chests require Orrian keys from events. Buy Siren's Landing Portal Scroll from Provisioner Anlana."
+  },
+
+  // --- Season 4: Domain of Istan ---
+  "s-istan": {
+    meta: "Return to Daybreak",
+    req: "All 15",
+    list: [
+      "Complete story: Eye of the Brandstorm",
+      "Complete story: Cave of the Sunspear Champion",
+      "Complete story: The Hero of Istan",
+      "Complete story: Fahranur, the First City",
+      "Crop Harvester: Harvest plants 15 times in Domain of Istan",
+      "Woodland Management: Log wood 30 times in Domain of Istan",
+      "Ore Miner: Mine ore 30 times in Domain of Istan",
+      "Local Response: Complete 20 events in Domain of Istan",
+      "Adventurous Spirit: Complete any adventure in Domain of Istan",
+      "Bounty Hunter: Complete bounties in Domain of Istan",
+      "Renowned Hero: Complete renown hearts in Domain of Istan",
+      "Treasure Hunter: Open 3 hidden stashes",
+      "Revenge of Warden Amala: Defeat boss during Sunspear Uprising meta",
+      "Revenge of Archon Iberu: Kill Archon Iberu during raid on Palawadan",
+      "Course Favorite: Complete any race event"
+    ],
+    note: "Palawadan meta runs every 2 hours — check timer. Hearts reset daily. Buy Istan Portal Scroll from Alaleh."
+  },
+
+  // --- Season 4: Sandswept Isles ---
+  "s-sandswept": {
+    meta: "Return to A Bug in the System",
+    req: "All 14",
+    list: [
+      "Complete story: Tracking the Scientist",
+      "Complete story: The Test Subject",
+      "Complete story: A Kindness Repaid",
+      "Complete story: The Charge",
+      "Crop Harvester: Harvest plants 15 times",
+      "Woodland Management: Log wood 30 times",
+      "Ore Miner: Mine ore 30 times",
+      "Local Response: Complete 20 events in Sandswept Isles",
+      "Adventurous Spirit: Complete any adventure",
+      "Bounty Hunter: Complete 12 bounties",
+      "Renowned Hero: Complete 4 renown hearts",
+      "Revenge of Zohaqan: Defeat the champion djinn beneath Ruined Paths",
+      "Revenge of Kuda: Defeat Inquest champions in the Specimen Chamber",
+      "Course Favorite: Complete any race event"
+    ],
+    note: "Buy Sandswept Isles Portal Scroll from Ethall at Atholma while here."
+  },
+
+  // --- Season 4: Domain of Kourna ---
+  "s-kourna": {
+    meta: "Return to Long Live the Lich",
+    req: "10 of 11",
+    list: [
+      "Complete story: Seized",
+      "Complete story: Forearmed Is Forewarned",
+      "Complete story: Be My Guest",
+      "Crop Harvester: Harvest plants 15 times",
+      "Woodland Management: Log wood 30 times",
+      "Ore Miner: Mine ore 30 times",
+      "Local Response: Complete 20 events in Domain of Kourna",
+      "Renowned Hero: Complete 5 renown hearts",
+      "Bounty Hunter: Complete 5 bounties",
+      "Revenge of the Pestilent Golem: Destroy plague experiments in the Inquest lab",
+      "Bonus: 11th objective available"
+    ],
+    note: "Only need 10 of 11. Gandara meta for events. Buy Kourna Portal Scroll from Nalar."
+  },
+
+  // --- Season 4: Jahai Bluffs ---
+  "s-jahai": {
+    meta: "Return to A Star to Guide Us",
+    req: "All 14",
+    list: [
+      "Complete story: A Shattered Nation",
+      "Complete story: Legacy",
+      "Complete story: From the Ashes",
+      "Complete story: Storm Tracking",
+      "Crop Harvester: Harvest plants 15 times",
+      "Woodland Management: Log wood 30 times",
+      "Ore Miner: Mine ore 30 times",
+      "Local Response: Complete 20 events in Jahai Bluffs",
+      "Bounty Hunter: Complete bounties",
+      "Renowned Hero: Complete renown hearts",
+      "Reconquer the Displaced Tower: Complete the JP in Jahai Bluffs",
+      "Revenge of Vemyen: Defeat the legendary Branded djinn",
+      "Revenge of the Death-Branded Shatterer: Participate in the Death-Branded Shatterer event",
+      "Inner Keep Rerunner: Complete the Inner Keep run in Jahai Fortress"
+    ],
+    note: "Death-Branded Shatterer is a major event — check timer. Buy Jahai Bluffs Portal Scroll from Trader Hyacinth."
+  },
+
+  // --- Season 4: Thunderhead Peaks ---
+  "s-thunderhead": {
+    meta: "Return to All or Nothing",
+    req: "All 12",
+    list: [
+      "Complete story: Scion & Champion",
+      "Complete story: The Crystal Blooms",
+      "Complete story: The Crystal Dragon",
+      "Crop Harvester: Harvest plants 15 times",
+      "Woodland Management: Log wood 30 times",
+      "Ore Miner: Mine ore 30 times",
+      "Local Response: Complete 20 events in Thunderhead Peaks",
+      "Adventurous Spirit: Complete any adventure",
+      "Treasure Hunter: Open 3 dwarven chests",
+      "Renowned Hero: Complete 4 renown hearts",
+      "Revenge of the Wrathbringer: Defeat during Thunderhead Keep meta",
+      "Revenge of Sulypix: Slay Sulypix during the Oil Floes meta"
+    ],
+    note: "Two different meta events (Thunderhead Keep + Oil Floes) — may need multiple sessions. Buy Thunderhead Peaks Portal Scroll from Kynon."
+  },
+
+  // --- Season 4: Dragonfall ---
+  "s-dragonfall": {
+    meta: "Return to War Eternal",
+    req: "8 of 9",
+    list: [
+      "Complete story: The End",
+      "Complete story: Descent",
+      "Crop Harvester: Harvest plants 15 times in Dragonfall",
+      "Woodland Management: Log wood 30 times in Dragonfall",
+      "Ore Miner: Mine ore 30 times in Dragonfall",
+      "Local Response: Complete 30 events in Dragonfall",
+      "Revenge of Kralkatorrik: Win the Battle of Dragonfall (full meta)",
+      "Defeat 3 champion-level creatures in Dragonfall",
+      "Bonus: 9th objective available"
+    ],
+    note: "Only need 8 of 9. The meta runs continuously — join via LFG. 30 events is the most of any map; do gathering between meta phases."
+  },
+
+  // --- IBS: Grothmar Valley ---
+  "s-grothmar": {
+    meta: "Return to Bound by Blood",
+    req: "15 of 16",
+    list: [
+      "Complete story: Coming Home",
+      "Complete story: Bad Blood",
+      "Complete story: A Race to Arms",
+      "Complete story: Deeper and Deeper",
+      "Crop Harvester: Harvest plants 15 times",
+      "Woodland Management: Log wood 30 times",
+      "Ore Miner: Mine ore 30 times",
+      "Local Response: Complete 20 events in Grothmar Valley",
+      "Revenge of the Flame Effigy: Complete the Charr Effigy meta",
+      "Revenge of the Metal Legion: Complete the Metal Legion Concert meta",
+      "Revenge of Murakai: Complete the Doomlore meta",
+      "Revenge of the Ooze: Defeat the grand champion in the Ooze Pit",
+      "Practiced Seeker: Win hide-and-seek with charr cub in Blood Keep",
+      "Gauntlet Reclaimer: Complete the Gauntlet of the Khan-Ur JP",
+      "Course Favorite: Complete a race or adventure",
+      "(Bonus) Strike Back: Shiverpeaks Pass — complete the strike encounter"
+    ],
+    note: "Only need 15 of 16 — can skip the strike mission. Four different meta events run on different schedules. Buy Grothmar Valley Portal Scroll."
+  },
+
+  // --- IBS: Bjora Marches (combined 1 + 2) ---
+  "s-bjora": {
+    meta: "Return to Bjora Marches 1 (Whisper in the Dark) + Return to Bjora Marches 2 (Shadow in the Ice)",
+    req: "8 of 10 (Bjora 1) + 6 of 7 (Bjora 2) — TWO separate metas",
+    list: [
+      "— BJORA MARCHES 1 (Whisper in the Dark) — need 8 of 10:",
+      "Complete story: Silence",
+      "Complete story: What's Left Behind",
+      "Complete story: The Invitation",
+      "Local Response: Complete 20 events (Bjora 1)",
+      "Crop Harvester: Harvest plants 15 times",
+      "Woodland Management: Log wood 30 times",
+      "Ore Miner: Mine ore 30 times",
+      "Revenge of the Icebrood Construct: Complete Storms of Winter event",
+      "(Bonus) Strike Back: Raven Sanctum",
+      "— BJORA MARCHES 2 (Shadow in the Ice) — need 6 of 7:",
+      "Complete story: Chasing Ghosts",
+      "Complete story: Voice in the Deep",
+      "Local Response: Complete 20 events (Bjora 2)",
+      "Treasure Hunter: Loot 12 essence chests in Bjora Marches",
+      "Revenge of Drakkar: Aid Jhavi in the attack on Drakkar",
+      "Puzzle Resolver: Complete 10 puzzles in Bjora Marches",
+      "(Bonus) Strike Back: Whisper of Jormag"
+    ],
+    note: "This covers TWO separate metas that both count toward Seasons. Do Significant Otter prerequisites (Olaf Olafson's Secret, etc.) while here! Buy Bjora Marches Portal Scroll.",
+    guide: "<p><strong>Drakkar</strong> is a major world boss on a fixed timer — check GW2 Ninja. <strong>Essence chests</strong> require collecting Resilience/Valor/Vigilance essences from killing mobs.</p>"
+  },
+
+  // --- IBS: Drizzlewood Coast (combined 1 + 2) ---
+  "s-drizzlewood": {
+    meta: "Return to Drizzlewood Coast 1 (No Quarter) + Return to Drizzlewood Coast 2 (Jormag Rising)",
+    req: "9 of 10 (DC1) + 9 of 9 (DC2) — TWO separate metas",
+    list: [
+      "— DRIZZLEWOOD COAST 1 (No Quarter) — need 9 of 10:",
+      "Complete story: Pointed Parley",
+      "Complete story: Snapping Steel",
+      "Complete story: Turnabout",
+      "Crop Harvester: Harvest plants 15 times",
+      "Ore Miner: Mine ore 30 times (wreckage counts as ore!)",
+      "Woodland Management: Log wood 30 times",
+      "Local Response: Complete 20 events (south lane)",
+      "Treasure Hunter: Defeat a cache keeper",
+      "Revenge at Wolf's Crossing: Participate in a successful siege of Wolf's Crossing",
+      "(Bonus) Strike Back: Cold War",
+      "— DRIZZLEWOOD COAST 2 (Jormag Rising) — need 9 of 9:",
+      "Complete story: Behind Enemy Lines",
+      "Complete story: A Simple Negotiation",
+      "Complete story: One Charr, One Dragon, One Champion",
+      "Local Response: Complete 20 events (north lane)",
+      "Revenge of the Ruinbringer: Bring down the Frost Legion's Ruinbringer tank",
+      "Revenge of the Claw of Jormag: Complete siege of the Frost Citadel",
+      "Adventure: Flight of the Eagle Spirit",
+      "Adventure: The Ox's Yoke",
+      "Adventure: Arena of the Wolverine"
+    ],
+    note: "This covers TWO separate metas. The full Drizzlewood meta (south → north) takes 1-2 hours. TRIPLE VALUE: also farm Memories of Otter + buy Drizzlewood Coast Portal Scroll!",
+    guide: "<p><strong>South meta</strong> (No Quarter): Capture objectives south → Wolf's Crossing siege. <strong>North meta</strong> (Jormag Rising): Push through Frost Citadel → Claw of Jormag. Adventures are in the northern zone after it's unlocked.</p>"
+  },
+
+  // --- IBS: Dragonstorm ---
+  "s-dragonstorm": {
+    meta: "Return to Champions (Dragonstorm)",
+    req: "15 of 16",
+    list: [
+      "Complete story: Wildfire",
+      "Complete story: Primordus Rising",
+      "Complete story: Champion's End",
+      "Complete story: Dragonstorm",
+      "Second Response: Bloodtide Coast",
+      "Second Response: Brisban Wildlands",
+      "Second Response: Caledon Forest",
+      "Second Response: Fields of Ruin",
+      "Second Response: Fireheart Rise",
+      "Second Response: Gendarran Fields",
+      "Second Response: Lake Doric",
+      "Second Response: Metrica Province",
+      "Second Response: Snowden Drifts",
+      "Second Response: Thunderhead Keep",
+      "Revenge of the Dragons: Defeat Primordus and Jormag in Dragonstorm encounter",
+      "Bonus: 16th objective available"
+    ],
+    note: "Only need 15 of 16. Dragon Response Missions are accessed from Eye of the North — they're repeatable 5-player instances. Dragonstorm runs every 2 hours.",
+    guide: "<p><strong>Dragon Response Missions</strong> (DRMs) are quick 10-15 min instances you can solo or do with up to 5 players. Queue from Eye of the North. The 'Second Response' means completing them a second time with challenge mode active for bonus rewards.</p>"
+  },
+
+  // ==================== TELEPORTATION GIZMOS ====================
+
+  // --- S3 Map Scrolls ---
+  "g-bitterfrost-scroll": {
+    req: "Purchase from vendor",
+    list: [
+      "Travel to Bitterfrost Frontier → Sorrow's Eclipse Sanctuary",
+      "Buy from vendor Slooshoo",
+      "Cost: 150 Unbound Magic + 25 Silver"
+    ]
+  },
+  "g-bloodstone-scroll": {
+    req: "Purchase from vendor",
+    list: [
+      "Travel to Bloodstone Fen → Pride of the Pact",
+      "Buy from vendor Natto",
+      "Cost: 150 Blood Rubies + 25 Silver"
+    ],
+    note: "Blood Rubies drop from Bloodstone Fen events and Unbound Magic Gatherers."
+  },
+  "g-ember-scroll": {
+    req: "Purchase from vendor",
+    list: [
+      "Travel to Ember Bay → Infernal Cape",
+      "Buy from vendor Scholar Surra",
+      "Cost: 150 Petrified Wood + 25 Silver"
+    ]
+  },
+  "g-doric-scroll": {
+    req: "Purchase from vendor",
+    list: [
+      "Travel to Lake Doric → Doric's Landing",
+      "Buy from vendor Quartermaster Hitchens",
+      "Cost: 150 Jade Shards + 25 Silver"
+    ]
+  },
+  "g-draconis-scroll": {
+    req: "Purchase from vendor",
+    list: [
+      "Travel to Draconis Mons → Mariner Landing",
+      "Buy from vendor Supplymaster Hanjo",
+      "Cost: 150 Fire Orchid Blossoms + 25 Silver"
+    ]
+  },
+  "g-sirens-scroll": {
+    req: "Purchase from vendor",
+    list: [
+      "Travel to Siren's Landing → Bloated Beach",
+      "Buy from vendor Provisioner Anlana",
+      "Cost: 150 Orrian Pearls + 25 Silver"
+    ]
+  },
+
+  // --- S4 Map Scrolls ---
+  "g-istan-scroll": {
+    req: "Purchase from vendor",
+    list: [
+      "Travel to Domain of Istan → Chalon Docks",
+      "Buy from vendor Alaleh",
+      "Cost: 25 Trade Contracts + 1 Gold"
+    ]
+  },
+  "g-sandswept-scroll": {
+    req: "Purchase from vendor",
+    list: [
+      "Travel to Sandswept Isles → Atholma",
+      "Buy from vendor Ethall",
+      "Cost: 25 Trade Contracts + 1 Gold"
+    ]
+  },
+  "g-kourna-scroll": {
+    req: "Purchase from vendor",
+    list: [
+      "Travel to Domain of Kourna → Allied Encampment",
+      "Buy from vendor Nalar",
+      "Cost: 25 Trade Contracts + 1 Gold"
+    ]
+  },
+  "g-jahai-scroll": {
+    req: "Purchase from vendor",
+    list: [
+      "Travel to Jahai Bluffs → Yatendi Village",
+      "Buy from vendor Trader Hyacinth",
+      "Cost: 25 Trade Contracts + 1 Gold"
+    ]
+  },
+  "g-thunderhead-scroll": {
+    req: "Purchase from vendor",
+    list: [
+      "Travel to Thunderhead Peaks → The Forge",
+      "Buy from vendor Kynon",
+      "Cost: 25 Trade Contracts + 1 Gold"
+    ]
+  },
+  "g-dragonfall-scroll": {
+    req: "Purchase from vendor",
+    list: [
+      "Travel to Dragonfall → Pact Command",
+      "Buy from Olmakhan Quartermaster",
+      "Cost: 25 Trade Contracts + 1 Gold"
+    ]
+  },
+
+  // --- IBS Map Scrolls ---
+  "g-grothmar-scroll": {
+    req: "Purchase from vendor",
+    list: [
+      "Travel to Grothmar Valley → Lower Blood Keep",
+      "Buy from Rally Provisioner",
+      "Cost: 25 Hatched Chili + 1 Gold"
+    ]
+  },
+  "g-bjora-scroll": {
+    req: "Purchase from vendor",
+    list: [
+      "Travel to Bjora Marches → Jora's Keep",
+      "Buy from Anette Eymundrdottir",
+      "Cost: 250 Eternal Ice Shards + 1 Gold"
+    ]
+  },
+  "g-drizzlewood-scroll": {
+    req: "Purchase from vendor",
+    list: [
+      "Travel to Drizzlewood Coast → Umbral Grotto",
+      "Buy from Annona Vinedrummer",
+      "Cost: 250 War Supplies + 1 Gold"
+    ]
+  },
+  "g-eotn-scroll": {
+    req: "Purchase from vendor",
+    list: [
+      "Buy from various vendors in Eye of the North / Bjora / Drizzlewood",
+      "Cost: 250 Eternal Ice Shards"
+    ]
+  },
+
+  // --- Lion's Arch Purchases ---
+  "g-la-device": {
+    req: "Purchase from vendor",
+    list: [
+      "Travel to Lion's Arch → Hooligan's Route (near Farshore WP)",
+      "Buy from vendor Zotturrikk (Asura near the pirate ship)",
+      "Cost: approximately 6 Gold"
+    ],
+    note: "While you're here, buy the Hall of Monuments Portal Stone from Sarettokk nearby too."
+  },
+  "g-hom-stone": {
+    req: "Purchase from vendor",
+    list: [
+      "Travel to Lion's Arch → Hooligan's Route (near Farshore WP)",
+      "Buy from vendor Sarettokk (near Zotturrikk)",
+      "Requires: GW1 Hall of Monuments linked to your account (any # of HoM points works)",
+      "Cost: approximately 7 Gold 50 Silver"
+    ],
+    note: "If you don't have GW1 linked, this gizmo requires owning Guild Wars 1 and linking your accounts via account.arena.net."
+  },
+
+  // --- Achievement-Gated Items ---
+  "g-lions-pride": {
+    req: "Complete 'Lion's Pride' achievement",
+    list: [
+      "Complete the Lion's Pride collection achievement",
+      "This is a collection tied to Living World Season 2 story",
+      "Reward grants the Lion's Pride gizmo automatically"
+    ]
+  },
+  "g-aurene": {
+    req: "Complete 'Precocious Aurene' achievement",
+    list: [
+      "Complete the Precocious Aurene achievement (play with Aurene in S3E3)",
+      "This is part of A Crack in the Ice story content",
+      "May auto-register if you've already completed the story"
+    ]
+  },
+  "g-poster-child": {
+    req: "Complete 'Poster Child' achievement",
+    list: [
+      "Complete the Poster Child achievement in Season 4",
+      "Involves collecting all S4 story instance posters",
+      "Alternative: Add all S4 portal scrolls to a Season 4 Portal Tome",
+      "Check achievement panel — you may already be close"
+    ],
+    note: "If you're buying all S4 scrolls anyway, the Portal Tome approach may be easier."
+  },
+  "g-fallout": {
+    req: "Complete 'Fallout' achievement",
+    list: [
+      "Complete the Fallout achievement",
+      "Related to Icebrood Saga content",
+      "Check your achievement panel — you may already have prerequisites done"
+    ]
+  },
+  "g-secrets-obscured": {
+    req: "Complete 'Secrets Obscured' achievement",
+    list: [
+      "Complete the Secrets Obscured achievement",
+      "Related to Secrets of the Obscure expansion content",
+      "Grants item automatically upon completion"
+    ]
+  },
+  "g-griffon": {
+    req: "Unlock the Griffon mount",
+    list: [
+      "Complete Path of Fire story through 'Departure' (final mission)",
+      "Go to Sunspear Sanctuary in Crystal Oasis → start 'Open Skies' collection",
+      "Complete 5 'Open Skies' sub-collections across Crystal Oasis, Desert Highlands, Elon Riverlands, The Desolation, and Domain of Vabbi",
+      "Each sub-collection costs 25 gold (total: 250 gold)",
+      "Griffon mount item registers for the gizmo achievement"
+    ],
+    note: "250 gold total investment. If you don't have the Griffon yet, this is both a useful mount AND a gizmo credit.",
+    guide: "<p><strong>Gold tip:</strong> Farm gold before starting. Each of the 5 collections requires 25g paid to NPCs. The mount is well worth it for exploration.</p>"
+  },
+
+  // --- Mystic Forge City Portal Scrolls ---
+  "g-bc-scroll": {
+    req: "Craft in Mystic Forge",
+    list: [
+      "Craft Essence of Black Citadel (sub-recipe from vendor)",
+      "Combine in Mystic Forge: 1 Essence of Black Citadel + 2 Mystic Keystone Crystals + 7 Piles of Mystic Dust + 50 Mystic Coins",
+      "Mystic Keystone Crystals: buy from Miyani at Mystic Forge",
+      "Mystic Dust: salvage or buy from TP"
+    ],
+    note: "~50-75g per scroll at current Mystic Coin prices."
+  },
+  "g-dr-scroll": {
+    req: "Craft in Mystic Forge",
+    list: [
+      "Craft Essence of Divinity's Reach (sub-recipe from vendor)",
+      "Combine in Mystic Forge: 1 Essence of Divinity's Reach + 2 Mystic Keystone Crystals + 7 Piles of Mystic Dust + 50 Mystic Coins"
+    ],
+    note: "~50-75g per scroll. Check gw2efficiency.com for current cheapest Essence recipe."
+  },
+  "g-hoelbrak-scroll": {
+    req: "Craft in Mystic Forge",
+    list: [
+      "Craft Essence of Hoelbrak",
+      "Combine: 1 Essence of Hoelbrak + 2 Mystic Keystone Crystals + 7 Piles of Mystic Dust + 50 Mystic Coins"
+    ],
+    note: "~50-75g per scroll."
+  },
+  "g-la-scroll": {
+    req: "Craft in Mystic Forge",
+    list: [
+      "This one is MORE complex than other city scrolls",
+      "Combine: 1 Essence of Lion's Arch + 1 Essence of the East + 1 Essence of the West + 50 Mystic Coins",
+      "Each Essence requires its own sub-crafting — multiple nested recipes",
+      "Check wiki for the full recipe tree"
+    ],
+    note: "Most expensive city scroll due to nested recipes. Do this one last."
+  },
+  "g-rata-scroll": {
+    req: "Craft in Mystic Forge",
+    list: [
+      "Craft Essence of Rata Sum",
+      "Combine: 1 Essence of Rata Sum + 2 Mystic Keystone Crystals + 7 Piles of Mystic Dust + 50 Mystic Coins"
+    ],
+    note: "~50-75g per scroll."
+  },
+  "g-grove-scroll": {
+    req: "Craft in Mystic Forge",
+    list: [
+      "Craft Essence of the Grove",
+      "Combine: 1 Essence of the Grove + 2 Mystic Keystone Crystals + 7 Piles of Mystic Dust + 50 Mystic Coins"
+    ],
+    note: "~50-75g per scroll."
+  },
+  "g-ebonhawke-scroll": {
+    req: "Craft in Mystic Forge",
+    list: [
+      "Craft Essence of Ebonhawke",
+      "Combine: 1 Essence of Ebonhawke + 2 Mystic Keystone Crystals + 7 Piles of Mystic Dust + 50 Mystic Coins"
+    ],
+    note: "~50-75g per scroll."
+  },
+
+  // --- Complex / Long-Term ---
+  "g-wizard-tome": {
+    req: "Complete 'Work Hard for Now' achievement",
+    list: [
+      "Complete the 'Work Hard for Now' achievement in Secrets of the Obscure",
+      "Involves completing various Wizard's Tower tasks",
+      "Grants the Wizard's Portal Tome upon completion"
+    ],
+    note: "Requires Secrets of the Obscure expansion."
+  },
+  "g-chuka": {
+    req: "Complete Chuka and Champawat IV: A Nontraditional Family",
+    list: [
+      "This is the 4th tier of the legendary shortbow collection",
+      "Requires completing Chuka and Champawat I, II, and III first",
+      "Involves extensive crafting, exploration, and story completion",
+      "Final reward: Chuka and Champawat legendary shortbow + gizmo credit"
+    ],
+    note: "Only pursue this if you actually want the legendary shortbow. This is one of the longest collections in the game.",
+    guide: "<p><strong>Time investment:</strong> Dozens of hours across multiple maps and crafting disciplines. This is a legendary weapon collection — treat it as a long-term side project, not something to rush for the gizmo credit.</p>"
+  },
+  "g-mists-vault": {
+    req: "Complete 'Mists Vault: Visitor's Pass' achievement",
+    list: [
+      "Complete the Mists Vault: Visitor's Pass achievement",
+      "Related to end-game Fractals of the Mists content",
+      "Grants the Mists Vault Access Key upon completion"
+    ]
+  },
+  "g-festival": {
+    req: "Complete 'Festival Frequenter' achievement",
+    list: [
+      "Participate in 4+ different annual festivals:",
+      "Lunar New Year (January-February)",
+      "Super Adventure Box (April)",
+      "Dragon Bash (June)",
+      "Festival of the Four Winds (July-August)",
+      "Halloween / Shadow of the Mad King (October)",
+      "Wintersday (December)",
+      "Each festival has specific activities to complete"
+    ],
+    note: "Calendar-gated — cannot rush this. Takes at minimum several months across 4+ festivals. Just participate in each one as it comes around.",
+    guide: "<p><strong>Strategy:</strong> Set a reminder for each festival. Do the minimum required participation during each one. The next upcoming festival depends on the current date — check the GW2 wiki events calendar.</p>"
+  },
+
+  // ==================== SIGNIFICANT OTTER ====================
+
+  "o-prereq-olaf": {
+    meta: "Step 1 of 3 — Prerequisite Chain",
+    req: "Collect 5 map fragments in Drizzlewood Coast",
+    list: [
+      "Fragment 1: Buy from any United Legions Quaestor (5 gold + 350,000 karma)",
+      "Fragment 2: Defeat Claw of Jormag event → loot from chest at Claw's Roost",
+      "Fragment 3: Defeat one of 10 enemy cache keepers OR seize Wolf's Crossing → open supply cache",
+      "Fragment 4: Search norn and charr chests throughout Drizzlewood Coast (random drop)",
+      "Fragment 5: Defeat one of 5 Dominion Tribunes → loot the chest"
+    ],
+    note: "Fragments can be collected in any order after buying Fragment 1. All fragments are in Drizzlewood Coast.",
+    guide: "<p><strong>Fragment 4</strong> is the RNG one — keep opening norn/charr chests during the meta and it will drop. The others are guaranteed from their respective sources.</p>"
+  },
+  "o-prereq-sleuth": {
+    meta: "Step 2 of 3 — Prerequisite Chain",
+    req: "Find 6 treasure hunters + treasure key in Drizzlewood Coast",
+    list: [
+      "Treasure Key: Underwater, buried in debris, among 6 pillars SE of Forward Camp Waypoint",
+      "Clue 1 (Harsh Weather): Eastern coast of Lighthouse Point, NE of vista, at water level",
+      "Clue 2 (Keep an Eye Out): Archstone Coast — between mountainside and large broad-trunked tree with orange leaves, east of Charr Copter Airdrop",
+      "Clue 3 (In Talons of Snow): NW peak of mountain west of Sentinel Bay Charr Copter Airdrop",
+      "Clue 4 (Norn and Dwarven Relics): Inside Cavern of Guiding Spirits, upper level near end of The Ox's Yoke adventure",
+      "Clue 5 (Near a Tower): Drizzlewood Peak, outside on southern mountain ledge next to Cavern of Guiding Spirits entrance",
+      "Clue 6 (Claw's Roost): Eastern mountain ledge at border of The Bloodfield and Frostvein Watch, north of Flight of the Eagle Spirit adventure"
+    ],
+    note: "Requires completing Olaf Olafson's Secret first. Treasure hunters are NPCs — interact with each one. Some require northern Drizzlewood to be unlocked (meta must progress).",
+    guide: "<p><strong>Tip:</strong> Do this during a Drizzlewood meta run so the northern zone is accessible. The treasure key is underwater — use Skimmer or just swim down to find it among the pillars.</p>"
+  },
+  "o-prereq-vault": {
+    meta: "Step 3 of 3 — Prerequisite Chain",
+    req: "Open Olaf's Vault",
+    list: [
+      "The vault door is in a ravine just NORTH of the Claw of Jormag platform at Claw's Roost",
+      "Use the treasure key from Treasure Sleuth to open it",
+      "Open the Glorious Chest inside",
+      "After this, Memories of Otter will start dropping from Drizzlewood Coast content!"
+    ],
+    note: "Requires Treasure Sleuth complete. After opening the vault, you're done with prerequisites — now it's pure farming.",
+    guide: "<p><strong>After opening the vault:</strong> Memories drop from Tribune's Chests (~1.2 avg), the Magnificent Chest (~6 avg), and event chests (~4-5). Full meta run = ~12 Memories. You need 320 total = ~27 full runs. <strong>Alternative:</strong> Buy Charged Stormcaller weapons from the Trading Post and salvage them for Memories — check TP prices vs farming time.</p>"
+  }
+};
+
 /* ========== STATE MANAGEMENT ========== */
 
 const STATE_KEY = 'gw2-tracker-state';
@@ -694,6 +1544,21 @@ function renderChecklistItem(item, achievementKey) {
   if (item.tips) detailRows += `<div class="detail-row" style="color:var(--text-secondary)"><span class="detail-label">Tips:</span> ${item.tips}</div>`;
   if (item.wikiUrl) detailRows += `<div class="detail-row"><a href="${item.wikiUrl}" target="_blank" class="wiki-link">GW2 Wiki &rarr;</a></div>`;
   if (item.timer) detailRows += `<div class="detail-row"><a href="https://gw2.ninja/timer" target="_blank" class="wiki-link" style="color:var(--orange)">Event Timer (${item.timer}) &rarr;</a></div>`;
+
+  // Objectives from lookup table
+  const obj = OBJECTIVES[item.key];
+  if (obj) {
+    detailRows += `<div class="objectives-section">`;
+    if (obj.meta) detailRows += `<div class="objectives-meta">Meta-achievement: ${obj.meta}</div>`;
+    if (obj.req) detailRows += `<div class="objectives-header">Objectives (${obj.req}):</div>`;
+    if (obj.list && obj.list.length) {
+      const colClass = obj.list.length > 6 ? ' two-col' : '';
+      detailRows += `<ul class="objectives-list${colClass}">${obj.list.map(o=>'<li>'+o+'</li>').join('')}</ul>`;
+    }
+    if (obj.note) detailRows += `<div class="objectives-note">${obj.note}</div>`;
+    if (obj.guide) detailRows += `<div class="guide-box">${obj.guide}</div>`;
+    detailRows += `</div>`;
+  }
 
   return `
     <div class="checklist-item ${doneClass}" data-key="${item.key}" data-difficulty="${item.difficulty}" data-achievement="${achievementKey}" data-search="${searchText}">

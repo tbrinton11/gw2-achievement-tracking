@@ -405,31 +405,8 @@ a:hover{text-decoration:underline}
   <!-- PINNED CUSTOM ACHIEVEMENTS -->
   <div id="pinnedCards"></div>
 
-  <!-- EVENT TIMERS -->
-  <section class="timers-section">
-    <h2>Event Timers</h2>
-    <div class="timer-links">
-      <a href="https://gw2.ninja/timer" target="_blank" rel="noopener" class="timer-link">&#9200; GW2 Ninja Timer</a>
-      <a href="https://gw2timer.com/" target="_blank" rel="noopener" class="timer-link">&#127760; GW2Timer.com</a>
-    </div>
-    <div class="event-grid">
-      <div class="event-card"><div class="ev-name">Palawadan (Istan)</div><div class="ev-schedule">Every 2 hours &middot; 30 min duration</div></div>
-      <div class="event-card"><div class="ev-name">Drakkar (Bjora Marches)</div><div class="ev-schedule">Fixed schedule &middot; check timer</div></div>
-      <div class="event-card"><div class="ev-name">Dragonstorm</div><div class="ev-schedule">Every 2 hours &middot; 20 min duration</div></div>
-      <div class="event-card"><div class="ev-name">Drizzlewood Coast Meta</div><div class="ev-schedule">Continuous &middot; join any time via LFG</div></div>
-      <div class="event-card"><div class="ev-name">Dragonfall Meta</div><div class="ev-schedule">Continuous &middot; join any time via LFG</div></div>
-    </div>
-  </section>
-
-  <!-- EFFICIENCY COMBOS -->
-  <section class="combos-section">
-    <h2>Efficiency Combos</h2>
-    <div class="combo-item"><strong>S3 Return + Portal Scroll:</strong> When doing a Return to S3 episode, buy that map's portal scroll from the vendor while you're there.</div>
-    <div class="combo-item"><strong>S4 Return + Portal Scroll:</strong> Same idea for Season 4 maps &mdash; buy the portal scroll during your Return run.</div>
-    <div class="combo-item"><strong>Drizzlewood Triple:</strong> Return to Drizzlewood Coast + farm Memories of Otter + buy Drizzlewood Coast Portal Scroll &mdash; three achievements, one map.</div>
-    <div class="combo-item"><strong>Bjora Double:</strong> Return to Bjora Marches + complete Significant Otter prerequisites (Olaf Olafson's Secret, etc.) &mdash; both in Bjora.</div>
-    <div class="combo-item"><strong>Lion's Arch Shopping Trip:</strong> Buy LA Teleportation Device + Hall of Monuments Portal Stone from vendors in Hooligan's Route.</div>
-  </section>
+  <!-- DYNAMIC PANELS (rendered by JS) -->
+  <div id="dynamicPanels"></div>
 </div>
 
 <!-- BROWSE & ADD ACHIEVEMENTS -->
@@ -1558,12 +1535,27 @@ function copyToClipboard(text, btn) {
 
 function renderHeaderProgress() {
   const el = document.getElementById('headerProgress');
-  const data = [
-    {key:'seasons',label:'Seasons',count:countCompleted('seasons'),total:24},
-    {key:'gizmos',label:'Gizmos',count:countCompleted('gizmos'),total:35},
-    {key:'otter',label:'Otter',count:state.otterCount,total:320}
-  ];
-  el.innerHTML = data.map(d => `
+  const data = [];
+
+  // Featured achievements (only if active)
+  if (isEnrichedPinned('seasons')) data.push({label:'Seasons',count:countCompleted('seasons'),total:24});
+  if (isEnrichedPinned('gizmos')) data.push({label:'Gizmos',count:countCompleted('gizmos'),total:35});
+  if (isEnrichedPinned('otter')) data.push({label:'Otter',count:state.otterCount,total:320});
+
+  // Pinned achievements with progress
+  if (state.pinnedAchievements && state.pinnedProgress) {
+    state.pinnedAchievements.filter(a => !ENRICHED_KEYS[a.id]).forEach(ach => {
+      const prog = state.pinnedProgress[ach.id];
+      if (!prog || prog.done) return;
+      const maxTier = ach.tiers && ach.tiers.length ? ach.tiers[ach.tiers.length-1] : null;
+      if (!maxTier || maxTier.count <= 1) return;
+      const shortName = ach.name.length > 15 ? ach.name.slice(0,14) + '…' : ach.name;
+      data.push({label:shortName, count:prog.current||0, total:maxTier.count});
+    });
+  }
+
+  // Limit to 5 in header to avoid overflow
+  el.innerHTML = data.slice(0, 5).map(d => `
     <div class="header-prog-item">
       <span class="prog-label">${d.label}</span>
       <span class="prog-count">${d.count}/${d.total}</span>
@@ -1743,12 +1735,65 @@ function renderOtterCard() {
     </section>`;
 }
 
+function renderDynamicPanels() {
+  const container = document.getElementById('dynamicPanels');
+  let html = '';
+
+  // Event timers — only show if relevant achievements are active
+  const seasonsActive = isEnrichedPinned('seasons');
+  const otterActive = isEnrichedPinned('otter');
+  if (seasonsActive || otterActive) {
+    const timers = [];
+    if (seasonsActive) {
+      timers.push({name:'Palawadan (Istan)',sched:'Every 2 hours'});
+      timers.push({name:'Drakkar (Bjora Marches)',sched:'Fixed schedule'});
+      timers.push({name:'Dragonstorm',sched:'Every 2 hours'});
+      timers.push({name:'Dragonfall Meta',sched:'Continuous via LFG'});
+    }
+    if (seasonsActive || otterActive) {
+      timers.push({name:'Drizzlewood Coast Meta',sched:'Continuous via LFG'});
+    }
+    html += `<section class="timers-section"><h2>Relevant Event Timers</h2>
+      <div class="timer-links">
+        <a href="https://gw2.ninja/timer" target="_blank" rel="noopener" class="timer-link">&#9200; GW2 Ninja Timer</a>
+        <a href="https://gw2timer.com/" target="_blank" rel="noopener" class="timer-link">&#127760; GW2Timer.com</a>
+      </div>
+      <div class="event-grid">${timers.map(t => `<div class="event-card"><div class="ev-name">${t.name}</div><div class="ev-schedule">${t.sched}</div></div>`).join('')}</div>
+    </section>`;
+  }
+
+  // Efficiency combos — only show if multiple featured are active
+  const gizmosActive = isEnrichedPinned('gizmos');
+  const activeFeaturedCount = [seasonsActive, gizmosActive, otterActive].filter(Boolean).length;
+  if (activeFeaturedCount >= 2) {
+    const combos = [];
+    if (seasonsActive && gizmosActive) {
+      combos.push('<strong>S3 Return + Portal Scroll:</strong> Buy the portal scroll while doing Return episodes on S3 maps.');
+      combos.push('<strong>S4 Return + Portal Scroll:</strong> Same for Season 4 maps.');
+    }
+    if ((seasonsActive || otterActive) && gizmosActive) {
+      combos.push('<strong>Drizzlewood Triple:</strong> Return to Drizzlewood + Otter farming + buy portal scroll — one map, triple value.');
+    }
+    if (seasonsActive && otterActive) {
+      combos.push('<strong>Bjora Double:</strong> Return to Bjora Marches + Otter prerequisites — both in Bjora.');
+    }
+    if (gizmosActive) {
+      combos.push("<strong>Lion's Arch Shopping:</strong> Buy LA Teleportation Device + HoM Portal Stone in one trip.");
+    }
+    if (combos.length) {
+      html += `<section class="combos-section"><h2>Efficiency Combos</h2>${combos.map(c => '<div class="combo-item">' + c + '</div>').join('')}</section>`;
+    }
+  }
+
+  container.innerHTML = html;
+}
+
 function renderAll() {
-  // Featured achievements render through the pinned system now
   document.getElementById('achievementCards').innerHTML = '';
   renderHeaderProgress();
   renderDoNext();
   renderShoppingList();
+  renderDynamicPanels();
   renderPinnedAchievements();
   applyFilters();
 }
@@ -1869,59 +1914,100 @@ document.getElementById('searchInput').addEventListener('input', applyFilters);
 
 /* ========== PRIORITY / DO NEXT ========== */
 
+function isEnrichedPinned(achKey) {
+  const idMap = {seasons:5790, gizmos:8732, otter:5350};
+  const id = idMap[achKey];
+  return (state.pinnedAchievements || []).some(a => a.id === id);
+}
+
 function renderDoNext() {
-  const allItems = getAllChecklistItems();
-  const incomplete = allItems.filter(it => !state.checkedItems[it.key]);
+  const list = document.getElementById('doNextList');
+  const panel = document.getElementById('doNextPanel');
+  let items = [];
+
+  // Items from active featured achievements
+  const activeItems = getAllChecklistItems().filter(it => isEnrichedPinned(it.achievement));
+  const incomplete = activeItems.filter(it => !state.checkedItems[it.key]);
 
   const scored = incomplete.map(it => {
     let score = 0;
     const diffScores = {quick:100,short:75,medium:50,long:25,grind:10};
     score += diffScores[it.difficulty] || 0;
-
-    // Synergy bonus
     if (it.synergy) {
       const incompleteSyn = it.synergy.filter(s => !state.checkedItems[s]);
       score += incompleteSyn.length * 20;
     }
-
-    // Tier proximity bonus
     const ach = ACHIEVEMENTS[it.achievement];
     if (ach && it.achievement !== 'otter') {
       const cur = countCompleted(it.achievement);
       const nextTier = ach.tiers.find(t => t.count > cur);
       if (nextTier && cur + 1 === nextTier.count) score += 30;
     }
-
-    // Blocked check (otter prereqs)
     if (it.blockedBy && !state.checkedItems[it.blockedBy]) score = -1;
+    return {...it, score, source: 'featured'};
+  }).filter(it => it.score >= 0);
 
-    return {...it, score};
-  }).filter(it => it.score >= 0).sort((a,b) => b.score - a.score);
+  items = items.concat(scored);
 
-  const top = scored.slice(0, 6);
-  const list = document.getElementById('doNextList');
-  if (top.length === 0) {
-    list.innerHTML = '<div style="color:var(--green);font-size:0.9rem">All tasks completed! Congratulations!</div>';
+  // Items from pinned achievements close to completion
+  if (state.pinnedAchievements && state.pinnedProgress) {
+    state.pinnedAchievements.filter(a => !ENRICHED_KEYS[a.id]).forEach(ach => {
+      const prog = state.pinnedProgress[ach.id];
+      if (!prog || prog.done) return;
+      const maxTier = ach.tiers && ach.tiers.length ? ach.tiers[ach.tiers.length-1] : null;
+      if (!maxTier) return;
+      const pctDone = prog.current / maxTier.count;
+      if (pctDone >= 0.7) {
+        // Close to completion — suggest it
+        const diff = estimateDifficulty(ach);
+        items.push({
+          name: ach.name,
+          difficulty: diff.badge,
+          time: `${prog.current}/${maxTier.count}`,
+          score: 60 + Math.round(pctDone * 40),
+          source: 'pinned',
+          achName: ach.name
+        });
+      }
+    });
+  }
+
+  // If nothing active, show a prompt
+  if (items.length === 0) {
+    if ((state.hiddenFeatured || []).length >= 3 && !(state.pinnedAchievements || []).length) {
+      list.innerHTML = '<div style="font-size:0.85rem;color:var(--text-secondary)">No achievements tracked. Browse below to add achievements, or re-add the featured ones.</div>';
+    } else {
+      list.innerHTML = '<div style="color:var(--green);font-size:0.9rem">All tracked tasks completed! Add more achievements below.</div>';
+    }
+    panel.style.display = '';
     return;
   }
+
+  items.sort((a,b) => b.score - a.score);
+  const top = items.slice(0, 6);
+  panel.style.display = '';
+
   list.innerHTML = top.map(it => {
     const reasons = [];
     if (it.difficulty === 'quick') reasons.push('Quick win');
+    if (it.source === 'pinned') reasons.push('Almost done!');
     if (it.synergy && it.synergy.some(s => !state.checkedItems[s])) reasons.push('Map synergy');
-    const ach = ACHIEVEMENTS[it.achievement];
-    if (ach && it.achievement !== 'otter') {
-      const cur = countCompleted(it.achievement);
-      const nextTier = ach.tiers.find(t => t.count > cur);
-      if (nextTier && cur + 1 === nextTier.count) reasons.push('Completes a tier!');
+    if (it.source === 'featured') {
+      const ach = ACHIEVEMENTS[it.achievement];
+      if (ach && it.achievement !== 'otter') {
+        const cur = countCompleted(it.achievement);
+        const nextTier = ach.tiers.find(t => t.count > cur);
+        if (nextTier && cur + 1 === nextTier.count) reasons.push('Completes a tier!');
+      }
     }
-    const achLabel = {seasons:'Seasons',gizmos:'Gizmos',otter:'Otter'}[it.achievement];
+    const label = it.source === 'pinned' ? it.achName : {seasons:'Seasons',gizmos:'Gizmos',otter:'Otter'}[it.achievement] || '';
     const wpBtn = it.wpCode ? `<button class="copy-btn" onclick="event.stopPropagation();copyToClipboard('${it.wpCode}',this)">Copy WP</button>` : '';
     return `
       <div class="do-next-item">
         <span class="badge badge-${it.difficulty}">${it.difficulty}</span>
         <span class="dn-name">${it.name}</span>
         <div class="dn-meta">
-          <span>${achLabel}</span>
+          <span>${label}</span>
           <span>${it.time || ''}</span>
           ${it.wpCode ? `<span class="wp-code" style="font-size:0.7rem">${it.wpCode}</span>` : ''}
           ${wpBtn}
@@ -1936,6 +2022,9 @@ function renderDoNext() {
 function renderShoppingList() {
   const panel = document.getElementById('shoppingList');
   const body = document.getElementById('shoppingListBody');
+
+  // Only show if gizmos achievement is active
+  if (!isEnrichedPinned('gizmos')) { panel.style.display = 'none'; return; }
 
   // Aggregate needed currencies for incomplete gizmos
   const needs = {};
@@ -2304,33 +2393,29 @@ async function togglePinAchievement(id, btn) {
   renderPinnedAchievements();
 }
 
-const FEATURED_IDS = {5790:'seasons', 8732:'gizmos', 5350:'otter'};
+const ENRICHED_KEYS = {5790:'seasons', 8732:'gizmos', 5350:'otter'};
 
 function renderPinnedAchievements() {
   const container = document.getElementById('pinnedCards');
-  let html = '';
 
-  // Render featured achievements first (unless hidden)
-  if (!state.hiddenFeatured) state.hiddenFeatured = [];
-  const featuredEntries = [
-    {id:5790, key:'seasons', render: () => renderChecklistCard('seasons')},
-    {id:8732, key:'gizmos', render: () => renderChecklistCard('gizmos')},
-    {id:5350, key:'otter', render: () => renderOtterCard()}
-  ];
-  featuredEntries.forEach(f => {
-    if (!state.hiddenFeatured.includes(f.id)) {
-      html += `<div class="featured-wrapper" data-featured-id="${f.id}">
-        <div style="display:flex;justify-content:flex-end;padding:0.3rem 0.5rem 0;margin-bottom:-0.3rem">
-          <button class="btn btn-danger btn-sm" onclick="hideFeatured(${f.id})" title="Remove from tracker" style="font-size:0.7rem;padding:0.15rem 0.5rem;opacity:0.7">Remove</button>
-        </div>
-        ${f.render()}
-      </div>`;
+  if (!state.pinnedAchievements || !state.pinnedAchievements.length) {
+    container.innerHTML = '<div style="text-align:center;padding:2rem 1rem;color:var(--text-dim);font-size:0.9rem">No achievements tracked yet. Search or browse below to add achievements to your dashboard.</div>';
+    return;
+  }
+
+  container.innerHTML = state.pinnedAchievements.map(ach => {
+    // Enriched achievements use the rich renderers
+    const enrichKey = ENRICHED_KEYS[ach.id];
+    if (enrichKey === 'otter') {
+      return `<div style="position:relative">${renderOtterCard()}
+        <button class="btn btn-danger btn-sm" onclick="togglePinAchievement(${ach.id})" title="Remove" style="position:absolute;top:0.5rem;right:0.5rem;font-size:0.7rem;padding:0.15rem 0.5rem;opacity:0.7">Remove</button></div>`;
     }
-  });
+    if (enrichKey) {
+      return `<div style="position:relative">${renderChecklistCard(enrichKey)}
+        <button class="btn btn-danger btn-sm" onclick="togglePinAchievement(${ach.id})" title="Remove" style="position:absolute;top:0.5rem;right:0.5rem;font-size:0.7rem;padding:0.15rem 0.5rem;opacity:0.7">Remove</button></div>`;
+    }
 
-  // Render generic pinned achievements
-  if (state.pinnedAchievements && state.pinnedAchievements.length) {
-    html += state.pinnedAchievements.filter(a => !FEATURED_IDS[a.id]).map(ach => {
+    // Generic achievement rendering — rich guide from API data
     const prog = (state.pinnedProgress || {})[ach.id];
     const totalAP = (ach.tiers || []).reduce((s,t) => s + t.points, 0);
     const maxTier = ach.tiers && ach.tiers.length ? ach.tiers[ach.tiers.length-1] : {count:1};
@@ -2340,23 +2425,28 @@ function renderPinnedAchievements() {
     if (prog) { current = prog.current || 0; doneBits = prog.bits || []; isDone = !!prog.done; }
 
     const pct = maxCount > 0 ? (Math.min(current, maxCount) / maxCount * 100).toFixed(1) : (isDone ? 100 : 0);
+    const diff = estimateDifficulty(ach);
 
     let tierHtml = (ach.tiers || []).map((t,i) => {
       const reached = current >= t.count;
       return `<span class="tier-dot ${reached?'reached':''}">Tier ${i+1}: ${t.count} (${t.points} AP)</span>`;
     }).join('');
 
-    let bitsHtml = '';
+    // Rich objectives section from API bits
+    let objectivesHtml = '';
     if (ach.bits && ach.bits.length) {
-      bitsHtml = '<div style="margin-top:0.75rem">';
-      bitsHtml += ach.bits.map((b, i) => {
+      const completedCount = doneBits.length;
+      objectivesHtml = `<div class="objectives-section">
+        <div class="objectives-header">Objectives (${completedCount}/${ach.bits.length} completed):</div>
+        <ul class="objectives-list${ach.bits.length > 6 ? ' two-col' : ''}">`;
+      objectivesHtml += ach.bits.map((b, i) => {
         const done = doneBits.includes(i);
-        const text = b.text || (b.type === 'Text' ? 'Objective' : b.type + (b.id ? ' #' + b.id : ''));
-        return `<div style="font-size:0.78rem;padding:0.15rem 0 0.15rem 1.2rem;position:relative;color:${done?'var(--green)':'var(--text-secondary)'};${done?'opacity:0.6':''}">
-          <span style="position:absolute;left:0">${done?'&#10003;':'&#9675;'}</span> ${text}
-        </div>`;
+        const text = b.text || (b.type === 'Text' ? 'Objective ' + (i+1) : b.type + (b.id ? ' #' + b.id : ''));
+        return `<li style="color:${done?'var(--green)':'var(--text-secondary)'};${done?'text-decoration:line-through;opacity:0.6':''}">
+          ${text}
+        </li>`;
       }).join('');
-      bitsHtml += '</div>';
+      objectivesHtml += '</ul></div>';
     }
 
     const wikiName = encodeURIComponent(ach.name.replace(/ /g, '_'));
@@ -2365,7 +2455,7 @@ function renderPinnedAchievements() {
       <div class="card-header" aria-expanded="false" onclick="toggleCard(this)">
         <div class="card-title-area">
           <h2 style="font-size:1.05rem">${ach.name}${isDone?' <span style="color:var(--green);font-size:0.8rem;font-family:Inter,sans-serif">&#10003; Complete</span>':''}</h2>
-          <div class="card-subtitle"><span class="badge badge-${estimateDifficulty(ach).badge}">${estimateDifficulty(ach).label}</span> ${totalAP} AP &middot; <a href="https://wiki.guildwars2.com/wiki/${wikiName}" target="_blank" class="wiki-link" onclick="event.stopPropagation()">Wiki</a> &middot; ID: ${ach.id}</div>
+          <div class="card-subtitle"><span class="badge badge-${diff.badge}">${diff.label}</span> ${totalAP} AP &middot; <a href="https://wiki.guildwars2.com/wiki/${wikiName}" target="_blank" class="wiki-link" onclick="event.stopPropagation()">Wiki</a> &middot; ID: ${ach.id}</div>
         </div>
         <div class="card-progress-area">
           <span class="progress-text">${current} / ${maxCount}</span>
@@ -2376,42 +2466,15 @@ function renderPinnedAchievements() {
       </div>
       <div class="card-body">
         <div class="card-body-inner">
-          ${ach.requirement ? '<div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem">' + ach.requirement + '</div>' : ''}
+          ${ach.requirement ? '<div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem"><strong>Goal:</strong> ' + ach.requirement + '</div>' : ''}
           ${ach.description ? '<div style="font-size:0.8rem;color:var(--text-dim);margin-bottom:0.5rem;font-style:italic">' + ach.description + '</div>' : ''}
           <div class="tier-row">${tierHtml}</div>
-          ${bitsHtml}
+          ${objectivesHtml}
+          ${!ach.bits || !ach.bits.length ? '<div style="font-size:0.8rem;color:var(--text-dim);margin-top:0.5rem">Sync your API key to see detailed progress. <a href="https://wiki.guildwars2.com/wiki/' + wikiName + '" target="_blank" class="wiki-link">View full guide on Wiki</a></div>' : ''}
         </div>
       </div>
     </section>`;
   }).join('');
-  }
-
-  // Show "re-add" buttons for hidden featured achievements
-  const hiddenFeatured = (state.hiddenFeatured || []);
-  if (hiddenFeatured.length > 0) {
-    const names = {5790:'Seasons of the Dragons',8732:'Teleportation Gizmos Collector',5350:'Significant Otter'};
-    html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin:1rem 0">';
-    hiddenFeatured.forEach(id => {
-      html += `<button class="btn btn-sm" onclick="showFeatured(${id})" style="font-size:0.75rem">+ Re-add ${names[id] || 'Achievement #'+id}</button>`;
-    });
-    html += '</div>';
-  }
-
-  container.innerHTML = html;
-}
-
-function hideFeatured(id) {
-  if (!state.hiddenFeatured) state.hiddenFeatured = [];
-  if (!state.hiddenFeatured.includes(id)) state.hiddenFeatured.push(id);
-  saveState();
-  renderAll();
-}
-
-function showFeatured(id) {
-  if (!state.hiddenFeatured) return;
-  state.hiddenFeatured = state.hiddenFeatured.filter(x => x !== id);
-  saveState();
-  renderAll();
 }
 
 /* ========== STARTER PACKS ========== */

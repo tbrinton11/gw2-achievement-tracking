@@ -354,11 +354,12 @@ a:hover{text-decoration:underline}
   </button>
   <div class="api-body" id="apiBody">
     <div class="api-form">
-      <input type="text" id="apiKeyInput" placeholder="Paste your GW2 API key (account + progression permissions)">
+      <input type="text" id="apiKeyInput" placeholder="GW2 API key (permissions: account, progression, wallet, inventories, unlocks)">
       <button class="btn btn-primary" id="syncBtn">Sync</button>
       <button class="btn btn-danger btn-sm" id="clearKeyBtn">Clear Key</button>
     </div>
     <div class="api-status" id="apiStatus"></div>
+    <div class="api-status" id="lastSyncTime" style="font-size:0.7rem"></div>
   </div>
 </div>
 
@@ -369,6 +370,13 @@ a:hover{text-decoration:underline}
   <section class="do-next" id="doNextPanel">
     <h2>&#9733; What to Do Next</h2>
     <div class="do-next-list" id="doNextList"></div>
+  </section>
+
+  <!-- SHOPPING LIST -->
+  <section class="do-next" id="shoppingList" style="display:none;border-left-color:var(--orange)">
+    <h2 style="color:var(--orange)">&#128722; Shopping List</h2>
+    <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.5rem">Currencies needed for remaining vendor purchases</div>
+    <div id="shoppingListBody"></div>
   </section>
 
   <!-- FILTER BAR -->
@@ -1387,6 +1395,37 @@ const OBJECTIVES = {
   }
 };
 
+/* ========== CURRENCY COSTS (for wallet checking) ========== */
+
+const CURRENCY_COSTS = {
+  // S3 scrolls - map currencies (wallet)
+  "g-bloodstone-scroll": { walletId: 45, name: "Blood Rubies", amount: 150, gold: 0.25 },
+  "g-ember-scroll": { walletId: 46, name: "Petrified Wood", amount: 150, gold: 0.25 },
+  "g-doric-scroll": { walletId: 47, name: "Jade Shards", amount: 150, gold: 0.25 },
+  "g-draconis-scroll": { walletId: 49, name: "Fire Orchid Blossoms", amount: 150, gold: 0.25 },
+  "g-sirens-scroll": { walletId: 50, name: "Orrian Pearls", amount: 150, gold: 0.25 },
+  "g-bitterfrost-scroll": { walletId: 55, name: "Unbound Magic", amount: 150, gold: 0.25 },
+  // S4 scrolls - Trade Contracts
+  "g-istan-scroll": { walletId: 52, name: "Trade Contracts", amount: 25, gold: 1 },
+  "g-sandswept-scroll": { walletId: 52, name: "Trade Contracts", amount: 25, gold: 1 },
+  "g-kourna-scroll": { walletId: 52, name: "Trade Contracts", amount: 25, gold: 1 },
+  "g-jahai-scroll": { walletId: 52, name: "Trade Contracts", amount: 25, gold: 1 },
+  "g-thunderhead-scroll": { walletId: 52, name: "Trade Contracts", amount: 25, gold: 1 },
+  "g-dragonfall-scroll": { walletId: 52, name: "Trade Contracts", amount: 25, gold: 1 },
+  // IBS scrolls
+  "g-bjora-scroll": { walletId: 58, name: "Eternal Ice Shards", amount: 250, gold: 1 },
+  "g-drizzlewood-scroll": { walletId: 59, name: "War Supplies", amount: 250, gold: 1 },
+  "g-eotn-scroll": { walletId: 58, name: "Eternal Ice Shards", amount: 250, gold: 0 },
+  // City scrolls - Mystic Coins (material storage item 19976)
+  "g-bc-scroll": { materialId: 19976, name: "Mystic Coins", amount: 50 },
+  "g-dr-scroll": { materialId: 19976, name: "Mystic Coins", amount: 50 },
+  "g-hoelbrak-scroll": { materialId: 19976, name: "Mystic Coins", amount: 50 },
+  "g-la-scroll": { materialId: 19976, name: "Mystic Coins", amount: 50 },
+  "g-rata-scroll": { materialId: 19976, name: "Mystic Coins", amount: 50 },
+  "g-grove-scroll": { materialId: 19976, name: "Mystic Coins", amount: 50 },
+  "g-ebonhawke-scroll": { materialId: 19976, name: "Mystic Coins", amount: 50 }
+};
+
 /* ========== STATE MANAGEMENT ========== */
 
 const STATE_KEY = 'gw2-tracker-state';
@@ -1538,7 +1577,22 @@ function renderChecklistItem(item, achievementKey) {
   let detailRows = '';
   if (item.episode) detailRows += `<div class="detail-row"><span class="detail-label">Episode:</span> ${item.episode}</div>`;
   if (item.vendor) detailRows += `<div class="detail-row"><span class="detail-label">Vendor:</span> ${item.vendor} &mdash; ${item.location || ''}</div>`;
-  if (item.cost) detailRows += `<div class="detail-row"><span class="detail-label">Cost:</span> ${item.cost}</div>`;
+  if (item.cost) {
+    let costHtml = `<div class="detail-row"><span class="detail-label">Cost:</span> ${item.cost}`;
+    const cc = CURRENCY_COSTS[item.key];
+    if (cc) {
+      let have = 0, needed = cc.amount;
+      if (cc.walletId && state.wallet) have = state.wallet[cc.walletId] || 0;
+      else if (cc.materialId && state.materials) have = state.materials[cc.materialId] || 0;
+      if (have > 0 || state.wallet || state.materials) {
+        const enough = have >= needed;
+        const color = enough ? 'var(--green)' : 'var(--orange)';
+        costHtml += ` <span style="font-size:0.75rem;color:${color};font-weight:600">[You have: ${have.toLocaleString()} / ${needed} ${cc.name}${enough ? ' ✓' : ''}]</span>`;
+      }
+    }
+    costHtml += `</div>`;
+    detailRows += costHtml;
+  }
   if (item.map && item.map !== 'Instance') detailRows += `<div class="detail-row"><span class="detail-label">Map:</span> ${item.map}</div>`;
   if (item.wpCode) detailRows += `<div class="detail-row"><span class="detail-label">Waypoint:</span> <span class="wp-code">${item.wpCode}</span> <button class="copy-btn" onclick="event.stopPropagation();copyToClipboard('${item.wpCode}',this)">Copy</button> <span style="color:var(--text-dim);font-size:0.75rem">${item.wp || ''}</span></div>`;
   if (item.tips) detailRows += `<div class="detail-row" style="color:var(--text-secondary)"><span class="detail-label">Tips:</span> ${item.tips}</div>`;
@@ -1647,6 +1701,7 @@ function renderAll() {
   container.innerHTML = renderChecklistCard('seasons') + renderChecklistCard('gizmos') + renderOtterCard();
   renderHeaderProgress();
   renderDoNext();
+  renderShoppingList();
   applyFilters();
 }
 
@@ -1828,6 +1883,51 @@ function renderDoNext() {
   }).join('');
 }
 
+/* ========== SHOPPING LIST ========== */
+
+function renderShoppingList() {
+  const panel = document.getElementById('shoppingList');
+  const body = document.getElementById('shoppingListBody');
+
+  // Aggregate needed currencies for incomplete gizmos
+  const needs = {};
+  ACHIEVEMENTS.gizmos.sections.forEach(sec => {
+    sec.items.forEach(it => {
+      if (state.checkedItems[it.key]) return; // already done
+      const cc = CURRENCY_COSTS[it.key];
+      if (!cc) return;
+      const cName = cc.name;
+      if (!needs[cName]) needs[cName] = { name: cName, walletId: cc.walletId, materialId: cc.materialId, needed: 0, items: [] };
+      needs[cName].needed += cc.amount;
+      needs[cName].items.push(it.name);
+    });
+  });
+
+  const entries = Object.values(needs);
+  if (entries.length === 0) { panel.style.display = 'none'; return; }
+  panel.style.display = '';
+
+  body.innerHTML = entries.map(n => {
+    let have = 0;
+    let haveHtml = '';
+    if (n.walletId && state.wallet) {
+      have = state.wallet[n.walletId] || 0;
+      const color = have >= n.needed ? 'var(--green)' : 'var(--orange)';
+      haveHtml = `<span style="color:${color};font-weight:600"> — you have ${have.toLocaleString()}</span>`;
+    } else if (n.materialId && state.materials) {
+      have = state.materials[n.materialId] || 0;
+      const color = have >= n.needed ? 'var(--green)' : 'var(--orange)';
+      haveHtml = `<span style="color:${color};font-weight:600"> — you have ${have.toLocaleString()}</span>`;
+    }
+    return `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0;font-size:0.85rem;border-bottom:1px solid rgba(138,114,52,0.15)">
+      <span style="color:var(--gold);font-weight:600;min-width:50px">${n.needed.toLocaleString()}</span>
+      <span style="color:var(--text)">${n.name}</span>
+      ${haveHtml}
+      <span style="color:var(--text-dim);font-size:0.7rem;margin-left:auto">(${n.items.length} item${n.items.length>1?'s':''})</span>
+    </div>`;
+  }).join('');
+}
+
 /* ========== API SYNC ========== */
 
 document.getElementById('apiToggle').addEventListener('click', function() {
@@ -1847,17 +1947,26 @@ document.getElementById('syncBtn').addEventListener('click', async () => {
   showApiStatus('Syncing...', '');
 
   try {
-    const resp = await fetch(`https://api.guildwars2.com/v2/account/achievements?ids=5790,8732,5350&access_token=${encodeURIComponent(key)}`);
-    if (!resp.ok) {
-      const err = await resp.json().catch(() => ({}));
-      throw new Error(err.text || `HTTP ${resp.status}`);
+    // Fetch achievements, wallet, materials, and mounts in parallel
+    const base = 'https://api.guildwars2.com/v2';
+    const token = encodeURIComponent(key);
+    const [achResp, walletResp, matsResp, mountsResp] = await Promise.all([
+      fetch(`${base}/account/achievements?ids=5790,8732,5350&access_token=${token}`),
+      fetch(`${base}/account/wallet?access_token=${token}`).catch(() => null),
+      fetch(`${base}/account/materials?access_token=${token}`).catch(() => null),
+      fetch(`${base}/account/mounts/types?access_token=${token}`).catch(() => null)
+    ]);
+
+    if (!achResp.ok) {
+      const err = await achResp.json().catch(() => ({}));
+      throw new Error(err.text || `HTTP ${achResp.status}`);
     }
-    const data = await resp.json();
+    const data = await achResp.json();
     let updated = 0;
 
+    // Process achievements
     data.forEach(ach => {
       if (ach.id === 5790 && ach.bits) {
-        // Seasons of the Dragons
         ACHIEVEMENTS.seasons.sections.forEach(sec => {
           sec.items.forEach(it => {
             if (it.bit != null && ach.bits.includes(it.bit)) {
@@ -1867,7 +1976,6 @@ document.getElementById('syncBtn').addEventListener('click', async () => {
         });
       }
       if (ach.id === 8732 && ach.bits) {
-        // Gizmos
         ACHIEVEMENTS.gizmos.sections.forEach(sec => {
           sec.items.forEach(it => {
             if (it.bit != null && ach.bits.includes(it.bit)) {
@@ -1877,7 +1985,6 @@ document.getElementById('syncBtn').addEventListener('click', async () => {
         });
       }
       if (ach.id === 5350) {
-        // Otter - counter based
         if (ach.current != null && ach.current > state.otterCount) {
           state.otterCount = ach.current;
           updated++;
@@ -1885,9 +1992,40 @@ document.getElementById('syncBtn').addEventListener('click', async () => {
       }
     });
 
+    // Process wallet (currency balances)
+    if (walletResp && walletResp.ok) {
+      const wallet = await walletResp.json();
+      state.wallet = {};
+      wallet.forEach(c => { state.wallet[c.id] = c.value; });
+    }
+
+    // Process material storage (for Mystic Coins etc.)
+    if (matsResp && matsResp.ok) {
+      const mats = await matsResp.json();
+      state.materials = {};
+      mats.forEach(m => { if (m.id && m.count) state.materials[m.id] = m.count; });
+    }
+
+    // Process mount unlocks (for Griffon check)
+    if (mountsResp && mountsResp.ok) {
+      const mounts = await mountsResp.json();
+      state.mounts = mounts;
+      // Auto-check Griffon gizmo if mount is unlocked
+      if (mounts.includes('griffon') && !state.checkedItems['g-griffon']) {
+        state.checkedItems['g-griffon'] = true;
+        updated++;
+      }
+    }
+
+    state.lastSync = new Date().toISOString();
     saveState();
     renderAll();
-    showApiStatus(`Sync complete! ${updated} item${updated!==1?'s':''} updated.`, 'success');
+
+    let statusParts = [`${updated} item${updated!==1?'s':''} updated`];
+    if (state.wallet) statusParts.push('wallet synced');
+    if (state.materials) statusParts.push('materials synced');
+    if (state.mounts) statusParts.push('mounts synced');
+    showApiStatus(`Sync complete! ${statusParts.join(', ')}.`, 'success');
   } catch(e) {
     showApiStatus('Sync failed: ' + e.message, 'error');
   }
@@ -1946,6 +2084,17 @@ document.getElementById('resetBtn').addEventListener('click', () => {
 
 /* ========== INIT ========== */
 renderAll();
+
+// Show last sync time if available
+if (state.lastSync) {
+  const d = new Date(state.lastSync);
+  document.getElementById('lastSyncTime').textContent = 'Last synced: ' + d.toLocaleString();
+}
+
+// Auto-sync on page load if API key is saved
+if (savedKey) {
+  setTimeout(() => { document.getElementById('syncBtn').click(); }, 500);
+}
 </script>
 </body>
 </html>

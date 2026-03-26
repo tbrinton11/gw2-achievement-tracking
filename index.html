@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GW2 Achievement Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg-body:#1a1a2e;--bg-card:#16213e;--bg-card-hover:#1c2845;
+  --bg-header:#0f0f23;--bg-input:#0d1b2a;
+  --gold:#d4a853;--gold-light:#e8c96a;--gold-dim:#8a7234;
+  --text:#e8e0d4;--text-secondary:#9e9a8e;--text-dim:#5e5a4e;
+  --green:#4ade80;--green-dark:#166534;--red:#ef4444;--orange:#f59e0b;
+  --blue:#60a5fa;--purple:#a78bfa;
+  --progress-bg:#2a2a3e;
+  --radius:8px;--radius-sm:4px;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background:var(--bg-body);color:var(--text);
+  line-height:1.6;min-height:100vh;
+}
+h1,h2,h3{font-family:'Cinzel',Georgia,'Times New Roman',serif;font-weight:600;color:var(--gold)}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Header */
+.site-header{
+  background:var(--bg-header);border-bottom:2px solid var(--gold-dim);
+  padding:1.25rem 1.5rem;position:sticky;top:0;z-index:100;
+}
+.header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.site-title{font-size:1.6rem;letter-spacing:0.05em}
+.site-title span{color:var(--text);font-weight:400;font-size:0.9rem;font-family:'Inter',sans-serif;margin-left:0.5rem;opacity:0.6}
+.header-progress{display:flex;gap:1.25rem;flex-wrap:wrap}
+.header-prog-item{display:flex;align-items:center;gap:0.5rem;font-size:0.8rem}
+.header-prog-item .prog-label{color:var(--text-secondary);white-space:nowrap}
+.header-prog-item .prog-count{color:var(--gold);font-weight:600;min-width:3.5rem}
+.mini-bar{width:80px;height:6px;background:var(--progress-bg);border-radius:3px;overflow:hidden}
+.mini-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:3px;transition:width 0.5s ease}
+
+/* API Sync Bar */
+.api-bar{
+  background:var(--bg-header);border-bottom:1px solid var(--gold-dim);
+  max-width:1200px;margin:0 auto;
+}
+.api-toggle{
+  display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1.5rem;
+  cursor:pointer;font-size:0.85rem;color:var(--text-secondary);
+  background:none;border:none;width:100%;text-align:left;font-family:inherit;
+}
+.api-toggle:hover{color:var(--gold)}
+.api-toggle .chevron{transition:transform 0.3s;display:inline-block}
+.api-toggle[aria-expanded="true"] .chevron{transform:rotate(180deg)}
+.api-body{
+  max-height:0;overflow:hidden;transition:max-height 0.3s ease;
+  padding:0 1.5rem;
+}
+.api-body.open{max-height:200px;padding:0 1.5rem 1rem}
+.api-form{display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap}
+.api-form input[type="text"]{
+  flex:1;min-width:200px;padding:0.5rem 0.75rem;
+  background:var(--bg-input);border:1px solid var(--gold-dim);border-radius:var(--radius-sm);
+  color:var(--text);font-family:inherit;font-size:0.85rem;
+}
+.api-form input::placeholder{color:var(--text-dim)}
+.api-status{font-size:0.8rem;color:var(--text-secondary);margin-top:0.5rem}
+.api-status.success{color:var(--green)}
+.api-status.error{color:var(--red)}
+
+/* Buttons */
+.btn{
+  padding:0.45rem 1rem;border-radius:var(--radius-sm);border:1px solid var(--gold-dim);
+  background:transparent;color:var(--gold);font-family:inherit;font-size:0.8rem;
+  cursor:pointer;transition:all 0.2s;white-space:nowrap;
+}
+.btn:hover{background:var(--gold);color:var(--bg-body);border-color:var(--gold)}
+.btn-primary{background:var(--gold);color:var(--bg-body);border-color:var(--gold);font-weight:600}
+.btn-primary:hover{background:var(--gold-light)}
+.btn-danger{border-color:var(--red);color:var(--red)}
+.btn-danger:hover{background:var(--red);color:#fff}
+.btn-sm{padding:0.25rem 0.6rem;font-size:0.75rem}
+
+/* Main Layout */
+.main-content{max-width:1200px;margin:0 auto;padding:1.5rem}
+
+/* Do Next Panel */
+.do-next{
+  background:linear-gradient(135deg,#1a2340,#16213e);
+  border:1px solid var(--gold-dim);border-radius:var(--radius);
+  padding:1.25rem 1.5rem;margin-bottom:1.5rem;
+  border-left:4px solid var(--gold);
+}
+.do-next h2{font-size:1.2rem;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem}
+.do-next-list{display:flex;flex-direction:column;gap:0.6rem}
+.do-next-item{
+  display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.75rem;
+  background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);
+  transition:background 0.2s;flex-wrap:wrap;
+}
+.do-next-item:hover{background:rgba(255,255,255,0.06)}
+.do-next-item .dn-name{flex:1;font-size:0.9rem;min-width:150px}
+.do-next-item .dn-meta{font-size:0.75rem;color:var(--text-secondary);display:flex;gap:0.75rem;align-items:center}
+.do-next-item .dn-reason{font-size:0.7rem;color:var(--text-dim);font-style:italic;width:100%;padding-left:2rem}
+
+/* Filter Bar */
+.filter-bar{
+  display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center;
+}
+.filter-group{display:flex;gap:0.25rem}
+.filter-btn{
+  padding:0.35rem 0.75rem;border-radius:var(--radius-sm);border:1px solid var(--gold-dim);
+  background:transparent;color:var(--text-secondary);font-family:inherit;font-size:0.8rem;
+  cursor:pointer;transition:all 0.2s;
+}
+.filter-btn:hover{color:var(--gold);border-color:var(--gold)}
+.filter-btn.active{background:var(--gold);color:var(--bg-body);border-color:var(--gold);font-weight:600}
+.filter-select{
+  padding:0.35rem 0.5rem;background:var(--bg-input);border:1px solid var(--gold-dim);
+  border-radius:var(--radius-sm);color:var(--text);font-family:inherit;font-size:0.8rem;
+}
+.search-input{
+  padding:0.35rem 0.75rem;background:var(--bg-input);border:1px solid var(--gold-dim);
+  border-radius:var(--radius-sm);color:var(--text);font-family:inherit;font-size:0.8rem;
+  min-width:180px;
+}
+.search-input::placeholder{color:var(--text-dim)}
+
+/* Difficulty Badges */
+.badge{
+  display:inline-block;padding:0.15rem 0.5rem;border-radius:10px;
+  font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.03em;
+}
+.badge-quick{background:#14532d;color:#4ade80}
+.badge-short{background:#1a3a1a;color:#86efac}
+.badge-medium{background:#3a2a0a;color:#fbbf24}
+.badge-long{background:#3a1a1a;color:#f87171}
+.badge-grind{background:#2a1a3a;color:#c084fc}
+
+/* Achievement Cards */
+.achievement-card{
+  background:var(--bg-card);border:1px solid var(--gold-dim);border-radius:var(--radius);
+  margin-bottom:1.5rem;overflow:hidden;border-top:3px solid var(--gold);
+}
+.card-header{
+  padding:1rem 1.25rem;cursor:pointer;display:flex;align-items:center;
+  justify-content:space-between;gap:1rem;flex-wrap:wrap;
+}
+.card-header:hover{background:var(--bg-card-hover)}
+.card-title-area{flex:1;min-width:200px}
+.card-title-area h2{font-size:1.15rem;margin-bottom:0.25rem}
+.card-subtitle{font-size:0.8rem;color:var(--text-secondary)}
+.card-progress-area{display:flex;align-items:center;gap:1rem}
+.progress-text{font-size:0.85rem;color:var(--gold);font-weight:600;white-space:nowrap}
+.progress-bar{width:150px;height:10px;background:var(--progress-bg);border-radius:5px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:5px;transition:width 0.5s ease}
+.card-chevron{color:var(--text-dim);transition:transform 0.3s;font-size:1.2rem}
+.card-header[aria-expanded="true"] .card-chevron{transform:rotate(180deg)}
+.card-body{max-height:0;overflow:hidden;transition:max-height 0.4s ease}
+.card-body.open{max-height:none;overflow:visible}
+.card-body-inner{padding:0 1.25rem 1.25rem}
+
+/* Tier Indicators */
+.tier-row{display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap}
+.tier-dot{
+  display:flex;align-items:center;gap:0.3rem;
+  padding:0.2rem 0.5rem;border-radius:var(--radius-sm);
+  font-size:0.7rem;border:1px solid var(--gold-dim);color:var(--text-dim);
+}
+.tier-dot.reached{border-color:var(--green);color:var(--green);background:rgba(74,222,128,0.1)}
+
+/* Sub-sections */
+.sub-section{margin-bottom:1rem}
+.sub-header{
+  font-size:0.95rem;color:var(--gold-light);padding:0.5rem 0;
+  border-bottom:1px solid rgba(138,114,52,0.3);margin-bottom:0.5rem;
+  cursor:pointer;display:flex;align-items:center;gap:0.5rem;
+}
+.sub-header .sub-chevron{font-size:0.7rem;transition:transform 0.3s;color:var(--text-dim)}
+.sub-header[aria-expanded="false"] .sub-chevron{transform:rotate(-90deg)}
+.sub-body{transition:max-height 0.3s ease}
+.sub-body.collapsed{max-height:0;overflow:hidden}
+
+/* Checklist Items */
+.checklist-item{
+  display:flex;align-items:flex-start;gap:0.6rem;padding:0.55rem 0.5rem;
+  border-radius:var(--radius-sm);transition:background 0.2s;
+}
+.checklist-item:hover{background:rgba(255,255,255,0.03)}
+.checklist-item.done{opacity:0.5}
+.checklist-item.done .item-name{text-decoration:line-through}
+.checklist-item.filtered-out{display:none}
+
+/* Custom Checkboxes */
+.cb-label{display:flex;align-items:flex-start;gap:0.5rem;cursor:pointer;flex:1;min-width:0}
+.cb-label input[type="checkbox"]{display:none}
+.cb-box{
+  width:18px;height:18px;border:2px solid var(--gold-dim);border-radius:3px;
+  flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;
+}
+.cb-label input:checked + .cb-box{background:var(--gold);border-color:var(--gold)}
+.cb-label input:checked + .cb-box::after{
+  content:'';display:block;width:5px;height:9px;
+  border:solid var(--bg-body);border-width:0 2px 2px 0;transform:rotate(45deg);
+  margin-top:-2px;
+}
+.item-info{flex:1;min-width:0}
+.item-name{font-size:0.9rem;font-weight:500}
+.item-episode{font-size:0.75rem;color:var(--text-secondary)}
+.item-right{display:flex;align-items:center;gap:0.5rem;flex-shrink:0}
+.time-est{font-size:0.7rem;color:var(--text-dim);white-space:nowrap}
+
+/* Item Details (expandable) */
+.item-details{
+  display:none;margin-top:0.5rem;padding:0.6rem 0.75rem;
+  background:rgba(0,0,0,0.2);border-radius:var(--radius-sm);
+  font-size:0.83rem;margin-left:1.8rem;
+}
+.item-details.open{display:block}
+.item-details p{margin-bottom:0.4rem;color:var(--text-secondary)}
+.detail-row{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.3rem;flex-wrap:wrap}
+.detail-label{color:var(--text-dim);font-size:0.75rem;min-width:60px}
+.wp-code{
+  font-family:'Consolas','Courier New',monospace;background:rgba(0,0,0,0.3);
+  padding:0.15rem 0.4rem;border-radius:3px;font-size:0.8rem;color:var(--gold-light);
+}
+.copy-btn{
+  padding:0.1rem 0.4rem;font-size:0.7rem;cursor:pointer;
+  background:transparent;border:1px solid var(--gold-dim);border-radius:3px;
+  color:var(--gold);transition:all 0.2s;
+}
+.copy-btn:hover{background:var(--gold);color:var(--bg-body)}
+.copy-btn.copied{background:var(--green);border-color:var(--green);color:#fff}
+.expand-btn{
+  background:none;border:none;color:var(--text-dim);cursor:pointer;
+  font-size:0.8rem;padding:0.2rem;transition:transform 0.2s;
+}
+.expand-btn.open{transform:rotate(180deg)}
+.wiki-link{font-size:0.75rem;color:var(--blue)}
+
+/* Otter Counter */
+.otter-counter{display:flex;align-items:center;gap:0.5rem;margin:1rem 0;flex-wrap:wrap}
+.counter-btn{
+  width:36px;height:36px;border-radius:var(--radius-sm);border:1px solid var(--gold-dim);
+  background:transparent;color:var(--gold);font-size:1.2rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all 0.2s;
+}
+.counter-btn:hover{background:var(--gold);color:var(--bg-body)}
+.counter-btn.wide{width:auto;padding:0 0.75rem;font-size:0.8rem}
+.counter-input{
+  width:70px;text-align:center;padding:0.4rem;
+  background:var(--bg-input);border:1px solid var(--gold-dim);border-radius:var(--radius-sm);
+  color:var(--gold);font-size:1.1rem;font-weight:600;font-family:inherit;
+}
+.counter-input::-webkit-inner-spin-button{-webkit-appearance:none}
+.counter-input{-moz-appearance:textfield}
+.otter-tier-bar{margin:1rem 0}
+.otter-bar-track{position:relative;height:18px;background:var(--progress-bg);border-radius:9px;overflow:visible}
+.otter-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:9px;transition:width 0.5s ease}
+.otter-tier-marks{display:flex;justify-content:space-between;margin-top:0.3rem;font-size:0.7rem;color:var(--text-dim)}
+.otter-tier-mark.reached{color:var(--green);font-weight:600}
+
+/* Event Timers Section */
+.timers-section{
+  background:var(--bg-card);border:1px solid var(--gold-dim);border-radius:var(--radius);
+  padding:1.25rem 1.5rem;margin-bottom:1.5rem;
+}
+.timers-section h2{font-size:1.1rem;margin-bottom:1rem}
+.timer-links{display:flex;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap}
+.timer-link{
+  display:inline-flex;align-items:center;gap:0.4rem;
+  padding:0.5rem 1rem;background:rgba(96,165,250,0.1);border:1px solid var(--blue);
+  border-radius:var(--radius-sm);color:var(--blue);font-size:0.85rem;transition:all 0.2s;
+}
+.timer-link:hover{background:rgba(96,165,250,0.2);text-decoration:none}
+.event-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0.75rem}
+.event-card{
+  padding:0.6rem 0.75rem;background:rgba(0,0,0,0.2);border-radius:var(--radius-sm);
+  font-size:0.83rem;
+}
+.event-card .ev-name{font-weight:500;margin-bottom:0.2rem}
+.event-card .ev-schedule{color:var(--text-secondary);font-size:0.75rem}
+
+/* Combos Section */
+.combos-section{
+  background:var(--bg-card);border:1px solid var(--gold-dim);border-radius:var(--radius);
+  padding:1.25rem 1.5rem;margin-bottom:1.5rem;
+}
+.combos-section h2{font-size:1.1rem;margin-bottom:1rem}
+.combo-item{
+  padding:0.5rem 0;border-bottom:1px solid rgba(138,114,52,0.2);
+  font-size:0.85rem;color:var(--text-secondary);
+}
+.combo-item:last-child{border-bottom:none}
+.combo-item strong{color:var(--text)}
+
+/* Footer */
+.site-footer{
+  max-width:1200px;margin:2rem auto 0;padding:1.5rem;
+  border-top:1px solid var(--gold-dim);text-align:center;
+}
+.footer-actions{display:flex;gap:0.75rem;justify-content:center;margin-bottom:1rem;flex-wrap:wrap}
+.footer-info{font-size:0.75rem;color:var(--text-dim)}
+
+/* Responsive */
+@media(max-width:768px){
+  .site-header{padding:1rem}
+  .header-inner{flex-direction:column;align-items:flex-start}
+  .header-progress{width:100%}
+  .main-content{padding:1rem}
+  .card-header{flex-direction:column;align-items:flex-start}
+  .progress-bar{width:100%}
+  .filter-bar{flex-direction:column}
+  .filter-group{flex-wrap:wrap}
+  .do-next-item{flex-direction:column;align-items:flex-start}
+  .do-next-item .dn-reason{padding-left:0}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <h1 class="site-title">GW2 Achievement Tracker</h1>
+    <div class="header-progress" id="headerProgress"></div>
+  </div>
+</header>
+
+<!-- API SYNC BAR -->
+<div class="api-bar">
+  <button class="api-toggle" id="apiToggle" aria-expanded="false">
+    <span class="chevron">&#9662;</span> GW2 API Sync
+  </button>
+  <div class="api-body" id="apiBody">
+    <div class="api-form">
+      <input type="text" id="apiKeyInput" placeholder="Paste your GW2 API key (account + progression permissions)">
+      <button class="btn btn-primary" id="syncBtn">Sync</button>
+      <button class="btn btn-danger btn-sm" id="clearKeyBtn">Clear Key</button>
+    </div>
+    <div class="api-status" id="apiStatus"></div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+  <!-- DO NEXT PANEL -->
+  <section class="do-next" id="doNextPanel">
+    <h2>&#9733; What to Do Next</h2>
+    <div class="do-next-list" id="doNextList"></div>
+  </section>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <div class="filter-group" id="completionFilter">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="incomplete">Incomplete</button>
+      <button class="filter-btn" data-filter="completed">Completed</button>
+    </div>
+    <div class="filter-group">
+      <select class="filter-select" id="difficultyFilter">
+        <option value="all">All Difficulties</option>
+        <option value="quick">Quick Wins</option>
+        <option value="short">Short</option>
+        <option value="medium">Medium</option>
+        <option value="long">Long</option>
+        <option value="grind">Grind</option>
+      </select>
+    </div>
+    <input type="text" class="search-input" id="searchInput" placeholder="Search tasks...">
+  </div>
+
+  <!-- ACHIEVEMENT CARDS (rendered by JS) -->
+  <div id="achievementCards"></div>
+
+  <!-- EVENT TIMERS -->
+  <section class="timers-section">
+    <h2>Event Timers</h2>
+    <div class="timer-links">
+      <a href="https://gw2.ninja/timer" target="_blank" rel="noopener" class="timer-link">&#9200; GW2 Ninja Timer</a>
+      <a href="https://gw2timer.com/" target="_blank" rel="noopener" class="timer-link">&#127760; GW2Timer.com</a>
+    </div>
+    <div class="event-grid">
+      <div class="event-card"><div class="ev-name">Palawadan (Istan)</div><div class="ev-schedule">Every 2 hours &middot; 30 min duration</div></div>
+      <div class="event-card"><div class="ev-name">Drakkar (Bjora Marches)</div><div class="ev-schedule">Fixed schedule &middot; check timer</div></div>
+      <div class="event-card"><div class="ev-name">Dragonstorm</div><div class="ev-schedule">Every 2 hours &middot; 20 min duration</div></div>
+      <div class="event-card"><div class="ev-name">Drizzlewood Coast Meta</div><div class="ev-schedule">Continuous &middot; join any time via LFG</div></div>
+      <div class="event-card"><div class="ev-name">Dragonfall Meta</div><div class="ev-schedule">Continuous &middot; join any time via LFG</div></div>
+    </div>
+  </section>
+
+  <!-- EFFICIENCY COMBOS -->
+  <section class="combos-section">
+    <h2>Efficiency Combos</h2>
+    <div class="combo-item"><strong>S3 Return + Portal Scroll:</strong> When doing a Return to S3 episode, buy that map's portal scroll from the vendor while you're there.</div>
+    <div class="combo-item"><strong>S4 Return + Portal Scroll:</strong> Same idea for Season 4 maps &mdash; buy the portal scroll during your Return run.</div>
+    <div class="combo-item"><strong>Drizzlewood Triple:</strong> Return to Drizzlewood Coast + farm Memories of Otter + buy Drizzlewood Coast Portal Scroll &mdash; three achievements, one map.</div>
+    <div class="combo-item"><strong>Bjora Double:</strong> Return to Bjora Marches + complete Significant Otter prerequisites (Olaf Olafson's Secret, etc.) &mdash; both in Bjora.</div>
+    <div class="combo-item"><strong>Lion's Arch Shopping Trip:</strong> Buy LA Teleportation Device + Hall of Monuments Portal Stone from vendors in Hooligan's Route.</div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-actions">
+    <button class="btn" id="exportBtn">Export Progress</button>
+    <button class="btn" id="importBtn">Import Progress</button>
+    <button class="btn btn-danger" id="resetBtn">Reset All Progress</button>
+  </div>
+  <div class="footer-info">Progress saved in your browser's localStorage. Use Export to back up. | Data sourced from <a href="https://wiki.guildwars2.com" target="_blank" rel="noopener">GW2 Wiki</a>.</div>
+</footer>
+
+<script>
+/* ========== DATA MODEL ========== */
+
+const ACHIEVEMENTS = {
+  seasons: {
+    id: 5790, name: "Seasons of the Dragons", total: 24,
+    reward: "Title: Seasons of the Dragons",
+    wikiUrl: "https://wiki.guildwars2.com/wiki/Seasons_of_the_Dragons",
+    tiers: [{count:4,ap:5},{count:10,ap:5},{count:16,ap:10},{count:24,ap:15}],
+    sections: [
+      { title: "Season 2", subtitle: "Easiest — small maps, short story", items: [
+        {key:"s-dry-top",bit:0,name:"Return to Dry Top",episode:"Gates of Maguuma",difficulty:"short",time:"30-60 min",map:"Dry Top",wp:"Prosperity Waypoint",wpCode:"[&BHoHAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Dry_Top",tips:"Small map, short story, soloable.",synergy:[]},
+        {key:"s-ministers",bit:1,name:"Return to A Meeting of Ministers",episode:"Entanglement",difficulty:"short",time:"30-60 min",map:"Dry Top",wp:"Prosperity Waypoint",wpCode:"[&BHoHAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_A_Meeting_of_Ministers",tips:"Short episode, Dry Top events.",synergy:[]},
+        {key:"s-hidden-arcana",bit:2,name:"Return to Hidden Arcana",episode:"The Dragon's Reach Part 1",difficulty:"short",time:"30-60 min",map:"Instance",wp:null,wpCode:null,wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Hidden_Arcana",tips:"Mostly instanced, no open world needed.",synergy:[]},
+        {key:"s-dragon-vigil",bit:3,name:"Return to Dragon Vigil",episode:"The Dragon's Reach Part 2",difficulty:"short",time:"30-60 min",map:"Instance",wp:null,wpCode:null,wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Dragon_Vigil",tips:"Mostly instanced.",synergy:[]},
+        {key:"s-meeting-asura",bit:4,name:"Return to Meeting the Asura",episode:"Echoes of the Past",difficulty:"short",time:"30-60 min",map:"Silverwastes",wp:"Camp Resolve Waypoint",wpCode:"[&BH8HAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Meeting_the_Asura",tips:"Silverwastes objectives.",synergy:[]},
+        {key:"s-aspect-masters",bit:5,name:"Return to Tracking the Aspect Masters",episode:"Tangled Paths",difficulty:"short",time:"30-60 min",map:"Silverwastes",wp:"Camp Resolve Waypoint",wpCode:"[&BH8HAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Tracking_the_Aspect_Masters",tips:"Silverwastes events.",synergy:[]},
+        {key:"s-mystery-cave",bit:6,name:"Return to The Mystery Cave",episode:"Seeds of Truth",difficulty:"short",time:"30-60 min",map:"Silverwastes",wp:"Camp Resolve Waypoint",wpCode:"[&BH8HAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_The_Mystery_Cave",tips:"Silverwastes exploration.",synergy:[]},
+        {key:"s-last-chance",bit:7,name:"Return to The Last Chance",episode:"Point of No Return",difficulty:"short",time:"30-60 min",map:"Silverwastes",wp:"Camp Resolve Waypoint",wpCode:"[&BH8HAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_The_Last_Chance",tips:"Silverwastes finale.",synergy:[]}
+      ]},
+      { title: "Season 3", subtitle: "Moderate — larger maps, HoT mechanics", items: [
+        {key:"s-bloodstone-fen",bit:8,name:"Return to Bloodstone Fen",episode:"Out of the Shadows",difficulty:"medium",time:"2-3 hrs",map:"Bloodstone Fen",wp:"Zealot's Overlook Waypoint",wpCode:"[&BE4JAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Bloodstone_Fen",tips:"Gliding useful. Buy Bloodstone Fen Portal Scroll while here.",synergy:["g-bloodstone-scroll"]},
+        {key:"s-ember-bay",bit:9,name:"Return to Ember Bay",episode:"Rising Flames",difficulty:"medium",time:"2-3 hrs",map:"Ember Bay",wp:"Observation Outpost Waypoint",wpCode:"[&BGwJAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Ember_Bay",tips:"Thermal tubes. Buy Ember Bay Portal Scroll while here.",synergy:["g-ember-scroll"]},
+        {key:"s-bitterfrost",bit:10,name:"Return to Bitterfrost Frontier",episode:"A Crack in the Ice",difficulty:"medium",time:"2-3 hrs",map:"Bitterfrost Frontier",wp:"Sorrow's Eclipse Waypoint",wpCode:"[&BH0JAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Bitterfrost_Frontier",tips:"Berry farming, ice beast events.",synergy:["g-bitterfrost-scroll"]},
+        {key:"s-lake-doric",bit:11,name:"Return to Lake Doric",episode:"Head of the Snake",difficulty:"medium",time:"2-3 hrs",map:"Lake Doric",wp:"Doric's Landing Waypoint",wpCode:"[&BK0JAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Lake_Doric",tips:"Centaur metas. Buy Lake Doric Portal Scroll while here.",synergy:["g-doric-scroll"]},
+        {key:"s-draconis-mons",bit:12,name:"Return to Draconis Mons",episode:"Flashpoint",difficulty:"medium",time:"2-4 hrs",map:"Draconis Mons",wp:"Mariner Landing Waypoint",wpCode:"[&BL0JAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Draconis_Mons",tips:"Vertical grapple map. Buy Draconis Mons Portal Scroll.",synergy:["g-draconis-scroll"]},
+        {key:"s-sirens-landing",bit:13,name:"Return to Siren's Landing",episode:"One Path Ends",difficulty:"medium",time:"2-3 hrs",map:"Siren's Landing",wp:"Camp Reclamation Waypoint",wpCode:"[&BO8JAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Siren%27s_Landing",tips:"Orrian events. Buy Siren's Landing Portal Scroll.",synergy:["g-sirens-scroll"]}
+      ]},
+      { title: "Season 4", subtitle: "Moderate-Hard — large maps, mount-heavy", items: [
+        {key:"s-istan",bit:14,name:"Return to Domain of Istan",episode:"Daybreak",difficulty:"medium",time:"2-3 hrs",map:"Domain of Istan",wp:"Chalon Docks Waypoint",wpCode:"[&BAkLAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Domain_of_Istan",tips:"Palawadan/Great Hall metas. Buy Istan Portal Scroll.",synergy:["g-istan-scroll"],timer:"Palawadan"},
+        {key:"s-sandswept",bit:15,name:"Return to Sandswept Isles",episode:"A Bug in the System",difficulty:"medium",time:"2-3 hrs",map:"Sandswept Isles",wp:"Atholma Waypoint",wpCode:"[&BEMLAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Sandswept_Isles",tips:"Inquest facility events. Buy Sandswept Isles Portal Scroll.",synergy:["g-sandswept-scroll"]},
+        {key:"s-kourna",bit:16,name:"Return to Domain of Kourna",episode:"Long Live the Lich",difficulty:"long",time:"3-4 hrs",map:"Domain of Kourna",wp:"Allied Encampment Waypoint",wpCode:"[&BFcLAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Domain_of_Kourna",tips:"Gandara meta, Awakened events. Buy Kourna Portal Scroll.",synergy:["g-kourna-scroll"]},
+        {key:"s-jahai",bit:17,name:"Return to Jahai Bluffs",episode:"A Star to Guide Us",difficulty:"long",time:"3-4 hrs",map:"Jahai Bluffs",wp:"Yatendi Village Waypoint",wpCode:"[&BH4LAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Jahai_Bluffs",tips:"Shatterer events, rift hunting. Buy Jahai Bluffs Portal Scroll.",synergy:["g-jahai-scroll"]},
+        {key:"s-thunderhead",bit:18,name:"Return to Thunderhead Peaks",episode:"All or Nothing",difficulty:"long",time:"3-5 hrs",map:"Thunderhead Peaks",wp:"Revolution's Heart Waypoint",wpCode:"[&BKYLAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Thunderhead_Peaks",tips:"Dwarven ruins, oil meta, Branded assault. Buy Thunderhead Peaks Portal Scroll.",synergy:["g-thunderhead-scroll"]},
+        {key:"s-dragonfall",bit:19,name:"Return to Dragonfall",episode:"War Eternal",difficulty:"long",time:"3-5 hrs",map:"Dragonfall",wp:"Pact Command Waypoint",wpCode:"[&BN4LAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Dragonfall",tips:"Multi-lane meta, needs coordination.",synergy:["g-dragonfall-scroll"]}
+      ]},
+      { title: "Icebrood Saga", subtitle: "Hardest — extended metas, strikes", items: [
+        {key:"s-grothmar",bit:20,name:"Return to Grothmar Valley",episode:"Bound by Blood",difficulty:"long",time:"3-4 hrs",map:"Grothmar Valley",wp:"Blood Keep Waypoint",wpCode:"[&BBsMAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Grothmar_Valley",tips:"Concert, Devourer racing. Buy Grothmar Valley Portal Scroll.",synergy:["g-grothmar-scroll"]},
+        {key:"s-bjora",bit:21,name:"Return to Bjora Marches",episode:"Whisper in the Dark",difficulty:"grind",time:"4+ hrs",map:"Bjora Marches",wp:"Jora's Keep Waypoint",wpCode:"[&BCcMAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Bjora_Marches",tips:"Drakkar meta, essences farming. Do Otter prereqs while here. Buy Bjora Marches Portal Scroll.",synergy:["g-bjora-scroll","o-prereq-olaf","o-prereq-sleuth","o-prereq-vault"],timer:"Drakkar"},
+        {key:"s-drizzlewood",bit:22,name:"Return to Drizzlewood Coast",episode:"No Quarter / Jormag Rising",difficulty:"grind",time:"4+ hrs",map:"Drizzlewood Coast",wp:"Forward Camp Waypoint",wpCode:"[&BHIMAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Drizzlewood_Coast",tips:"Full 1-2 hr meta. Farm Memories of Otter here too! Buy Drizzlewood Coast Portal Scroll.",synergy:["g-drizzlewood-scroll"],timer:"Drizzlewood"},
+        {key:"s-dragonstorm",bit:23,name:"Return to Dragonstorm",episode:"Champions",difficulty:"grind",time:"3-4 hrs",map:"Eye of the North",wp:"Eye of the North Waypoint",wpCode:"[&BAkMAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Return_to_Dragonstorm",tips:"Dragonstorm public/strike mission.",synergy:[],timer:"Dragonstorm"}
+      ]}
+    ]
+  },
+  gizmos: {
+    id: 8732, name: "Teleportation Gizmos Collector", total: 35,
+    reward: "Teleportation Nexus",
+    wikiUrl: "https://wiki.guildwars2.com/wiki/Teleportation_Gizmos_Collector",
+    tiers: [{count:7},{count:14},{count:21},{count:28},{count:35}],
+    sections: [
+      { title: "S3 Map Scrolls", subtitle: "Vendor purchases — map currency + gold", items: [
+        {key:"g-bitterfrost-scroll",bit:12,name:"Bitterfrost Frontier Portal Scroll",difficulty:"quick",time:"5 min",vendor:"Slooshoo",location:"Sorrow's Eclipse Sanctuary",map:"Bitterfrost Frontier",wp:"Sorrow's Eclipse Waypoint",wpCode:"[&BH0JAAA=]",cost:"Unbound Magic + gold",wikiUrl:"https://wiki.guildwars2.com/wiki/Bitterfrost_Frontier_Portal_Scroll",synergy:["s-bitterfrost"]},
+        {key:"g-bloodstone-scroll",bit:10,name:"Bloodstone Fen Portal Scroll",difficulty:"quick",time:"5 min",vendor:"Natto",location:"Pride of the Pact",map:"Bloodstone Fen",wp:"Zealot's Overlook Waypoint",wpCode:"[&BE4JAAA=]",cost:"Blood Rubies + gold",wikiUrl:"https://wiki.guildwars2.com/wiki/Bloodstone_Fen_Portal_Scroll",synergy:["s-bloodstone-fen"]},
+        {key:"g-ember-scroll",bit:11,name:"Ember Bay Portal Scroll",difficulty:"quick",time:"5 min",vendor:"Scholar Surra",location:"Infernal Cape",map:"Ember Bay",wp:"Observation Outpost Waypoint",wpCode:"[&BGwJAAA=]",cost:"Petrified Wood + gold",wikiUrl:"https://wiki.guildwars2.com/wiki/Ember_Bay_Portal_Scroll",synergy:["s-ember-bay"]},
+        {key:"g-doric-scroll",bit:13,name:"Lake Doric Portal Scroll",difficulty:"quick",time:"5 min",vendor:"Quartermaster Hitchens",location:"Doric's Landing",map:"Lake Doric",wp:"Doric's Landing Waypoint",wpCode:"[&BK0JAAA=]",cost:"Jade Shards + gold",wikiUrl:"https://wiki.guildwars2.com/wiki/Lake_Doric_Portal_Scroll",synergy:["s-lake-doric"]},
+        {key:"g-draconis-scroll",bit:14,name:"Draconis Mons Portal Scroll",difficulty:"quick",time:"5 min",vendor:"Supplymaster Hanjo",location:"Mariner Landing",map:"Draconis Mons",wp:"Mariner Landing Waypoint",wpCode:"[&BL0JAAA=]",cost:"Fire Orchid Blossoms + gold",wikiUrl:"https://wiki.guildwars2.com/wiki/Draconis_Mons_Portal_Scroll",synergy:["s-draconis-mons"]},
+        {key:"g-sirens-scroll",bit:15,name:"Siren's Landing Portal Scroll",difficulty:"quick",time:"5 min",vendor:"Provisioner Anlana",location:"Bloated Beach",map:"Siren's Landing",wp:"Camp Reclamation Waypoint",wpCode:"[&BO8JAAA=]",cost:"Orrian Pearls + gold",wikiUrl:"https://wiki.guildwars2.com/wiki/Siren%27s_Landing_Portal_Scroll",synergy:["s-sirens-landing"]}
+      ]},
+      { title: "S4 Map Scrolls", subtitle: "Vendor purchases — Trade Contracts + gold", items: [
+        {key:"g-istan-scroll",bit:19,name:"Domain of Istan Portal Scroll",difficulty:"quick",time:"5 min",vendor:"Alaleh",location:"Chalon Docks",map:"Domain of Istan",wp:"Chalon Docks Waypoint",wpCode:"[&BAkLAAA=]",cost:"Trade Contracts + gold",wikiUrl:"https://wiki.guildwars2.com/wiki/Domain_of_Istan_Portal_Scroll",synergy:["s-istan"]},
+        {key:"g-sandswept-scroll",bit:20,name:"Sandswept Isles Portal Scroll",difficulty:"quick",time:"5 min",vendor:"Ethall",location:"Atholma",map:"Sandswept Isles",wp:"Atholma Waypoint",wpCode:"[&BEMLAAA=]",cost:"Trade Contracts + gold",wikiUrl:"https://wiki.guildwars2.com/wiki/Sandswept_Isles_Portal_Scroll",synergy:["s-sandswept"]},
+        {key:"g-kourna-scroll",bit:21,name:"Domain of Kourna Portal Scroll",difficulty:"quick",time:"5 min",vendor:"Nalar",location:"Allied Encampment",map:"Domain of Kourna",wp:"Allied Encampment Waypoint",wpCode:"[&BFcLAAA=]",cost:"Trade Contracts + gold",wikiUrl:"https://wiki.guildwars2.com/wiki/Domain_of_Kourna_Portal_Scroll",synergy:["s-kourna"]},
+        {key:"g-jahai-scroll",bit:22,name:"Jahai Bluffs Portal Scroll",difficulty:"quick",time:"5 min",vendor:"Trader Hyacinth",location:"Yatendi Village",map:"Jahai Bluffs",wp:"Yatendi Village Waypoint",wpCode:"[&BH4LAAA=]",cost:"Trade Contracts + gold",wikiUrl:"https://wiki.guildwars2.com/wiki/Jahai_Bluffs_Portal_Scroll",synergy:["s-jahai"]},
+        {key:"g-thunderhead-scroll",bit:24,name:"Thunderhead Peaks Portal Scroll",difficulty:"quick",time:"5 min",vendor:"Kynon",location:"The Forge",map:"Thunderhead Peaks",wp:"Revolution's Heart Waypoint",wpCode:"[&BKYLAAA=]",cost:"Trade Contracts + gold",wikiUrl:"https://wiki.guildwars2.com/wiki/Thunderhead_Peaks_Portal_Scroll",synergy:["s-thunderhead"]},
+        {key:"g-dragonfall-scroll",bit:25,name:"Dragonfall Portal Scroll",difficulty:"quick",time:"5 min",vendor:"Olmakhan Quartermaster",location:"Pact Command",map:"Dragonfall",wp:"Pact Command Waypoint",wpCode:"[&BN4LAAA=]",cost:"Trade Contracts + gold",wikiUrl:"https://wiki.guildwars2.com/wiki/Dragonfall_Portal_Scroll",synergy:["s-dragonfall"]}
+      ]},
+      { title: "IBS Map Scrolls", subtitle: "Vendor purchases — IBS currencies", items: [
+        {key:"g-grothmar-scroll",bit:26,name:"Grothmar Valley Portal Scroll",difficulty:"quick",time:"5 min",vendor:"Rally Provisioner",location:"Lower Blood Keep",map:"Grothmar Valley",wp:"Blood Keep Waypoint",wpCode:"[&BBsMAAA=]",cost:"IBS currency + gold",wikiUrl:"https://wiki.guildwars2.com/wiki/Grothmar_Valley_Portal_Scroll",synergy:["s-grothmar"]},
+        {key:"g-bjora-scroll",bit:27,name:"Bjora Marches Portal Scroll",difficulty:"quick",time:"5 min",vendor:"Anette Eymundrdottir",location:"Jora's Keep",map:"Bjora Marches",wp:"Jora's Keep Waypoint",wpCode:"[&BCcMAAA=]",cost:"Eternal Ice Shards + gold",wikiUrl:"https://wiki.guildwars2.com/wiki/Bjora_Marches_Portal_Scroll",synergy:["s-bjora"]},
+        {key:"g-drizzlewood-scroll",bit:30,name:"Drizzlewood Coast Portal Scroll",difficulty:"quick",time:"5 min",vendor:"Annona Vinedrummer",location:"Umbral Grotto",map:"Drizzlewood Coast",wp:"Forward Camp Waypoint",wpCode:"[&BHIMAAA=]",cost:"War Supplies + gold",wikiUrl:"https://wiki.guildwars2.com/wiki/Drizzlewood_Coast_Portal_Scroll",synergy:["s-drizzlewood"]},
+        {key:"g-eotn-scroll",bit:31,name:"Eye of the North Portal Scroll",difficulty:"quick",time:"5 min",vendor:"Various vendors",location:"Eye of the North",map:"Eye of the North",wp:"Eye of the North Waypoint",wpCode:"[&BAkMAAA=]",cost:"Eternal Ice Shards",wikiUrl:"https://wiki.guildwars2.com/wiki/Eye_of_the_North_Portal_Scroll",synergy:[]}
+      ]},
+      { title: "Lion's Arch Purchases", subtitle: "Easy — gold purchases", items: [
+        {key:"g-la-device",bit:9,name:"Lion's Arch Teleportation Device",difficulty:"quick",time:"5 min",vendor:"Zotturrikk",location:"Hooligan's Route",map:"Lion's Arch",wp:"Farshore Waypoint",wpCode:"[&BDMEAAA=]",cost:"Gold",wikiUrl:"https://wiki.guildwars2.com/wiki/Lion%27s_Arch_Teleportation_Device",synergy:["g-hom-stone"]},
+        {key:"g-hom-stone",bit:33,name:"Hall of Monuments Portal Stone",difficulty:"quick",time:"5 min",vendor:"Sarettokk",location:"Hooligan's Route",map:"Lion's Arch",wp:"Farshore Waypoint",wpCode:"[&BDMEAAA=]",cost:"Gold (requires GW1 HoM link)",wikiUrl:"https://wiki.guildwars2.com/wiki/Hall_of_Monuments_Portal_Stone",synergy:["g-la-device"]}
+      ]},
+      { title: "Achievement-Gated Items", subtitle: "Requires completing specific achievements", items: [
+        {key:"g-lions-pride",bit:16,name:"Lion's Pride",difficulty:"short",time:"Varies",vendor:null,location:null,map:null,wp:null,wpCode:null,cost:"Complete Lion's Pride achievement",wikiUrl:"https://wiki.guildwars2.com/wiki/Lion%27s_Pride",synergy:[]},
+        {key:"g-aurene",bit:17,name:"Precocious Aurene",difficulty:"short",time:"Varies",vendor:null,location:null,map:null,wp:null,wpCode:null,cost:"Complete Precocious Aurene achievement",wikiUrl:"https://wiki.guildwars2.com/wiki/Precocious_Aurene_(achievement)",synergy:[]},
+        {key:"g-poster-child",bit:23,name:"Poster Child / S4 Portal Tome",difficulty:"medium",time:"2-4 hrs",vendor:null,location:null,map:null,wp:null,wpCode:null,cost:"Complete Poster Child achievement or S4 Portal Tome",wikiUrl:"https://wiki.guildwars2.com/wiki/Poster_Child",synergy:[]},
+        {key:"g-fallout",bit:28,name:"Fallout",difficulty:"medium",time:"2-4 hrs",vendor:null,location:null,map:null,wp:null,wpCode:null,cost:"Complete Fallout achievement",wikiUrl:"https://wiki.guildwars2.com/wiki/Fallout_(achievement)",synergy:[]},
+        {key:"g-secrets-obscured",bit:29,name:"Secrets Obscured",difficulty:"medium",time:"Varies",vendor:null,location:null,map:null,wp:null,wpCode:null,cost:"Complete Secrets Obscured achievement",wikiUrl:"https://wiki.guildwars2.com/wiki/Secrets_Obscured",synergy:[]},
+        {key:"g-griffon",bit:18,name:"Griffon Mount Item",difficulty:"long",time:"4+ hrs + 250g",vendor:null,location:"Crystal Oasis",map:"Crystal Oasis",wp:null,wpCode:null,cost:"Griffon mount unlock (250g quest chain)",wikiUrl:"https://wiki.guildwars2.com/wiki/Open_Skies:_Crystal_Oasis",synergy:[]}
+      ]},
+      { title: "Mystic Forge City Scrolls", subtitle: "50 Mystic Coins each — expensive", items: [
+        {key:"g-bc-scroll",bit:2,name:"Black Citadel Portal Scroll",difficulty:"medium",time:"Crafting",vendor:null,location:"Mystic Forge, Lion's Arch",map:"Lion's Arch",wp:"Trader's Forum Waypoint",wpCode:"[&BBAEAAA=]",cost:"50 Mystic Coins + Essence of Black Citadel + crafting mats",wikiUrl:"https://wiki.guildwars2.com/wiki/Black_Citadel_Portal_Scroll",synergy:[]},
+        {key:"g-dr-scroll",bit:3,name:"Divinity's Reach Portal Scroll",difficulty:"medium",time:"Crafting",vendor:null,location:"Mystic Forge, Lion's Arch",map:"Lion's Arch",wp:"Trader's Forum Waypoint",wpCode:"[&BBAEAAA=]",cost:"50 Mystic Coins + Essence of Divinity's Reach + crafting mats",wikiUrl:"https://wiki.guildwars2.com/wiki/Divinity%27s_Reach_Portal_Scroll",synergy:[]},
+        {key:"g-hoelbrak-scroll",bit:4,name:"Hoelbrak Portal Scroll",difficulty:"medium",time:"Crafting",vendor:null,location:"Mystic Forge, Lion's Arch",map:"Lion's Arch",wp:"Trader's Forum Waypoint",wpCode:"[&BBAEAAA=]",cost:"50 Mystic Coins + Essence of Hoelbrak + crafting mats",wikiUrl:"https://wiki.guildwars2.com/wiki/Hoelbrak_Portal_Scroll",synergy:[]},
+        {key:"g-la-scroll",bit:5,name:"Lion's Arch Portal Scroll",difficulty:"medium",time:"Crafting",vendor:null,location:"Mystic Forge, Lion's Arch",map:"Lion's Arch",wp:"Trader's Forum Waypoint",wpCode:"[&BBAEAAA=]",cost:"50 Mystic Coins + complex nested Essences",wikiUrl:"https://wiki.guildwars2.com/wiki/Lion%27s_Arch_Portal_Scroll_(consumable)",synergy:[]},
+        {key:"g-rata-scroll",bit:6,name:"Rata Sum Portal Scroll",difficulty:"medium",time:"Crafting",vendor:null,location:"Mystic Forge, Lion's Arch",map:"Lion's Arch",wp:"Trader's Forum Waypoint",wpCode:"[&BBAEAAA=]",cost:"50 Mystic Coins + Essence of Rata Sum + crafting mats",wikiUrl:"https://wiki.guildwars2.com/wiki/Rata_Sum_Portal_Scroll",synergy:[]},
+        {key:"g-grove-scroll",bit:7,name:"The Grove Portal Scroll",difficulty:"medium",time:"Crafting",vendor:null,location:"Mystic Forge, Lion's Arch",map:"Lion's Arch",wp:"Trader's Forum Waypoint",wpCode:"[&BBAEAAA=]",cost:"50 Mystic Coins + Essence of the Grove + crafting mats",wikiUrl:"https://wiki.guildwars2.com/wiki/The_Grove_Portal_Scroll",synergy:[]},
+        {key:"g-ebonhawke-scroll",bit:8,name:"Ebonhawke Portal Scroll",difficulty:"medium",time:"Crafting",vendor:null,location:"Mystic Forge, Lion's Arch",map:"Lion's Arch",wp:"Trader's Forum Waypoint",wpCode:"[&BBAEAAA=]",cost:"50 Mystic Coins + Essence of Ebonhawke + crafting mats",wikiUrl:"https://wiki.guildwars2.com/wiki/Ebonhawke_Portal_Scroll",synergy:[]}
+      ]},
+      { title: "Complex / Long-Term", subtitle: "Hard — long-term goals", items: [
+        {key:"g-wizard-tome",bit:1,name:"Wizard's Portal Tome",difficulty:"long",time:"4+ hrs",vendor:null,location:null,map:null,wp:null,wpCode:null,cost:"Complete 'Work Hard for Now' achievement",wikiUrl:"https://wiki.guildwars2.com/wiki/Wizard%27s_Portal_Tome",synergy:[]},
+        {key:"g-chuka",bit:32,name:"Chuka and Champawat",difficulty:"grind",time:"Many sessions",vendor:null,location:null,map:null,wp:null,wpCode:null,cost:"Complete legendary shortbow collection IV",wikiUrl:"https://wiki.guildwars2.com/wiki/Chuka_and_Champawat_IV:_A_Nontraditional_Family",synergy:[]},
+        {key:"g-mists-vault",bit:34,name:"Mists Vault: Visitor's Pass",difficulty:"medium",time:"Varies",vendor:null,location:null,map:null,wp:null,wpCode:null,cost:"Complete Mists Vault achievement",wikiUrl:"https://wiki.guildwars2.com/wiki/Mists_Vault:_Visitor%27s_Pass",synergy:[]},
+        {key:"g-festival",bit:35,name:"Festival Frequenter",difficulty:"grind",time:"Calendar-gated",vendor:null,location:null,map:null,wp:null,wpCode:null,cost:"Participate in 4+ different festivals over the year",wikiUrl:"https://wiki.guildwars2.com/wiki/Festival_Frequenter",synergy:[]}
+      ]}
+    ]
+  },
+  otter: {
+    id: 5350, name: "Significant Otter", total: 320,
+    reward: "Ascended amulet with Otter's Blessing Enrichment",
+    wikiUrl: "https://wiki.guildwars2.com/wiki/Significant_Otter",
+    tiers: [{count:40,ap:1},{count:80,ap:2},{count:160,ap:3},{count:320,ap:4}],
+    trackingType: "counter",
+    prerequisites: [
+      {key:"o-prereq-olaf",name:"Olaf Olafson's Secret",difficulty:"short",time:"30-60 min",map:"Bjora Marches",wp:"Jora's Keep Waypoint",wpCode:"[&BCcMAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Olaf_Olafson%27s_Secret",tips:"Find hidden cave in Bjora Marches, interact with objects inside.",synergy:["s-bjora"]},
+      {key:"o-prereq-sleuth",name:"Treasure Sleuth",difficulty:"short",time:"30-60 min",map:"Bjora Marches",wp:"Jora's Keep Waypoint",wpCode:"[&BCcMAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Treasure_Sleuth",tips:"Follow treasure clues. Unlocked after Olaf Olafson's Secret.",synergy:["s-bjora"],blockedBy:"o-prereq-olaf"},
+      {key:"o-prereq-vault",name:"Open the Vault",difficulty:"short",time:"15-30 min",map:"Bjora Marches",wp:"Jora's Keep Waypoint",wpCode:"[&BCcMAAA=]",wikiUrl:"https://wiki.guildwars2.com/wiki/Open_the_Vault",tips:"Open Glorious Chest at Claw's Roost. Requires prior steps.",synergy:["s-bjora"],blockedBy:"o-prereq-sleuth"}
+    ],
+    farmingInfo: {
+      method: "Drizzlewood Coast Meta Event",
+      avgPerRun: 12, runDuration: "1-2 hours",
+      estimates: [{tier:1,count:40,runs:4},{tier:2,count:80,runs:7},{tier:3,count:160,runs:14},{tier:4,count:320,runs:27}]
+    }
+  }
+};
+
+/* ========== STATE MANAGEMENT ========== */
+
+const STATE_KEY = 'gw2-tracker-state';
+const API_KEY_KEY = 'gw2-api-key';
+
+function getDefaultState() {
+  const checked = {};
+  ['seasons','gizmos'].forEach(ak => {
+    ACHIEVEMENTS[ak].sections.forEach(sec => {
+      sec.items.forEach(it => { checked[it.key] = false; });
+    });
+  });
+  ACHIEVEMENTS.otter.prerequisites.forEach(p => { checked[p.key] = false; });
+  return { version: 2, checkedItems: checked, otterCount: 0, completionFilter: 'all', difficultyFilter: 'all' };
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STATE_KEY);
+    if (!raw) return getDefaultState();
+    const saved = JSON.parse(raw);
+    const def = getDefaultState();
+    // merge: keep saved values, add any new keys from default
+    Object.keys(def.checkedItems).forEach(k => {
+      if (!(k in saved.checkedItems)) saved.checkedItems[k] = def.checkedItems[k];
+    });
+    if (saved.otterCount == null) saved.otterCount = 0;
+    return saved;
+  } catch(e) { return getDefaultState(); }
+}
+
+function saveState() { localStorage.setItem(STATE_KEY, JSON.stringify(state)); }
+
+let state = loadState();
+
+/* ========== HELPER FUNCTIONS ========== */
+
+function getAllChecklistItems() {
+  const items = [];
+  ['seasons','gizmos'].forEach(ak => {
+    ACHIEVEMENTS[ak].sections.forEach(sec => {
+      sec.items.forEach(it => items.push({...it, achievement: ak}));
+    });
+  });
+  ACHIEVEMENTS.otter.prerequisites.forEach(p => items.push({...p, achievement: 'otter'}));
+  return items;
+}
+
+function countCompleted(achievementKey) {
+  if (achievementKey === 'otter') return state.otterCount;
+  let count = 0;
+  ACHIEVEMENTS[achievementKey].sections.forEach(sec => {
+    sec.items.forEach(it => { if (state.checkedItems[it.key]) count++; });
+  });
+  return count;
+}
+
+function getCurrentTier(achievementKey) {
+  const ach = ACHIEVEMENTS[achievementKey];
+  const count = countCompleted(achievementKey);
+  let tier = 0;
+  ach.tiers.forEach((t,i) => { if (count >= t.count) tier = i + 1; });
+  return tier;
+}
+
+function copyToClipboard(text, btn) {
+  const doCopy = () => {
+    // fallback for file:// protocol
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).catch(doCopy);
+  } else { doCopy(); }
+  btn.textContent = 'Copied!'; btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+}
+
+/* ========== RENDERING ========== */
+
+function renderHeaderProgress() {
+  const el = document.getElementById('headerProgress');
+  const data = [
+    {key:'seasons',label:'Seasons',count:countCompleted('seasons'),total:24},
+    {key:'gizmos',label:'Gizmos',count:countCompleted('gizmos'),total:35},
+    {key:'otter',label:'Otter',count:state.otterCount,total:320}
+  ];
+  el.innerHTML = data.map(d => `
+    <div class="header-prog-item">
+      <span class="prog-label">${d.label}</span>
+      <span class="prog-count">${d.count}/${d.total}</span>
+      <div class="mini-bar"><div class="mini-bar-fill" style="width:${(d.count/d.total*100).toFixed(1)}%"></div></div>
+    </div>
+  `).join('');
+}
+
+function renderChecklistCard(achievementKey) {
+  const ach = ACHIEVEMENTS[achievementKey];
+  const count = countCompleted(achievementKey);
+  const pct = (count / ach.total * 100).toFixed(1);
+  const curTier = getCurrentTier(achievementKey);
+
+  let tierHtml = ach.tiers.map((t,i) => {
+    const reached = (i+1) <= curTier;
+    return `<span class="tier-dot ${reached?'reached':''}">Tier ${i+1}: ${t.count}${t.ap?' ('+t.ap+' AP)':''}</span>`;
+  }).join('');
+
+  let sectionsHtml = ach.sections.map(sec => {
+    let itemsHtml = sec.items.map(it => renderChecklistItem(it, achievementKey)).join('');
+    return `
+      <div class="sub-section">
+        <h3 class="sub-header" aria-expanded="true" onclick="toggleSub(this)">
+          <span class="sub-chevron">&#9662;</span> ${sec.title} <span style="font-size:0.75rem;color:var(--text-secondary);font-family:Inter,sans-serif;font-weight:400"> &mdash; ${sec.subtitle}</span>
+        </h3>
+        <div class="sub-body">${itemsHtml}</div>
+      </div>`;
+  }).join('');
+
+  return `
+    <section class="achievement-card" id="card-${achievementKey}">
+      <div class="card-header" aria-expanded="true" onclick="toggleCard(this)">
+        <div class="card-title-area">
+          <h2>${ach.name}</h2>
+          <div class="card-subtitle">${ach.reward} &middot; <a href="${ach.wikiUrl}" target="_blank" class="wiki-link" onclick="event.stopPropagation()">Wiki</a></div>
+        </div>
+        <div class="card-progress-area">
+          <span class="progress-text" id="prog-text-${achievementKey}">${count} / ${ach.total}</span>
+          <div class="progress-bar"><div class="progress-fill" id="prog-fill-${achievementKey}" style="width:${pct}%"></div></div>
+          <span class="card-chevron">&#9662;</span>
+        </div>
+      </div>
+      <div class="card-body open">
+        <div class="card-body-inner">
+          <div class="tier-row" id="tiers-${achievementKey}">${tierHtml}</div>
+          ${sectionsHtml}
+        </div>
+      </div>
+    </section>`;
+}
+
+function renderChecklistItem(item, achievementKey) {
+  const checked = state.checkedItems[item.key] ? 'checked' : '';
+  const doneClass = state.checkedItems[item.key] ? 'done' : '';
+  const searchText = [item.name, item.map, item.vendor, item.episode, item.location, item.cost].filter(Boolean).join(' ').toLowerCase();
+
+  let detailRows = '';
+  if (item.episode) detailRows += `<div class="detail-row"><span class="detail-label">Episode:</span> ${item.episode}</div>`;
+  if (item.vendor) detailRows += `<div class="detail-row"><span class="detail-label">Vendor:</span> ${item.vendor} &mdash; ${item.location || ''}</div>`;
+  if (item.cost) detailRows += `<div class="detail-row"><span class="detail-label">Cost:</span> ${item.cost}</div>`;
+  if (item.map && item.map !== 'Instance') detailRows += `<div class="detail-row"><span class="detail-label">Map:</span> ${item.map}</div>`;
+  if (item.wpCode) detailRows += `<div class="detail-row"><span class="detail-label">Waypoint:</span> <span class="wp-code">${item.wpCode}</span> <button class="copy-btn" onclick="event.stopPropagation();copyToClipboard('${item.wpCode}',this)">Copy</button> <span style="color:var(--text-dim);font-size:0.75rem">${item.wp || ''}</span></div>`;
+  if (item.tips) detailRows += `<div class="detail-row" style="color:var(--text-secondary)"><span class="detail-label">Tips:</span> ${item.tips}</div>`;
+  if (item.wikiUrl) detailRows += `<div class="detail-row"><a href="${item.wikiUrl}" target="_blank" class="wiki-link">GW2 Wiki &rarr;</a></div>`;
+  if (item.timer) detailRows += `<div class="detail-row"><a href="https://gw2.ninja/timer" target="_blank" class="wiki-link" style="color:var(--orange)">Event Timer (${item.timer}) &rarr;</a></div>`;
+
+  return `
+    <div class="checklist-item ${doneClass}" data-key="${item.key}" data-difficulty="${item.difficulty}" data-achievement="${achievementKey}" data-search="${searchText}">
+      <label class="cb-label">
+        <input type="checkbox" ${checked} onchange="onCheck('${item.key}','${achievementKey}',this.checked)">
+        <span class="cb-box"></span>
+        <div class="item-info">
+          <div class="item-name">${item.name}</div>
+          ${item.episode ? `<div class="item-episode">${item.episode}</div>` : ''}
+        </div>
+      </label>
+      <div class="item-right">
+        <span class="badge badge-${item.difficulty}">${item.difficulty}</span>
+        <span class="time-est">${item.time || ''}</span>
+        <button class="expand-btn" onclick="toggleDetails(this)" title="Show details">&#9662;</button>
+      </div>
+      <div class="item-details">${detailRows}</div>
+    </div>`;
+}
+
+function renderOtterCard() {
+  const ach = ACHIEVEMENTS.otter;
+  const count = state.otterCount;
+  const pct = (count / ach.total * 100).toFixed(1);
+  const curTier = getCurrentTier('otter');
+
+  let tierHtml = ach.tiers.map((t,i) => {
+    const reached = (i+1) <= curTier;
+    return `<span class="tier-dot ${reached?'reached':''}">Tier ${i+1}: ${t.count} (${t.ap} AP)</span>`;
+  }).join('');
+
+  let prereqHtml = ach.prerequisites.map(p => renderChecklistItem(p, 'otter')).join('');
+
+  let estHtml = ach.farmingInfo.estimates.map(e =>
+    `<div style="display:flex;justify-content:space-between;padding:0.2rem 0;font-size:0.8rem"><span>Tier ${e.tier} (${e.count})</span><span style="color:var(--gold)">~${e.runs} runs</span></div>`
+  ).join('');
+
+  return `
+    <section class="achievement-card" id="card-otter">
+      <div class="card-header" aria-expanded="true" onclick="toggleCard(this)">
+        <div class="card-title-area">
+          <h2>${ach.name}</h2>
+          <div class="card-subtitle">${ach.reward} &middot; <a href="${ach.wikiUrl}" target="_blank" class="wiki-link" onclick="event.stopPropagation()">Wiki</a></div>
+        </div>
+        <div class="card-progress-area">
+          <span class="progress-text" id="prog-text-otter">${count} / ${ach.total} Memories</span>
+          <div class="progress-bar"><div class="progress-fill" id="prog-fill-otter" style="width:${pct}%"></div></div>
+          <span class="card-chevron">&#9662;</span>
+        </div>
+      </div>
+      <div class="card-body open">
+        <div class="card-body-inner">
+          <div class="tier-row" id="tiers-otter">${tierHtml}</div>
+
+          <h3 style="font-size:0.95rem;margin:0.75rem 0 0.5rem">Memory Counter</h3>
+          <div class="otter-counter">
+            <button class="counter-btn" onclick="updateOtter(state.otterCount - 1)">&minus;</button>
+            <input type="number" class="counter-input" id="otterInput" value="${count}" min="0" max="320"
+              onchange="updateOtter(parseInt(this.value)||0)">
+            <button class="counter-btn" onclick="updateOtter(state.otterCount + 1)">+</button>
+            <button class="counter-btn wide" onclick="updateOtter(state.otterCount + 12)">+12 (Full Run)</button>
+          </div>
+          <div class="otter-tier-bar">
+            <div class="otter-bar-track"><div class="otter-bar-fill" id="otterBarFill" style="width:${pct}%"></div></div>
+            <div class="otter-tier-marks">
+              ${ach.tiers.map(t => `<span class="otter-tier-mark ${count>=t.count?'reached':''}">${t.count}</span>`).join('')}
+            </div>
+          </div>
+
+          <h3 style="font-size:0.95rem;margin:1rem 0 0.5rem">Prerequisites</h3>
+          <div style="margin-bottom:0.5rem;font-size:0.8rem;color:var(--text-secondary)">Complete these in order before Memories will drop:</div>
+          ${prereqHtml}
+
+          <h3 style="font-size:0.95rem;margin:1rem 0 0.5rem">Farming Strategy</h3>
+          <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem">
+            <strong style="color:var(--text)">${ach.farmingInfo.method}</strong> &mdash; ~${ach.farmingInfo.avgPerRun} Memories per run, ${ach.farmingInfo.runDuration} per run
+          </div>
+          <div style="background:rgba(0,0,0,0.2);padding:0.5rem 0.75rem;border-radius:var(--radius-sm)">${estHtml}</div>
+        </div>
+      </div>
+    </section>`;
+}
+
+function renderAll() {
+  const container = document.getElementById('achievementCards');
+  container.innerHTML = renderChecklistCard('seasons') + renderChecklistCard('gizmos') + renderOtterCard();
+  renderHeaderProgress();
+  renderDoNext();
+  applyFilters();
+}
+
+/* ========== INTERACTIONS ========== */
+
+function onCheck(key, achievementKey, checked) {
+  state.checkedItems[key] = checked;
+  saveState();
+  // Update item visual
+  const el = document.querySelector(`[data-key="${key}"]`);
+  if (el) { el.classList.toggle('done', checked); }
+  updateProgress(achievementKey);
+  renderHeaderProgress();
+  renderDoNext();
+  applyFilters();
+}
+
+function updateOtter(val) {
+  state.otterCount = Math.max(0, Math.min(320, val));
+  saveState();
+  document.getElementById('otterInput').value = state.otterCount;
+  const pct = (state.otterCount / 320 * 100).toFixed(1);
+  document.getElementById('otterBarFill').style.width = pct + '%';
+  document.getElementById('prog-fill-otter').style.width = pct + '%';
+  document.getElementById('prog-text-otter').textContent = state.otterCount + ' / 320 Memories';
+  // Update tier marks
+  const marks = document.querySelectorAll('.otter-tier-mark');
+  ACHIEVEMENTS.otter.tiers.forEach((t,i) => {
+    if (marks[i]) marks[i].classList.toggle('reached', state.otterCount >= t.count);
+  });
+  // Update tier dots
+  updateTierDots('otter');
+  renderHeaderProgress();
+  renderDoNext();
+}
+
+function updateProgress(achievementKey) {
+  const ach = ACHIEVEMENTS[achievementKey];
+  const count = countCompleted(achievementKey);
+  const pct = (count / ach.total * 100).toFixed(1);
+  const progFill = document.getElementById('prog-fill-' + achievementKey);
+  const progText = document.getElementById('prog-text-' + achievementKey);
+  if (progFill) progFill.style.width = pct + '%';
+  if (progText) progText.textContent = count + ' / ' + ach.total;
+  updateTierDots(achievementKey);
+}
+
+function updateTierDots(achievementKey) {
+  const container = document.getElementById('tiers-' + achievementKey);
+  if (!container) return;
+  const curTier = getCurrentTier(achievementKey);
+  container.querySelectorAll('.tier-dot').forEach((dot,i) => {
+    dot.classList.toggle('reached', (i+1) <= curTier);
+  });
+}
+
+function toggleCard(header) {
+  const expanded = header.getAttribute('aria-expanded') === 'true';
+  header.setAttribute('aria-expanded', !expanded);
+  const body = header.nextElementSibling;
+  body.classList.toggle('open', !expanded);
+  if (!expanded) { body.style.maxHeight = 'none'; }
+  else { body.style.maxHeight = '0'; }
+}
+
+function toggleSub(header) {
+  const expanded = header.getAttribute('aria-expanded') === 'true';
+  header.setAttribute('aria-expanded', !expanded);
+  header.nextElementSibling.classList.toggle('collapsed', expanded);
+}
+
+function toggleDetails(btn) {
+  const details = btn.closest('.checklist-item').querySelector('.item-details');
+  details.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+
+/* ========== FILTERS ========== */
+
+function applyFilters() {
+  const compFilter = state.completionFilter || 'all';
+  const diffFilter = state.difficultyFilter || 'all';
+  const search = (document.getElementById('searchInput').value || '').toLowerCase();
+
+  document.querySelectorAll('.checklist-item').forEach(el => {
+    const key = el.dataset.key;
+    const done = state.checkedItems[key];
+    const diff = el.dataset.difficulty;
+    const searchText = el.dataset.search || '';
+    let show = true;
+    if (compFilter === 'completed' && !done) show = false;
+    if (compFilter === 'incomplete' && done) show = false;
+    if (diffFilter !== 'all' && diff !== diffFilter) show = false;
+    if (search && !searchText.includes(search)) show = false;
+    el.classList.toggle('filtered-out', !show);
+  });
+}
+
+// Filter event listeners
+document.getElementById('completionFilter').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('#completionFilter .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state.completionFilter = btn.dataset.filter;
+  saveState();
+  applyFilters();
+});
+
+document.getElementById('difficultyFilter').addEventListener('change', e => {
+  state.difficultyFilter = e.target.value;
+  saveState();
+  applyFilters();
+});
+
+document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+/* ========== PRIORITY / DO NEXT ========== */
+
+function renderDoNext() {
+  const allItems = getAllChecklistItems();
+  const incomplete = allItems.filter(it => !state.checkedItems[it.key]);
+
+  const scored = incomplete.map(it => {
+    let score = 0;
+    const diffScores = {quick:100,short:75,medium:50,long:25,grind:10};
+    score += diffScores[it.difficulty] || 0;
+
+    // Synergy bonus
+    if (it.synergy) {
+      const incompleteSyn = it.synergy.filter(s => !state.checkedItems[s]);
+      score += incompleteSyn.length * 20;
+    }
+
+    // Tier proximity bonus
+    const ach = ACHIEVEMENTS[it.achievement];
+    if (ach && it.achievement !== 'otter') {
+      const cur = countCompleted(it.achievement);
+      const nextTier = ach.tiers.find(t => t.count > cur);
+      if (nextTier && cur + 1 === nextTier.count) score += 30;
+    }
+
+    // Blocked check (otter prereqs)
+    if (it.blockedBy && !state.checkedItems[it.blockedBy]) score = -1;
+
+    return {...it, score};
+  }).filter(it => it.score >= 0).sort((a,b) => b.score - a.score);
+
+  const top = scored.slice(0, 6);
+  const list = document.getElementById('doNextList');
+  if (top.length === 0) {
+    list.innerHTML = '<div style="color:var(--green);font-size:0.9rem">All tasks completed! Congratulations!</div>';
+    return;
+  }
+  list.innerHTML = top.map(it => {
+    const reasons = [];
+    if (it.difficulty === 'quick') reasons.push('Quick win');
+    if (it.synergy && it.synergy.some(s => !state.checkedItems[s])) reasons.push('Map synergy');
+    const ach = ACHIEVEMENTS[it.achievement];
+    if (ach && it.achievement !== 'otter') {
+      const cur = countCompleted(it.achievement);
+      const nextTier = ach.tiers.find(t => t.count > cur);
+      if (nextTier && cur + 1 === nextTier.count) reasons.push('Completes a tier!');
+    }
+    const achLabel = {seasons:'Seasons',gizmos:'Gizmos',otter:'Otter'}[it.achievement];
+    const wpBtn = it.wpCode ? `<button class="copy-btn" onclick="event.stopPropagation();copyToClipboard('${it.wpCode}',this)">Copy WP</button>` : '';
+    return `
+      <div class="do-next-item">
+        <span class="badge badge-${it.difficulty}">${it.difficulty}</span>
+        <span class="dn-name">${it.name}</span>
+        <div class="dn-meta">
+          <span>${achLabel}</span>
+          <span>${it.time || ''}</span>
+          ${it.wpCode ? `<span class="wp-code" style="font-size:0.7rem">${it.wpCode}</span>` : ''}
+          ${wpBtn}
+        </div>
+        ${reasons.length ? `<div class="dn-reason">${reasons.join(' &middot; ')}</div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+/* ========== API SYNC ========== */
+
+document.getElementById('apiToggle').addEventListener('click', function() {
+  const expanded = this.getAttribute('aria-expanded') === 'true';
+  this.setAttribute('aria-expanded', !expanded);
+  document.getElementById('apiBody').classList.toggle('open', !expanded);
+});
+
+// Load saved API key
+const savedKey = localStorage.getItem(API_KEY_KEY);
+if (savedKey) document.getElementById('apiKeyInput').value = savedKey;
+
+document.getElementById('syncBtn').addEventListener('click', async () => {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if (!key) { showApiStatus('Please enter an API key.', 'error'); return; }
+  localStorage.setItem(API_KEY_KEY, key);
+  showApiStatus('Syncing...', '');
+
+  try {
+    const resp = await fetch(`https://api.guildwars2.com/v2/account/achievements?ids=5790,8732,5350&access_token=${encodeURIComponent(key)}`);
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.text || `HTTP ${resp.status}`);
+    }
+    const data = await resp.json();
+    let updated = 0;
+
+    data.forEach(ach => {
+      if (ach.id === 5790 && ach.bits) {
+        // Seasons of the Dragons
+        ACHIEVEMENTS.seasons.sections.forEach(sec => {
+          sec.items.forEach(it => {
+            if (it.bit != null && ach.bits.includes(it.bit)) {
+              if (!state.checkedItems[it.key]) { state.checkedItems[it.key] = true; updated++; }
+            }
+          });
+        });
+      }
+      if (ach.id === 8732 && ach.bits) {
+        // Gizmos
+        ACHIEVEMENTS.gizmos.sections.forEach(sec => {
+          sec.items.forEach(it => {
+            if (it.bit != null && ach.bits.includes(it.bit)) {
+              if (!state.checkedItems[it.key]) { state.checkedItems[it.key] = true; updated++; }
+            }
+          });
+        });
+      }
+      if (ach.id === 5350) {
+        // Otter - counter based
+        if (ach.current != null && ach.current > state.otterCount) {
+          state.otterCount = ach.current;
+          updated++;
+        }
+      }
+    });
+
+    saveState();
+    renderAll();
+    showApiStatus(`Sync complete! ${updated} item${updated!==1?'s':''} updated.`, 'success');
+  } catch(e) {
+    showApiStatus('Sync failed: ' + e.message, 'error');
+  }
+});
+
+document.getElementById('clearKeyBtn').addEventListener('click', () => {
+  localStorage.removeItem(API_KEY_KEY);
+  document.getElementById('apiKeyInput').value = '';
+  showApiStatus('API key cleared.', '');
+});
+
+function showApiStatus(msg, cls) {
+  const el = document.getElementById('apiStatus');
+  el.textContent = msg;
+  el.className = 'api-status' + (cls ? ' ' + cls : '');
+}
+
+/* ========== EXPORT / IMPORT / RESET ========== */
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'gw2-tracker-' + new Date().toISOString().split('T')[0] + '.json';
+  a.click(); URL.revokeObjectURL(url);
+});
+
+document.getElementById('importBtn').addEventListener('click', () => {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json';
+  input.onchange = e => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const imported = JSON.parse(ev.target.result);
+        if (imported.checkedItems) {
+          state = imported;
+          saveState();
+          renderAll();
+          alert('Progress imported successfully!');
+        } else { alert('Invalid file format.'); }
+      } catch(err) { alert('Failed to parse file.'); }
+    };
+    reader.readAsText(e.target.files[0]);
+  };
+  input.click();
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (confirm('Reset ALL progress? This cannot be undone.')) {
+    state = getDefaultState();
+    saveState();
+    renderAll();
+  }
+});
+
+/* ========== INIT ========== */
+renderAll();
+</script>
+</body>
+</html>

@@ -422,8 +422,25 @@ a:hover{text-decoration:underline}
 .tour-arrow.left{left:-7px;top:20px;border-right:none;border-top:none}
 @keyframes tour-pop{0%{opacity:0;transform:scale(0.9)}100%{opacity:1;transform:scale(1)}}
 
+/* Table of Contents Sidebar */
+.toc-sidebar{position:fixed;left:0;top:70px;width:220px;height:calc(100vh - 70px);overflow-y:auto;padding:1rem 0.75rem;z-index:90;background:var(--bg-header);border-right:1px solid var(--gold-dim);transform:translateX(-100%);transition:transform 0.3s ease;scrollbar-width:thin;scrollbar-color:var(--gold-dim) transparent}
+.toc-sidebar.open{transform:translateX(0)}
+.toc-toggle{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:91;background:var(--bg-header);border:1px solid var(--gold-dim);border-left:none;border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:0.5rem 0.3rem;cursor:pointer;color:var(--gold);font-size:0.75rem;writing-mode:vertical-rl;transition:left 0.3s ease,background 0.2s}
+.toc-toggle:hover{background:var(--bg-card-hover);color:var(--gold-light)}
+.toc-sidebar.open+.toc-toggle{left:220px}
+.toc-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gold);margin-bottom:0.75rem;font-weight:600}
+.toc-item{display:block;font-size:0.75rem;color:var(--text-secondary);padding:0.35rem 0.5rem;border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;border-left:2px solid transparent;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.toc-item:hover{color:var(--text);background:rgba(255,255,255,0.03);text-decoration:none}
+.toc-item.active{color:var(--gold);border-left-color:var(--gold);background:rgba(212,168,83,0.08);font-weight:500}
+.toc-item .toc-pct{float:right;font-size:0.65rem;color:var(--text-dim);font-weight:400}
+.toc-item.active .toc-pct{color:var(--gold)}
+.toc-section{font-size:0.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;padding:0.6rem 0.5rem 0.2rem;margin-top:0.3rem}
+body.compact-mode .toc-sidebar,body.compact-mode .toc-toggle{display:none!important}
+@media(max-width:768px){.toc-sidebar,.toc-toggle{display:none!important}}
+
 /* Print Mode */
 @media print{
+  .toc-sidebar,.toc-toggle{display:none!important}
   body{background:#fff!important;color:#000!important}
   .site-header,.api-bar,.filter-bar,.site-footer,.share-bar,.stats-bar,
   .session-planner,.reset-bar,#browseResults,#searchResults,#starterPacks,
@@ -1660,6 +1677,13 @@ html[data-theme="light"] .stat-card {
 </style>
 </head>
 <body>
+
+<!-- TABLE OF CONTENTS SIDEBAR -->
+<nav class="toc-sidebar" id="tocSidebar">
+  <div class="toc-title">Contents</div>
+  <div id="tocItems"></div>
+</nav>
+<button class="toc-toggle" id="tocToggle" onclick="document.getElementById('tocSidebar').classList.toggle('open')" title="Table of Contents">Contents</button>
 
 <!-- HEADER -->
 <header class="site-header">
@@ -3262,6 +3286,7 @@ function renderAll() {
   renderProgressStats();
   renderStatsDashboard();
   renderBadgeSection();
+  buildTOC();
   applyViewDensity();
 }
 
@@ -6978,6 +7003,109 @@ async function handleAddFromUrl() {
   }, 500);
 }
 
+/* ========== TABLE OF CONTENTS ========== */
+
+function buildTOC() {
+  const container = document.getElementById('tocItems');
+  if (!container) return;
+  let html = '';
+
+  // Focus card
+  if (state.focusedAchId) {
+    const fAch = (state.pinnedAchievements || []).find(a => a.id === state.focusedAchId);
+    if (fAch) {
+      html += '<div class="toc-section">Focused</div>';
+      html += `<a class="toc-item" data-toc-target="focusCardContainer" onclick="tocScrollTo('focusCardContainer')">${fAch.name.slice(0,25)}</a>`;
+    }
+  }
+
+  // Pinned achievements
+  const pinned = state.pinnedAchievements || [];
+  if (pinned.length) {
+    html += '<div class="toc-section">Achievements</div>';
+    pinned.forEach((ach, i) => {
+      const prog = (state.pinnedProgress || {})[ach.id];
+      const maxTier = ach.tiers && ach.tiers.length ? ach.tiers[ach.tiers.length - 1].count : 1;
+      const current = prog ? (prog.current || 0) : 0;
+      const pct = maxTier > 0 ? Math.round(current / maxTier * 100) : (prog && prog.done ? 100 : 0);
+      const done = prog && prog.done;
+      const shortName = ach.name.length > 22 ? ach.name.slice(0, 21) + '…' : ach.name;
+      html += `<a class="toc-item" data-toc-idx="${i}" onclick="tocScrollTo(null,${i})">${shortName} <span class="toc-pct" style="${done?'color:var(--green)':''}">${pct}%</span></a>`;
+    });
+  }
+
+  // Sections
+  html += '<div class="toc-section">Panels</div>';
+  const sections = [
+    { id: 'doNextPanel', name: 'What to Do Next' },
+    { id: 'shoppingList', name: 'Shopping List' },
+    { id: 'progressStatsPanel', name: 'Progress Stats' },
+    { id: 'badgeSection', name: 'Badges' }
+  ];
+  sections.forEach(s => {
+    const el = document.getElementById(s.id);
+    if (el && el.style.display !== 'none') {
+      html += `<a class="toc-item" onclick="tocScrollTo('${s.id}')">${s.name}</a>`;
+    }
+  });
+
+  html += '<div class="toc-section">Tools</div>';
+  html += '<a class="toc-item" onclick="tocScrollTo(null,null,\'.achievement-card[style*=blue]\')">Browse Achievements</a>';
+
+  container.innerHTML = html;
+}
+
+function tocScrollTo(id, pinnedIdx, selector) {
+  let el;
+  if (id) el = document.getElementById(id);
+  else if (pinnedIdx != null) {
+    const cards = document.querySelectorAll('#pinnedCards > *');
+    // Account for enriched cards wrapped in divs
+    let cardEls = [];
+    cards.forEach(c => { if (c.classList.contains('achievement-card') || c.querySelector('.achievement-card')) cardEls.push(c); });
+    el = cardEls[pinnedIdx];
+  }
+  else if (selector) el = document.querySelector(selector);
+
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Brief highlight
+    el.style.outline = '2px solid var(--gold)';
+    setTimeout(() => { el.style.outline = ''; }, 1500);
+  }
+}
+
+// Update TOC active state on scroll
+let tocScrollTimer = null;
+function initTOCScroll() {
+  window.addEventListener('scroll', () => {
+    if (tocScrollTimer) return;
+    tocScrollTimer = setTimeout(() => {
+      tocScrollTimer = null;
+      const items = document.querySelectorAll('.toc-item');
+      const scrollY = window.scrollY + 120;
+      let activeItem = null;
+
+      items.forEach(item => {
+        item.classList.remove('active');
+        const idx = item.dataset.tocIdx;
+        const targetId = item.dataset.tocTarget;
+        let targetEl;
+        if (targetId) targetEl = document.getElementById(targetId);
+        else if (idx != null) {
+          const cards = document.querySelectorAll('#pinnedCards > *');
+          let cardEls = [];
+          cards.forEach(c => { if (c.classList.contains('achievement-card') || c.querySelector('.achievement-card')) cardEls.push(c); });
+          targetEl = cardEls[parseInt(idx)];
+        }
+        if (targetEl && targetEl.offsetTop <= scrollY) activeItem = item;
+      });
+
+      if (activeItem) activeItem.classList.add('active');
+    }, 100);
+  }, { passive: true });
+}
+
 /* ========== INIT ========== */
 
 // Check for shared progress link
@@ -6995,6 +7123,7 @@ renderStarterPacks();
 renderStreakDisplay();
 checkBadges();
 initDragDrop();
+initTOCScroll();
 
 // Auto-start tour for first-time visitors
 if (shouldShowTour()) { setTimeout(startTour, 800); }

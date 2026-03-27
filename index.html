@@ -1808,6 +1808,12 @@ html[data-theme="light"] .stat-card {
 #dailyView .daily-task-row:last-child{border-bottom:none}
 #dailyView .daily-task-row.checked{opacity:0.45}
 #dailyView .daily-task-row.checked .daily-task-name{text-decoration:line-through}
+#dailyView .daily-task-row.daily-excluded{display:none}
+#dailyView.show-excluded .daily-task-row.daily-excluded{display:grid;opacity:0.3}
+.daily-exclude-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.75rem;padding:0.2rem 0.4rem;border-radius:var(--radius-sm);transition:color 0.2s}
+.daily-exclude-btn:hover{color:var(--red)}
+.daily-restore-btn{background:none;border:1px solid var(--green);color:var(--green);cursor:pointer;font-size:0.75rem;padding:0.2rem 0.5rem;border-radius:var(--radius-sm)}
+.daily-restore-btn:hover{background:var(--green);color:var(--bg-body)}
 
 #dailyView .daily-task-check{
   width:22px;height:22px;appearance:none;-webkit-appearance:none;
@@ -2125,6 +2131,7 @@ html[data-theme="light"] .stat-card {
     <div class="daily-status-bar">
       <div class="daily-progress-text"><span id="daily-done-count">0</span> / <span id="daily-total-count">0</span></div>
       <div class="daily-progress-bar-bg"><div class="daily-progress-bar-fill" id="daily-progress-fill" style="width:0%"></div></div>
+      <button class="btn btn-sm" id="daily-show-excluded-btn" onclick="dailyToggleShowExcluded()" style="display:none;font-size:0.78rem">Show excluded (0)</button>
       <button class="daily-reset-btn" onclick="dailyResetAll()">Reset All</button>
     </div>
     <div class="daily-last-reset" id="daily-last-reset"></div>
@@ -8366,13 +8373,36 @@ function dailySave() {
 
 function dailyRestore() {
   var state = dailyGetState();
+  var excluded = JSON.parse(localStorage.getItem('gw2-daily-excluded') || '[]');
   document.querySelectorAll('#dailyView .daily-task-row').forEach(function(row) {
     var id = row.getAttribute('data-daily-id');
     var cb = row.querySelector('.daily-task-check');
     cb.checked = !!state.checked[id];
     row.classList.toggle('checked', cb.checked);
+    row.classList.toggle('daily-excluded', excluded.includes(id));
+    // Inject exclude/restore buttons if not present
+    if (!row.querySelector('.daily-exclude-btn')) {
+      var nameEl = row.querySelector('.daily-task-name');
+      if (nameEl) {
+        var excBtn = document.createElement('button');
+        excBtn.className = 'daily-exclude-btn';
+        excBtn.innerHTML = '&#10005;';
+        excBtn.title = 'Hide this task';
+        excBtn.onclick = function(e) { e.stopPropagation(); dailyExclude(id); };
+        var resBtn = document.createElement('button');
+        resBtn.className = 'daily-restore-btn';
+        resBtn.textContent = 'Restore';
+        resBtn.title = 'Restore this task';
+        resBtn.style.display = excluded.includes(id) ? '' : 'none';
+        resBtn.onclick = function(e) { e.stopPropagation(); dailyInclude(id); };
+        nameEl.appendChild(document.createTextNode(' '));
+        nameEl.appendChild(excBtn);
+        nameEl.appendChild(resBtn);
+      }
+    }
   });
   dailyUpdateProgress();
+  dailyUpdateExcludedToggle();
   var el = document.getElementById('daily-last-reset');
   if (el) el.textContent = 'Auto-resets daily \u2014 last reset: ' + state.date;
 }
@@ -8384,16 +8414,52 @@ function dailyResetAll() {
 }
 
 function dailyUpdateProgress() {
-  var boxes = document.querySelectorAll('#dailyView .daily-task-check');
-  var total = boxes.length;
-  var done = 0;
-  boxes.forEach(function(b) { if (b.checked) done++; });
+  var excluded = JSON.parse(localStorage.getItem('gw2-daily-excluded') || '[]');
+  var rows = document.querySelectorAll('#dailyView .daily-task-row');
+  var total = 0, done = 0;
+  rows.forEach(function(row) {
+    var id = row.getAttribute('data-daily-id');
+    if (excluded.includes(id)) return;
+    total++;
+    var cb = row.querySelector('.daily-task-check');
+    if (cb && cb.checked) done++;
+  });
   var doneEl = document.getElementById('daily-done-count');
   var totalEl = document.getElementById('daily-total-count');
   var fillEl = document.getElementById('daily-progress-fill');
   if (doneEl) doneEl.textContent = done;
   if (totalEl) totalEl.textContent = total;
   if (fillEl) fillEl.style.width = (total ? (done / total * 100) : 0) + '%';
+}
+
+function dailyExclude(id) {
+  var excluded = JSON.parse(localStorage.getItem('gw2-daily-excluded') || '[]');
+  if (!excluded.includes(id)) excluded.push(id);
+  localStorage.setItem('gw2-daily-excluded', JSON.stringify(excluded));
+  dailyRestore();
+}
+
+function dailyInclude(id) {
+  var excluded = JSON.parse(localStorage.getItem('gw2-daily-excluded') || '[]');
+  excluded = excluded.filter(function(x) { return x !== id; });
+  localStorage.setItem('gw2-daily-excluded', JSON.stringify(excluded));
+  dailyRestore();
+}
+
+function dailyToggleShowExcluded() {
+  var view = document.getElementById('dailyView');
+  view.classList.toggle('show-excluded');
+  dailyUpdateExcludedToggle();
+}
+
+function dailyUpdateExcludedToggle() {
+  var excluded = JSON.parse(localStorage.getItem('gw2-daily-excluded') || '[]');
+  var btn = document.getElementById('daily-show-excluded-btn');
+  if (btn) {
+    btn.style.display = excluded.length > 0 ? '' : 'none';
+    var showing = document.getElementById('dailyView').classList.contains('show-excluded');
+    btn.textContent = showing ? 'Hide excluded (' + excluded.length + ')' : 'Show excluded (' + excluded.length + ')';
+  }
 }
 
 function dailyToggleSection(id) {

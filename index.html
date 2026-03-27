@@ -1965,7 +1965,7 @@ html[data-theme="light"] .stat-card {
 <!-- SEARCH BAR (right after header) -->
 <div class="search-section">
   <div class="search-bar-wrapper">
-    <input type="text" id="achSearchInput" placeholder="Search achievements..." oninput="onAchSearch(this.value)">
+    <input type="text" id="achSearchInput" placeholder="Search achievements..." oninput="onAchSearch()">
     <div id="searchResults" class="search-dropdown"></div>
   </div>
   <div class="browse-controls">
@@ -4957,9 +4957,11 @@ function estimateDifficulty(ach) {
 }
 
 let searchTimeout = null;
-function onAchSearch(query) {
+function onAchSearch() {
   clearTimeout(searchTimeout);
   const resultsDiv = document.getElementById('searchResults');
+  const input = document.getElementById('achSearchInput');
+  const query = input ? input.value : '';
 
   if (!query || query.length < 1) {
     resultsDiv.style.display = 'none';
@@ -4973,10 +4975,14 @@ function onAchSearch(query) {
   }
 
   searchTimeout = setTimeout(() => {
+    // Re-read input value at execution time (not event time)
+    const currentQuery = input ? input.value : '';
+    if (!currentQuery || currentQuery.length < 1) { resultsDiv.style.display = 'none'; return; }
+
     if (!state.hasSearched) { state.hasSearched = true; saveState(); checkBadges(); }
 
     // Tokenized fuzzy search: split query into words, all must match
-    const tokens = query.toLowerCase().split(/\s+/).filter(t => t.length > 0);
+    const tokens = currentQuery.toLowerCase().split(/\s+/).filter(t => t.length > 0);
     if (tokens.length === 0) { resultsDiv.style.display = 'none'; return; }
 
     const scored = [];
@@ -5014,7 +5020,7 @@ function onAchSearch(query) {
 
     if (matches.length === 0) {
       resultsDiv.style.display = 'block';
-      resultsDiv.innerHTML = `<div style="padding:0.75rem;font-size:0.85rem;color:var(--text-dim)">No matches for "${query.replace(/</g,'&lt;')}"</div>`;
+      resultsDiv.innerHTML = `<div style="padding:0.75rem;font-size:0.85rem;color:var(--text-dim)">No matches for "${currentQuery.replace(/</g,'&lt;')}"</div>`;
       return;
     }
 
@@ -5029,7 +5035,7 @@ function onAchSearch(query) {
     }
 
     resultsDiv.style.display = 'block';
-    resultsDiv.innerHTML = `<div style="padding:0.3rem 0.6rem;font-size:0.78rem;color:var(--text-dim);border-bottom:1px solid rgba(138,114,52,0.1)">${matches.length}${scored.length>50?'+':''} results for "${query.replace(/</g,'&lt;')}"</div>` +
+    resultsDiv.innerHTML = `<div style="padding:0.3rem 0.6rem;font-size:0.78rem;color:var(--text-dim);border-bottom:1px solid rgba(138,114,52,0.1)">${matches.length}${scored.length>50?'+':''} results for "${currentQuery.replace(/</g,'&lt;')}"</div>` +
     matches.map(m => {
       const isPinned = pinnedIds.includes(m.id);
       const diff = estimateDifficulty(m);
@@ -6397,7 +6403,7 @@ document.addEventListener('keydown', function(e) {
       // Clear value if search input, then blur
       if (e.target.id === 'achSearchInput' || e.target.id === 'searchInput') {
         e.target.value = '';
-        if (e.target.id === 'achSearchInput') { onAchSearch(''); }
+        if (e.target.id === 'achSearchInput') { onAchSearch(); }
         if (e.target.id === 'searchInput') { applyFilters(); }
       }
       e.target.blur();
@@ -6438,7 +6444,7 @@ document.addEventListener('keydown', function(e) {
         var taskSearch = document.getElementById('searchInput');
         if (taskSearch && taskSearch.value) { taskSearch.value = ''; applyFilters(); }
         var achSearch = document.getElementById('achSearchInput');
-        if (achSearch && achSearch.value) { achSearch.value = ''; onAchSearch(''); }
+        if (achSearch && achSearch.value) { achSearch.value = ''; onAchSearch(); }
         // Clear keyboard focus
         clearKbFocus();
         kbFocusedIndex = -1;

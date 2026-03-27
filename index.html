@@ -324,6 +324,26 @@ a:hover{text-decoration:underline}
 .guide-box strong{color:var(--text)}
 @media(min-width:768px){.objectives-list.two-col{columns:2;column-gap:1.5rem}}
 
+/* Collapsible */
+.collapsible-body{transition:max-height 0.3s ease,opacity 0.2s;overflow:hidden}
+.collapsible-body.collapsed{max-height:0!important;opacity:0;margin:0!important;padding:0!important}
+.collapse-icon{display:inline-block;transition:transform 0.2s}
+.collapse-icon.open{transform:rotate(0deg)}
+.collapse-icon:not(.open){transform:rotate(-90deg)}
+
+/* Browse Table */
+.browse-table-header{display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.6rem;border-bottom:2px solid var(--gold-dim);font-size:0.72rem;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:0.04em;position:sticky;top:0;background:var(--bg-card);z-index:1}
+.browse-table-header span{cursor:pointer;user-select:none}
+.browse-table-header span:hover{color:var(--gold-light)}
+.browse-row{display:flex;align-items:center;gap:0.5rem;padding:0.45rem 0.6rem;border-bottom:1px solid rgba(138,114,52,0.08);transition:background 0.15s}
+.browse-row:hover{background:rgba(255,255,255,0.02)}
+.bth-diff{width:55px;flex-shrink:0;text-align:center}
+.bth-name{flex:1;min-width:0;overflow:hidden}
+.bth-name div:last-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bth-ap{width:35px;flex-shrink:0;text-align:center}
+.bth-goal{width:50px;flex-shrink:0;text-align:center}
+.bth-action{width:65px;flex-shrink:0;text-align:right}
+
 /* Responsive */
 @media(max-width:768px){
   .site-header{padding:1rem}
@@ -910,17 +930,17 @@ button,a.timer-link{touch-action:manipulation}
     </div>
   </section>
 
-  <!-- DO NEXT PANEL -->
+  <!-- DO NEXT PANEL (collapsible) -->
   <section class="do-next" id="doNextPanel">
-    <h2>&#9733; What to Do Next</h2>
-    <div class="do-next-list" id="doNextList"></div>
+    <h2 style="cursor:pointer;display:flex;align-items:center;gap:0.5rem" onclick="this.nextElementSibling.classList.toggle('collapsed');this.querySelector('.collapse-icon').classList.toggle('open')">&#9733; What to Do Next <span class="collapse-icon open" style="font-size:0.7rem;transition:transform 0.2s">&#9662;</span></h2>
+    <div class="do-next-list collapsible-body" id="doNextList"></div>
   </section>
 
-  <!-- SHOPPING LIST -->
+  <!-- SHOPPING LIST (collapsible) -->
   <section class="do-next" id="shoppingList" style="display:none;border-left-color:var(--orange)">
-    <h2 style="color:var(--orange)">&#128722; Shopping List</h2>
-    <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.5rem">Currencies needed for remaining vendor purchases</div>
-    <div id="shoppingListBody"></div>
+    <h2 style="color:var(--orange);cursor:pointer;display:flex;align-items:center;gap:0.5rem" onclick="this.nextElementSibling.classList.toggle('collapsed');this.parentElement.querySelector('.sl-sub').classList.toggle('collapsed');this.querySelector('.collapse-icon').classList.toggle('open')">&#128722; Shopping List <span class="collapse-icon open" style="font-size:0.7rem;transition:transform 0.2s">&#9662;</span></h2>
+    <div class="sl-sub collapsible-body" style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.5rem">Currencies needed for remaining vendor purchases</div>
+    <div class="collapsible-body" id="shoppingListBody"></div>
   </section>
 
   <!-- FILTER BAR -->
@@ -3079,36 +3099,76 @@ async function lookupAchievementById() {
   }
 }
 
+let browseSortField = 'name';
+let browseSortDir = 1; // 1=asc, -1=desc
+
+function sortBrowseResults(field) {
+  if (browseSortField === field) { browseSortDir *= -1; }
+  else { browseSortField = field; browseSortDir = 1; }
+  if (currentBrowseAchievements) renderBrowseResults(currentBrowseAchievements, true);
+}
+
 function renderBrowseResults(achievements, skipStoreForFilter) {
   const results = document.getElementById('browseResults');
   const pinnedIds = (state.pinnedAchievements || []).map(a => a.id);
 
-  // Store for reward filtering (Feature 4) — only on initial load, not re-filter
   if (!skipStoreForFilter) {
     currentBrowseAchievements = achievements;
     const filterBar = document.getElementById('browseRewardFilters');
     filterBar.style.display = achievements.length > 0 ? '' : 'none';
   }
 
-  results.innerHTML = achievements.map(ach => {
+  // Sort
+  const sorted = [...achievements].sort((a,b) => {
+    const dir = browseSortDir;
+    if (browseSortField === 'name') return dir * a.name.localeCompare(b.name);
+    if (browseSortField === 'ap') {
+      const apA = (a.tiers||[]).reduce((s,t)=>s+t.points,0);
+      const apB = (b.tiers||[]).reduce((s,t)=>s+t.points,0);
+      return dir * (apA - apB);
+    }
+    if (browseSortField === 'difficulty') {
+      const order = {quick:1,short:2,medium:3,long:4,grind:5};
+      return dir * ((order[estimateDifficulty(a).badge]||3) - (order[estimateDifficulty(b).badge]||3));
+    }
+    if (browseSortField === 'goal') {
+      const gA = a.tiers && a.tiers.length ? a.tiers[a.tiers.length-1].count : 0;
+      const gB = b.tiers && b.tiers.length ? b.tiers[b.tiers.length-1].count : 0;
+      return dir * (gA - gB);
+    }
+    return 0;
+  });
+
+  const arrow = (f) => browseSortField === f ? (browseSortDir === 1 ? ' &#9650;' : ' &#9660;') : '';
+
+  let html = `<div class="browse-table-header">
+    <span class="bth-diff" onclick="sortBrowseResults('difficulty')" title="Sort by difficulty">Diff${arrow('difficulty')}</span>
+    <span class="bth-name" onclick="sortBrowseResults('name')" title="Sort by name">Name${arrow('name')}</span>
+    <span class="bth-ap" onclick="sortBrowseResults('ap')" title="Sort by AP">AP${arrow('ap')}</span>
+    <span class="bth-goal" onclick="sortBrowseResults('goal')" title="Sort by goal">Goal${arrow('goal')}</span>
+    <span class="bth-action"></span>
+  </div>`;
+
+  html += sorted.map(ach => {
     const isPinned = pinnedIds.includes(ach.id);
     const totalAP = (ach.tiers || []).reduce((s,t) => s + t.points, 0);
     const bitCount = (ach.bits || []).length;
     const maxCount = ach.tiers && ach.tiers.length ? ach.tiers[ach.tiers.length-1].count : 0;
-
     const diff = estimateDifficulty(ach);
-    return `<div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.6rem;border-bottom:1px solid rgba(138,114,52,0.12);flex-wrap:wrap">
-      <span class="badge badge-${diff.badge}" style="flex-shrink:0">${diff.label}</span>
-      <div style="flex:1;min-width:200px">
-        <div style="font-size:0.88rem;font-weight:500;color:var(--text)">${ach.name}</div>
-        <div style="font-size:0.73rem;color:var(--text-secondary);max-width:500px">${ach.requirement || ach.description || ''}</div>
-        <div style="font-size:0.68rem;color:var(--text-dim)">ID: ${ach.id} &middot; ${totalAP} AP${maxCount > 1 ? ' &middot; Goal: ' + maxCount : ''}${bitCount ? ' &middot; ' + bitCount + ' sub-objectives' : ''}</div>
+
+    return `<div class="browse-row">
+      <span class="bth-diff"><span class="badge badge-${diff.badge}">${diff.label}</span></span>
+      <div class="bth-name">
+        <div style="font-size:0.85rem;font-weight:500;color:var(--text)">${ach.name}</div>
+        <div style="font-size:0.7rem;color:var(--text-dim)">${ach.requirement || ach.description || ''}</div>
       </div>
-      <button class="btn ${isPinned?'btn-danger':'btn-primary'} btn-sm" onclick="togglePinAchievement(${ach.id},this)" data-ach-id="${ach.id}">
-        ${isPinned ? 'Remove' : '+ Add'}
-      </button>
+      <span class="bth-ap" style="color:var(--gold);font-weight:600;font-size:0.8rem">${totalAP}</span>
+      <span class="bth-goal" style="font-size:0.78rem;color:var(--text-secondary)">${maxCount > 1 ? maxCount : (bitCount ? bitCount + ' obj' : '1')}</span>
+      <span class="bth-action"><button class="btn ${isPinned?'btn-danger':'btn-primary'} btn-sm" onclick="togglePinAchievement(${ach.id},this)" data-ach-id="${ach.id}">${isPinned ? 'Remove' : '+ Add'}</button></span>
     </div>`;
   }).join('');
+
+  results.innerHTML = html;
 }
 
 async function togglePinAchievement(id, btn) {
@@ -3510,17 +3570,17 @@ function onAchSearch(query) {
     resultsDiv.innerHTML = matches.map(m => {
       const isPinned = pinnedIds.includes(m.id);
       const diff = estimateDifficulty(m);
-      return `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.6rem;border-bottom:1px solid rgba(138,114,52,0.1)">
-        <span class="badge badge-${diff.badge}" style="flex-shrink:0">${diff.label}</span>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:0.85rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.name}</div>
-          <div style="font-size:0.68rem;color:var(--text-dim)">ID: ${m.id} &middot; ${m.ap} AP${m.max>1?' &middot; Goal: '+m.max:''}${m.bits?' &middot; '+m.bits+' objectives':''}</div>
+      return `<div class="browse-row">
+        <span class="bth-diff"><span class="badge badge-${diff.badge}">${diff.label}</span></span>
+        <div class="bth-name">
+          <div style="font-size:0.85rem;color:var(--text)">${m.name}</div>
+          <div style="font-size:0.68rem;color:var(--text-dim)">${m.ap} AP${m.max>1?' &middot; Goal: '+m.max:''}${m.bits?' &middot; '+m.bits+' obj':''}</div>
         </div>
-        <button class="btn ${isPinned?'btn-danger':'btn-primary'} btn-sm" onclick="togglePinAchievement(${m.id},this)" style="flex-shrink:0">
-          ${isPinned ? 'Remove' : '+ Add'}
-        </button>
+        <span class="bth-ap" style="color:var(--gold);font-weight:600;font-size:0.8rem">${m.ap}</span>
+        <span class="bth-goal" style="font-size:0.78rem;color:var(--text-secondary)">${m.max > 1 ? m.max : (m.bits ? m.bits+' obj' : '1')}</span>
+        <span class="bth-action"><button class="btn ${isPinned?'btn-danger':'btn-primary'} btn-sm" onclick="togglePinAchievement(${m.id},this)">${isPinned ? 'Remove' : '+ Add'}</button></span>
       </div>`;
-    }).join('') + (matches.length >= 50 ? '<div style="padding:0.4rem 0.6rem;font-size:0.7rem;color:var(--text-dim)">Showing first 50 results. Refine your search for more specific results.</div>' : '');
+    }).join('') + (matches.length >= 50 ? '<div style="padding:0.4rem 0.6rem;font-size:0.7rem;color:var(--text-dim)">Showing first 50 results. Refine your search.</div>' : '');
   }, 200);
 }
 

@@ -1080,8 +1080,9 @@ button,a.timer-link{touch-action:manipulation}
       <button class="filter-btn" data-density="compact" onclick="setViewDensity('compact',this)">Compact</button>
     </div>
     <div class="filter-group" id="viewModeGroup">
-      <button class="filter-btn active" data-view="achievement" onclick="setViewMode('achievement',this)">By Achievement</button>
+      <button class="filter-btn active" data-view="achievement" onclick="setViewMode('achievement',this)">List</button>
       <button class="filter-btn" data-view="map" onclick="setViewMode('map',this)">By Map</button>
+      <button class="filter-btn" data-view="grid" onclick="setViewMode('grid',this)">Grid</button>
     </div>
   </div>
 
@@ -3448,7 +3449,7 @@ function renderPinnedAchievements() {
     const iconUrl = ach.icon || '';
     const iconHtml = iconUrl ? `<img class="ach-icon" src="${iconUrl}" alt="" loading="lazy">` : '';
 
-    return `<section class="achievement-card card-enter${isDone?' celebrate':''}" style="border-top-color:${isDone?'var(--green)':'var(--blue)'}">
+    return `<section class="achievement-card card-enter${isDone?' celebrate':''}" style="border-top-color:${isDone?'var(--green)':'var(--blue)'}" draggable="true" data-ach-id="${ach.id}">
       <div class="card-header" aria-expanded="false" onclick="toggleCard(this)">
         <div class="card-title-area" style="display:flex;gap:0.75rem;align-items:center">
           ${iconHtml}
@@ -3951,13 +3952,20 @@ function setViewMode(mode, btn) {
 function renderViewMode() {
   const achCards = document.getElementById('achievementCards');
   const mapView = document.getElementById('mapView');
+  const pinnedCards = document.getElementById('pinnedCards');
   if (state.viewMode === 'map') {
     achCards.style.display = 'none';
     mapView.style.display = '';
+    pinnedCards.classList.remove('achievement-grid');
     renderMapView();
+  } else if (state.viewMode === 'grid') {
+    achCards.style.display = '';
+    mapView.style.display = 'none';
+    pinnedCards.classList.add('achievement-grid');
   } else {
     achCards.style.display = '';
     mapView.style.display = 'none';
+    pinnedCards.classList.remove('achievement-grid');
   }
 }
 
@@ -5389,6 +5397,9 @@ function renderStatsDashboard() {
     <div class="stat-card" style="cursor:pointer" onclick="generateProgressImage()" title="Download progress image">
       <div class="stat-value" style="font-size:1.1rem">&#128247;</div><div class="stat-label">Screenshot</div>
     </div>
+    <div class="stat-card" style="cursor:pointer" onclick="showComparisonModal()" title="Compare with a friend">
+      <div class="stat-value" style="font-size:1.1rem">&#9878;</div><div class="stat-label">Compare</div>
+    </div>
     </div>
   `;
 }
@@ -5595,6 +5606,115 @@ function renderBadgeSection() {
         </div>`;
       }).join('')}</div>
     </section>`;
+}
+
+/* ========== DRAG-AND-DROP REORDER ========== */
+
+function initDragDrop() {
+  const container = document.getElementById('pinnedCards');
+  if (!container) return;
+  let draggedId = null;
+
+  container.addEventListener('dragstart', e => {
+    const card = e.target.closest('.achievement-card');
+    if (!card) return;
+    draggedId = card.dataset.achId;
+    card.style.opacity = '0.5';
+    e.dataTransfer.effectAllowed = 'move';
+  });
+
+  container.addEventListener('dragend', e => {
+    const card = e.target.closest('.achievement-card');
+    if (card) card.style.opacity = '1';
+    draggedId = null;
+  });
+
+  container.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  });
+
+  container.addEventListener('drop', e => {
+    e.preventDefault();
+    if (!draggedId) return;
+    const target = e.target.closest('.achievement-card');
+    if (!target || !target.dataset.achId) return;
+    const targetId = target.dataset.achId;
+    if (draggedId === targetId) return;
+
+    const pinned = state.pinnedAchievements || [];
+    const fromIdx = pinned.findIndex(a => String(a.id) === draggedId);
+    const toIdx = pinned.findIndex(a => String(a.id) === targetId);
+    if (fromIdx < 0 || toIdx < 0) return;
+
+    const [moved] = pinned.splice(fromIdx, 1);
+    pinned.splice(toIdx, 0, moved);
+    saveState();
+    renderPinnedAchievements();
+  });
+}
+
+/* ========== PROGRESS COMPARISON ========== */
+
+function showComparisonModal() {
+  const existing = document.getElementById('comparisonModal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'comparisonModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:3000;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML = `<div style="background:var(--bg-card);border:1px solid var(--gold-dim);border-radius:var(--radius);padding:1.5rem;max-width:500px;width:90%">
+    <h3 style="margin-bottom:1rem">Compare Progress</h3>
+    <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:1rem">Paste a friend's share link to compare tracked achievements:</p>
+    <input type="text" id="compareInput" class="search-input" style="width:100%;margin-bottom:1rem" placeholder="Paste share URL here...">
+    <div style="display:flex;gap:0.5rem;justify-content:flex-end">
+      <button class="btn" onclick="document.getElementById('comparisonModal').remove()">Cancel</button>
+      <button class="btn btn-primary" onclick="runComparison()">Compare</button>
+    </div>
+    <div id="comparisonResult" style="margin-top:1rem;max-height:300px;overflow-y:auto"></div>
+  </div>`;
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
+}
+
+async function runComparison() {
+  const url = document.getElementById('compareInput').value.trim();
+  const result = document.getElementById('comparisonResult');
+  const match = url.match(/[?&]pin=([0-9,]+)/);
+  if (!match) { result.innerHTML = '<div style="color:var(--red);font-size:0.8rem">Invalid share URL. It should contain ?pin=...</div>'; return; }
+
+  const theirIds = match[1].split(',').map(Number);
+  const myIds = (state.pinnedAchievements || []).map(a => a.id);
+  const mySet = new Set(myIds);
+  const theirSet = new Set(theirIds);
+
+  const both = theirIds.filter(id => mySet.has(id));
+  const onlyTheirs = theirIds.filter(id => !mySet.has(id));
+  const onlyMine = myIds.filter(id => !theirSet.has(id));
+
+  // Fetch names for their achievements we don't have
+  let theirNames = {};
+  if (onlyTheirs.length) {
+    try {
+      for (let i = 0; i < onlyTheirs.length; i += 200) {
+        const batch = onlyTheirs.slice(i, i + 200);
+        const resp = await fetch('https://api.guildwars2.com/v2/achievements?ids=' + batch.join(','));
+        if (resp.ok) { const data = await resp.json(); data.forEach(a => theirNames[a.id] = a.name); }
+      }
+    } catch(e) {}
+  }
+
+  const myNames = {};
+  (state.pinnedAchievements || []).forEach(a => myNames[a.id] = a.name);
+
+  result.innerHTML = `
+    <div style="font-size:0.8rem">
+      <div style="color:var(--green);margin-bottom:0.5rem"><strong>Both tracking (${both.length}):</strong><br>${both.map(id => myNames[id] || 'ID '+id).join(', ') || 'None'}</div>
+      <div style="color:var(--blue);margin-bottom:0.5rem"><strong>Only you (${onlyMine.length}):</strong><br>${onlyMine.map(id => myNames[id] || 'ID '+id).join(', ') || 'None'}</div>
+      <div style="color:var(--orange)"><strong>Only them (${onlyTheirs.length}):</strong><br>${onlyTheirs.map(id => theirNames[id] || 'ID '+id).join(', ') || 'None'}
+        ${onlyTheirs.length ? '<br><button class="btn btn-sm" style="margin-top:0.5rem" onclick="importSharedAchievements([' + onlyTheirs.join(',') + ']);document.getElementById(\'comparisonModal\').remove()">Add their achievements to my tracker</button>' : ''}
+      </div>
+    </div>`;
 }
 
 /* ========== SOUND EFFECTS ========== */
@@ -5805,6 +5925,7 @@ populateGroups();
 renderStarterPacks();
 renderStreakDisplay();
 checkBadges();
+initDragDrop();
 
 // Load search index: try static file first, then localStorage cache, then build at runtime
 async function initSearchIndex() {

@@ -1091,6 +1091,572 @@ body.compact-mode #focusCardContainer{display:block!important}
 }
 .focus-btn:hover{color:var(--gold);border-color:var(--gold)}
 .focus-btn.is-focused{color:var(--gold);border-color:var(--gold);background:rgba(212,168,83,0.1)}
+
+/* ================================================================
+   VISUAL POLISH & ANIMATIONS
+   ================================================================ */
+
+/* --- Animation Custom Properties --- */
+:root {
+  --anim-fast: 0.15s;
+  --anim-normal: 0.25s;
+  --anim-slow: 0.35s;
+  --anim-page: 0.5s;
+  --ease-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- 1. SMOOTH TRANSITIONS ON ALL INTERACTIVE ELEMENTS --- */
+
+/* All buttons: scale on active, smooth color transitions */
+.btn, .filter-btn, .counter-btn, .copy-btn, .expand-btn, .notes-btn,
+.hide-task-btn, .bulk-select-btn, .focus-btn, .compact-overlay-btn,
+.pwa-install-btn, .notif-toggle-btn, .timer-link, .show-hidden-toggle {
+  transition: all var(--anim-normal) var(--ease-smooth);
+  will-change: transform;
+}
+.btn:active, .filter-btn:active, .counter-btn:active, .copy-btn:active,
+.compact-overlay-btn:active, .pwa-install-btn:active, .notif-toggle-btn:active,
+.timer-link:active, .show-hidden-toggle:active, .bulk-select-btn:active {
+  transform: scale(0.97);
+}
+
+/* Card hover shadow lift */
+.achievement-card, .stat-card, .map-group-card, .festival-card,
+.timers-section, .combos-section, .do-next, .session-planner,
+.ap-efficiency, .progress-stats, .gold-farming-guide, .festival-panel {
+  transition: box-shadow var(--anim-normal) var(--ease-smooth),
+              border-color var(--anim-normal) var(--ease-smooth),
+              transform var(--anim-normal) var(--ease-smooth);
+}
+.achievement-card:hover, .map-group-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3), 0 0 0 1px rgba(212,168,83,0.1);
+}
+
+/* Progress bar smooth transitions + shimmer */
+.progress-fill, .mini-bar-fill, .otter-bar-fill, .focus-progress-fill, .prereq-fill {
+  transition: width var(--anim-page) var(--ease-smooth);
+  position: relative;
+  overflow: hidden;
+}
+.progress-fill::after, .mini-bar-fill::after, .otter-bar-fill::after, .focus-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,0.15) 40%,
+    rgba(255,255,255,0.25) 50%,
+    rgba(255,255,255,0.15) 60%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: progress-shimmer 2.5s linear infinite;
+}
+@keyframes progress-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Enhanced checkbox bounce */
+.cb-label input:checked + .cb-box {
+  animation: cb-pop-enhanced 0.4s var(--ease-bounce);
+}
+@keyframes cb-pop-enhanced {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.35); }
+  50% { transform: scale(0.9); }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* --- 2. CARD ANIMATIONS --- */
+
+/* Cards slide in with staggered delay on page load */
+@keyframes card-slide-in {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.achievement-card, .map-group-card {
+  animation: card-slide-in var(--anim-page) var(--ease-smooth) backwards;
+}
+.achievement-card:nth-child(1), .map-group-card:nth-child(1) { animation-delay: 0s; }
+.achievement-card:nth-child(2), .map-group-card:nth-child(2) { animation-delay: 0.05s; }
+.achievement-card:nth-child(3), .map-group-card:nth-child(3) { animation-delay: 0.1s; }
+.achievement-card:nth-child(4), .map-group-card:nth-child(4) { animation-delay: 0.15s; }
+.achievement-card:nth-child(5), .map-group-card:nth-child(5) { animation-delay: 0.2s; }
+.achievement-card:nth-child(6), .map-group-card:nth-child(6) { animation-delay: 0.25s; }
+.achievement-card:nth-child(7), .map-group-card:nth-child(7) { animation-delay: 0.3s; }
+.achievement-card:nth-child(8), .map-group-card:nth-child(8) { animation-delay: 0.35s; }
+
+/* Card body expand/collapse smooth animation */
+.card-body {
+  transition: max-height 0.4s var(--ease-smooth), opacity 0.3s var(--ease-smooth);
+  opacity: 0;
+}
+.card-body.open {
+  opacity: 1;
+}
+.sub-body {
+  transition: max-height 0.3s var(--ease-smooth), opacity 0.25s var(--ease-smooth);
+}
+.sub-body.collapsed {
+  opacity: 0;
+}
+.sub-body:not(.collapsed) {
+  opacity: 1;
+}
+
+/* Completed achievement cards: gold glow border pulse */
+@keyframes completed-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212,168,83,0); border-color: var(--green); }
+  50% { box-shadow: 0 0 12px 2px rgba(74,222,128,0.2); }
+}
+.achievement-card.card-completed {
+  animation: completed-glow 3s ease-in-out infinite;
+  border-top-color: var(--green);
+}
+
+/* --- 3. HEADER & NAVIGATION POLISH --- */
+
+/* Sticky header with glassmorphism + scroll-based shadow */
+.site-header {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: box-shadow var(--anim-normal) var(--ease-smooth);
+}
+.site-header.scrolled {
+  box-shadow: 0 2px 20px rgba(0,0,0,0.4), 0 1px 0 rgba(212,168,83,0.15);
+}
+
+/* Theme toggle rotation */
+#themeToggle {
+  transition: all var(--anim-normal) var(--ease-smooth), transform 0.4s var(--ease-bounce);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+#themeToggle.rotating {
+  transform: rotate(360deg) scale(1.1);
+}
+
+/* Header progress bars animate on load */
+@keyframes bar-fill-in {
+  0% { width: 0; }
+}
+.mini-bar-fill {
+  animation: bar-fill-in 0.8s var(--ease-smooth) backwards;
+  animation-delay: 0.3s;
+}
+
+/* --- 4. SEARCH & BROWSE POLISH --- */
+
+/* Search input glow on focus */
+.search-input, .api-form input[type="text"], #achSearchInput, #achIdInput {
+  transition: all var(--anim-normal) var(--ease-smooth);
+}
+.search-input:focus, .api-form input[type="text"]:focus, #achSearchInput:focus, #achIdInput:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212,168,83,0.15), 0 0 8px rgba(212,168,83,0.1);
+  outline: none;
+}
+
+/* Search results fade in */
+@keyframes fade-in {
+  0% { opacity: 0; transform: translateY(-4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+#searchResults {
+  animation: fade-in var(--anim-normal) var(--ease-smooth);
+}
+
+/* Browse row alternating shading */
+.browse-row:nth-child(even) {
+  background: rgba(255,255,255,0.015);
+}
+html[data-theme="light"] .browse-row:nth-child(even) {
+  background: rgba(0,0,0,0.02);
+}
+.browse-row {
+  transition: background var(--anim-fast) var(--ease-smooth), transform var(--anim-fast);
+}
+.browse-row:hover {
+  background: rgba(212,168,83,0.06);
+}
+
+/* Starter pack buttons hover lift */
+#starterPacks .btn {
+  transition: all var(--anim-normal) var(--ease-smooth);
+}
+#starterPacks .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+}
+
+/* --- 5. STATS DASHBOARD POLISH --- */
+
+/* Stat cards gradient background + hover */
+.stat-card {
+  background: linear-gradient(135deg, var(--bg-card), rgba(212,168,83,0.04));
+  transition: all var(--anim-normal) var(--ease-smooth);
+  will-change: transform;
+}
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3), 0 0 10px rgba(212,168,83,0.1);
+  border-color: var(--gold);
+}
+
+/* Counting animation class for stat values */
+.stat-value {
+  transition: color var(--anim-normal);
+}
+.stat-value.counting {
+  color: var(--gold-light);
+}
+
+/* --- 6. FOCUS CARD POLISH --- */
+
+/* Golden border glow animation */
+@keyframes focus-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(212,168,83,0.2), 0 0 0 0 rgba(212,168,83,0); }
+  50% { box-shadow: 0 0 16px rgba(212,168,83,0.35), 0 0 30px rgba(212,168,83,0.1); }
+}
+.focus-card {
+  animation: focus-glow 3s ease-in-out infinite;
+  border-width: 2px;
+}
+
+/* Focus progress bar: larger, gradient fill */
+.focus-card .focus-progress-bar {
+  height: 20px;
+  border-radius: 10px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+}
+.focus-card .focus-progress-fill {
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-light));
+  border-radius: 10px;
+}
+
+/* Pulse on progress percentage */
+@keyframes focus-count-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+.focus-card .focus-count {
+  animation: focus-count-pulse 2s ease-in-out infinite;
+}
+
+/* --- 7. MICRO-INTERACTIONS --- */
+
+/* Copy button green flash on success */
+.copy-btn.copied {
+  background: var(--green) !important;
+  border-color: var(--green) !important;
+  color: #fff !important;
+  transform: scale(1.05);
+  transition: all var(--anim-fast);
+}
+
+/* Remove button red flash */
+.btn-danger.removing {
+  background: var(--red);
+  color: #fff;
+  transform: scale(0.95);
+  transition: all var(--anim-fast);
+}
+
+/* Pin/Add button bounce */
+@keyframes pin-bounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.15); }
+  60% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+.btn.pin-bouncing {
+  animation: pin-bounce 0.3s var(--ease-bounce);
+}
+
+/* Tier dots pop animation when reached */
+@keyframes tier-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+.tier-dot.reached {
+  animation: tier-pop 0.35s var(--ease-bounce);
+}
+.tier-dot {
+  transition: all var(--anim-normal) var(--ease-smooth);
+}
+
+/* --- 8. SCROLLBAR STYLING --- */
+
+/* Custom scrollbar: dark/gold theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-body);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gold-dim);
+  border-radius: 4px;
+  border: 2px solid var(--bg-body);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-dim) var(--bg-body);
+}
+
+/* Nested scrollable areas (browse results, search results) */
+#browseResults::-webkit-scrollbar-track,
+#searchResults::-webkit-scrollbar-track {
+  background: var(--bg-card);
+}
+#browseResults, #searchResults {
+  scrollbar-color: var(--gold-dim) var(--bg-card);
+}
+
+/* --- 9. LOADING STATES --- */
+
+/* Skeleton shimmer for loading */
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton-loading {
+  background: linear-gradient(
+    90deg,
+    var(--bg-card) 25%,
+    rgba(212,168,83,0.08) 50%,
+    var(--bg-card) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+  min-height: 20px;
+}
+
+/* Pulsing dots spinner for search index */
+@keyframes loading-dots {
+  0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+}
+.loading-dots::after {
+  content: '';
+  display: inline-block;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--gold);
+  margin-left: 4px;
+  animation: loading-dots 1.4s ease-in-out infinite;
+}
+
+/* API sync loading state */
+.api-status.syncing::before {
+  content: '';
+  display: inline-block;
+  width: 12px; height: 12px;
+  border: 2px solid var(--gold-dim);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- 10. OVERALL POLISH --- */
+
+/* Subtle background texture/pattern */
+body {
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(212,168,83,0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(96,165,250,0.02) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 100%, rgba(167,139,250,0.02) 0%, transparent 40%);
+  background-attachment: fixed;
+}
+html[data-theme="light"] body {
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(138,105,20,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(37,99,235,0.03) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 100%, rgba(124,58,237,0.02) 0%, transparent 40%);
+}
+
+/* Gradient borders on cards */
+.achievement-card {
+  border-image: linear-gradient(180deg, var(--gold-dim), rgba(138,114,52,0.3)) 1;
+  border-image-slice: 1;
+  border-top: 3px solid var(--gold);
+}
+.achievement-card.card-completed {
+  border-image: linear-gradient(180deg, var(--green), rgba(74,222,128,0.3)) 1;
+  border-image-slice: 1;
+  border-top: 3px solid var(--green);
+}
+
+/* Text shadow on gold headings for depth */
+h1.site-title, .do-next h2, .focus-card h2 {
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+html[data-theme="light"] h1.site-title,
+html[data-theme="light"] .do-next h2,
+html[data-theme="light"] .focus-card h2 {
+  text-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+
+/* Do-next and session planner items hover */
+.do-next-item, .sp-checklist-item {
+  transition: background var(--anim-fast) var(--ease-smooth),
+              transform var(--anim-fast) var(--ease-smooth);
+}
+.do-next-item:hover, .sp-checklist-item:hover {
+  transform: translateX(3px);
+}
+
+/* Checklist item smooth transitions */
+.checklist-item {
+  transition: background var(--anim-fast) var(--ease-smooth),
+              opacity var(--anim-normal) var(--ease-smooth),
+              transform var(--anim-fast) var(--ease-smooth);
+}
+
+/* Event cards hover */
+.event-card {
+  transition: all var(--anim-normal) var(--ease-smooth);
+}
+.event-card:hover {
+  background: rgba(255,255,255,0.06);
+  transform: translateY(-1px);
+}
+
+/* Festival cards hover */
+.festival-card {
+  transition: all var(--anim-normal) var(--ease-smooth);
+}
+.festival-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* GFG method cards hover */
+.gfg-method {
+  transition: all var(--anim-normal) var(--ease-smooth);
+}
+.gfg-method:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Badge grid items hover */
+.tracker-badge {
+  transition: all var(--anim-normal) var(--ease-smooth);
+}
+.tracker-badge.unlocked:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212,168,83,0.2);
+}
+
+/* PS stat cards hover */
+.ps-stat {
+  transition: all var(--anim-normal) var(--ease-smooth);
+}
+.ps-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  background: rgba(0,0,0,0.3);
+}
+
+/* Filter button transitions */
+.filter-btn {
+  transition: all var(--anim-fast) var(--ease-smooth);
+}
+
+/* Card header hover */
+.card-header {
+  transition: background var(--anim-fast) var(--ease-smooth);
+}
+
+/* API toggle transition */
+.api-toggle {
+  transition: color var(--anim-fast) var(--ease-smooth);
+}
+
+/* Footer buttons */
+.footer-actions .btn {
+  transition: all var(--anim-normal) var(--ease-smooth);
+}
+.footer-actions .btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Smooth link transitions */
+a {
+  transition: color var(--anim-fast) var(--ease-smooth);
+}
+
+/* Staggered panel fade in for main sections */
+@keyframes section-fade-in {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.do-next, .session-planner, #focusCardContainer .focus-card,
+.timers-section, .combos-section, .progress-stats, .ap-efficiency,
+.gold-farming-guide, .festival-panel {
+  animation: section-fade-in var(--anim-page) var(--ease-smooth) backwards;
+}
+.do-next { animation-delay: 0.05s; }
+.session-planner { animation-delay: 0.1s; }
+#focusCardContainer .focus-card { animation-delay: 0.08s; }
+
+/* Card remove animation */
+@keyframes card-remove {
+  0% { opacity: 1; transform: scale(1); max-height: 500px; }
+  50% { opacity: 0.5; transform: scale(0.98); }
+  100% { opacity: 0; transform: scale(0.95); max-height: 0; margin: 0; padding: 0; overflow: hidden; }
+}
+.card-removing {
+  animation: card-remove 0.3s var(--ease-smooth) forwards;
+  pointer-events: none;
+}
+
+/* --- Light theme adjustments for animations --- */
+html[data-theme="light"] .site-header.scrolled {
+  box-shadow: 0 2px 20px rgba(0,0,0,0.1), 0 1px 0 rgba(138,105,20,0.15);
+}
+html[data-theme="light"] .achievement-card:hover,
+html[data-theme="light"] .map-group-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(138,105,20,0.1);
+}
+html[data-theme="light"] .stat-card:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08), 0 0 10px rgba(138,105,20,0.05);
+}
+html[data-theme="light"] .stat-card {
+  background: linear-gradient(135deg, var(--bg-card), rgba(138,105,20,0.04));
+}
+
+/* --- Reduced motion: respect user preference --- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .progress-fill::after, .mini-bar-fill::after,
+  .otter-bar-fill::after, .focus-progress-fill::after {
+    animation: none !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -6498,6 +7064,115 @@ if (state.viewDensity === 'compact') {
 
 // Restore compact overlay mode
 restoreCompactMode();
+
+/* ========== VISUAL POLISH: JS-DRIVEN ANIMATIONS ========== */
+
+// Scroll-based header shadow
+(function initHeaderShadow() {
+  var header = document.querySelector('.site-header');
+  if (!header) return;
+  var lastScroll = 0;
+  window.addEventListener('scroll', function() {
+    var y = window.scrollY || document.documentElement.scrollTop;
+    if (y > 10 && lastScroll <= 10) header.classList.add('scrolled');
+    else if (y <= 10 && lastScroll > 10) header.classList.remove('scrolled');
+    lastScroll = y;
+  }, { passive: true });
+  // Apply on load
+  if ((window.scrollY || document.documentElement.scrollTop) > 10) header.classList.add('scrolled');
+})();
+
+// Theme toggle rotation animation
+(function enhanceThemeToggle() {
+  var original = window.toggleTheme;
+  window.toggleTheme = function() {
+    var btn = document.getElementById('themeToggle');
+    if (btn) {
+      btn.classList.add('rotating');
+      setTimeout(function() { btn.classList.remove('rotating'); }, 400);
+    }
+    original();
+  };
+})();
+
+// Counting animation for stat dashboard numbers
+function animateCountUp(el, target, duration) {
+  if (!el || isNaN(target)) return;
+  var start = 0;
+  var startTime = null;
+  var targetNum = parseInt(target);
+  if (targetNum === 0) { el.textContent = '0'; return; }
+  function step(ts) {
+    if (!startTime) startTime = ts;
+    var progress = Math.min((ts - startTime) / duration, 1);
+    var ease = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+    var current = Math.round(ease * targetNum);
+    el.textContent = current;
+    if (progress < 1) requestAnimationFrame(step);
+    else el.textContent = target; // restore original text (may include %)
+  }
+  requestAnimationFrame(step);
+}
+
+// Observe stats dashboard for changes and animate numbers
+(function observeStatsDashboard() {
+  var dashboard = document.getElementById('statsDashboard');
+  if (!dashboard) return;
+  var observer = new MutationObserver(function() {
+    dashboard.querySelectorAll('.stat-value').forEach(function(el) {
+      if (el.dataset.animated) return;
+      var text = el.textContent.trim();
+      var num = parseInt(text);
+      if (!isNaN(num) && num > 0 && text.length < 8) {
+        el.dataset.animated = '1';
+        animateCountUp(el, text, 600);
+      }
+    });
+  });
+  observer.observe(dashboard, { childList: true, subtree: true });
+  // Also animate on initial load
+  setTimeout(function() {
+    dashboard.querySelectorAll('.stat-value').forEach(function(el) {
+      if (el.dataset.animated) return;
+      var text = el.textContent.trim();
+      var num = parseInt(text);
+      if (!isNaN(num) && num > 0 && text.length < 8) {
+        el.dataset.animated = '1';
+        animateCountUp(el, text, 600);
+      }
+    });
+  }, 100);
+})();
+
+// Add completed class to fully-done achievement cards
+(function markCompletedCards() {
+  function applyCompletedClass() {
+    document.querySelectorAll('.achievement-card').forEach(function(card) {
+      var fill = card.querySelector('.progress-fill');
+      if (!fill) return;
+      var w = fill.style.width;
+      if (w === '100%') card.classList.add('card-completed');
+      else card.classList.remove('card-completed');
+    });
+  }
+  applyCompletedClass();
+  var targets = ['achievementCards', 'pinnedCards'].map(function(id) { return document.getElementById(id); }).filter(Boolean);
+  var obs = new MutationObserver(function() { setTimeout(applyCompletedClass, 100); });
+  targets.forEach(function(t) { obs.observe(t, { childList: true, subtree: true }); });
+})();
+
+// Enhance pin/add button with bounce
+(function enhanceTogglePin() {
+  var original = window.togglePinAchievement;
+  if (!original) return;
+  window.togglePinAchievement = async function(id, btn) {
+    if (btn) {
+      btn.classList.add('pin-bouncing');
+      setTimeout(function() { btn.classList.remove('pin-bouncing'); }, 300);
+    }
+    return original(id, btn);
+  };
+})();
 
 // Show last sync time if available
 if (state.lastSync) {

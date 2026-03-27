@@ -4881,20 +4881,24 @@ async function loadStarterPack(index) {
 /* ========== SEARCH INDEX ========== */
 
 const SEARCH_INDEX_KEY = 'gw2-search-index';
-const SEARCH_INDEX_VERSION = 1;
-let searchIndex = null; // {version, built, entries: [{id,name}]}
+const SEARCH_INDEX_VERSION = 3;
+let searchIndex = null;
 
 function loadSearchIndex() {
   try {
     const raw = localStorage.getItem(SEARCH_INDEX_KEY);
     if (raw) {
       const idx = JSON.parse(raw);
-      if (idx.version === SEARCH_INDEX_VERSION && idx.entries && idx.entries.length > 5000) {
+      // Validate: correct version, has entries, entries have name field
+      if (idx.version === SEARCH_INDEX_VERSION && idx.entries && idx.entries.length > 5000
+          && idx.entries[0] && idx.entries[0].name) {
         searchIndex = idx;
         return true;
       }
     }
   } catch(e) {}
+  // Clear stale/corrupt index
+  localStorage.removeItem(SEARCH_INDEX_KEY);
   return false;
 }
 
@@ -7714,18 +7718,22 @@ async function initSearchIndex() {
     statusEl.textContent = 'Loading search index...';
     const resp = await fetch('search-index.json');
     if (resp.ok) {
-      const entries = await resp.json();
-      // Map compact format {i,n,a,m,b,t} to full format {id,name,ap,max,bits,tiers}
-      searchIndex = {
-        version: SEARCH_INDEX_VERSION,
-        built: 'static',
-        entries: entries.map(e => ({id:e.i,name:e.n,ap:e.a,max:e.m,bits:e.b,tiers:e.t}))
-      };
-      localStorage.setItem(SEARCH_INDEX_KEY, JSON.stringify(searchIndex));
-      statusEl.textContent = `Search ready (${searchIndex.entries.length} achievements)`;
-      return;
+      const raw = await resp.json();
+      if (raw && raw.length > 0) {
+        searchIndex = {
+          version: SEARCH_INDEX_VERSION,
+          built: 'static',
+          entries: raw.map(e => ({id:e.i,name:e.n,ap:e.a,max:e.m,bits:e.b,tiers:e.t}))
+        };
+        try { localStorage.setItem(SEARCH_INDEX_KEY, JSON.stringify(searchIndex)); } catch(e) { /* storage full */ }
+        statusEl.textContent = `Search ready (${searchIndex.entries.length} achievements)`;
+        return;
+      }
     }
-  } catch(e) { /* static file not available */ }
+    statusEl.textContent = 'Static index failed, building from API...';
+  } catch(e) {
+    statusEl.textContent = 'Static index unavailable, building from API...';
+  }
   // 3. Fall back to runtime build
   buildSearchIndex();
 }

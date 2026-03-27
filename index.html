@@ -390,6 +390,7 @@ a:hover{text-decoration:underline}
 .ach-icon-lg{width:48px;height:48px}
 
 /* Empty State */
+@keyframes empty-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .empty-state{text-align:center;padding:3rem 1.5rem}
 .empty-state h2{color:var(--gold);margin-bottom:0.75rem;font-size:1.3rem}
 .empty-state p{color:var(--text-secondary);font-size:0.9rem;margin-bottom:1.5rem;max-width:500px;margin-left:auto;margin-right:auto}
@@ -405,6 +406,21 @@ a:hover{text-decoration:underline}
 .collapse-icon{display:inline-block;transition:transform 0.2s}
 .collapse-icon.open{transform:rotate(0deg)}
 .collapse-icon:not(.open){transform:rotate(-90deg)}
+
+/* Guided Tour */
+.tour-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:5000;transition:opacity 0.3s}
+.tour-overlay.fade-out{opacity:0}
+.tour-spotlight{position:absolute;border-radius:var(--radius);box-shadow:0 0 0 4000px rgba(0,0,0,0.65);z-index:5001;transition:all 0.4s ease;pointer-events:none}
+.tour-tooltip{position:absolute;z-index:5002;background:var(--bg-card);border:2px solid var(--gold);border-radius:var(--radius);padding:1.25rem 1.5rem;max-width:340px;width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.5);animation:tour-pop 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+.tour-tooltip h3{font-size:1rem;color:var(--gold);margin-bottom:0.4rem}
+.tour-tooltip p{font-size:0.85rem;color:var(--text-secondary);margin-bottom:1rem;line-height:1.5}
+.tour-tooltip .tour-step{font-size:0.7rem;color:var(--text-dim);margin-bottom:0.75rem}
+.tour-actions{display:flex;gap:0.5rem;justify-content:flex-end}
+.tour-arrow{position:absolute;width:12px;height:12px;background:var(--bg-card);border:2px solid var(--gold);transform:rotate(45deg)}
+.tour-arrow.top{top:-7px;left:30px;border-right:none;border-bottom:none}
+.tour-arrow.bottom{bottom:-7px;left:30px;border-left:none;border-top:none}
+.tour-arrow.left{left:-7px;top:20px;border-right:none;border-top:none}
+@keyframes tour-pop{0%{opacity:0;transform:scale(0.9)}100%{opacity:1;transform:scale(1)}}
 
 /* Print Mode */
 @media print{
@@ -5484,14 +5500,20 @@ async function importSharedAchievements(ids) {
 
 function renderEmptyState() {
   return `<div class="empty-state">
-    <h2>Welcome to GW2 Achievement Tracker</h2>
-    <p>Pin achievements you're working toward. Search by name, browse by category, or pick a starter pack to get going.</p>
-    <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem">
-      <button class="btn btn-primary" onclick="document.getElementById('achSearchInput').focus();document.querySelector('[aria-expanded=&quot;false&quot;]').click()">Search Achievements</button>
-      <button class="btn" onclick="document.getElementById('achSearchInput').focus();document.querySelector('[aria-expanded=&quot;false&quot;]').click()">Browse Categories</button>
+    <div style="margin-bottom:1.5rem;animation:empty-float 3s ease-in-out infinite">
+      <svg viewBox="0 0 120 120" width="100" height="100">
+        <circle cx="60" cy="60" r="55" fill="none" stroke="var(--gold-dim)" stroke-width="2" stroke-dasharray="8 4"/>
+        <path d="M60 25 L68 45 L90 48 L73 63 L78 85 L60 74 L42 85 L47 63 L30 48 L52 45 Z" fill="none" stroke="var(--gold)" stroke-width="2" opacity="0.6"/>
+      </svg>
     </div>
-    <div style="font-size:0.8rem;color:var(--text-dim)">
-      Popular starting points: Seasons of the Dragons (ID 5790) &middot; Jumping Puzzles &middot; Legendary Collections
+    <h2>Begin Your Journey</h2>
+    <p>Pin achievements you're working toward. Search by name, browse by category, or pick a starter pack.</p>
+    <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem">
+      <button class="btn btn-primary" onclick="startTour()">Take the Tour</button>
+      <button class="btn" onclick="document.querySelector('.achievement-card[style*=blue] .card-header')?.click();setTimeout(()=>document.getElementById('achSearchInput')?.focus(),300)">Search Achievements</button>
+    </div>
+    <div style="font-size:0.8rem;color:var(--text-dim);padding:0.5rem 1rem;background:rgba(212,168,83,0.05);border-radius:var(--radius-sm);border:1px dashed var(--gold-dim)">
+      <span style="color:var(--gold)">Tip:</span> Connect your GW2 API key above to auto-sync progress from your account
     </div>
   </div>`;
 }
@@ -5606,6 +5628,142 @@ function renderBadgeSection() {
         </div>`;
       }).join('')}</div>
     </section>`;
+}
+
+/* ========== GUIDED TOUR ========== */
+
+const TOUR_STEPS = [
+  {
+    target: '#achSearchInput',
+    title: 'Search Any Achievement',
+    text: 'Type any achievement name to find it instantly across 8,000+ GW2 achievements. Try "Seasons", "Jumping", or "Legendary".',
+    arrow: 'top',
+    action: () => {
+      // Open the browse panel if collapsed
+      const header = document.querySelector('#achSearchInput')?.closest('.card-body-inner')?.closest('.achievement-card')?.querySelector('.card-header');
+      if (header && header.getAttribute('aria-expanded') === 'false') header.click();
+    }
+  },
+  {
+    target: '#starterPacks',
+    title: 'Quick Start Packs',
+    text: 'Not sure where to start? Click a Starter Pack to see curated achievement sets — Mount Collector, Legendary Journey, Jumping Puzzles, and more.',
+    arrow: 'top'
+  },
+  {
+    target: '#apiToggle',
+    title: 'Sync Your Account',
+    text: 'Paste your GW2 API key to auto-sync progress, wallet currencies, and mount unlocks. Create a key at account.arena.net with account + progression + wallet permissions.',
+    arrow: 'bottom'
+  },
+  {
+    target: '#pinnedCards',
+    title: 'Your Dashboard',
+    text: 'Pinned achievements appear here with progress bars, objectives, and guides. Drag cards to reorder. Switch between List, Map, and Grid views using the filter bar above.',
+    arrow: 'top',
+    fallbackText: 'Once you pin achievements, they\'ll appear here with full tracking. Try searching for one now!'
+  },
+  {
+    target: '#statsDashboard',
+    title: 'Track & Share',
+    text: 'Your stats update as you progress. Share your setup with friends, download screenshots for Discord, or compare progress side-by-side. Everything saves automatically in your browser.',
+    arrow: 'bottom'
+  }
+];
+
+let tourStep = 0;
+let tourOverlay = null;
+
+function startTour() {
+  tourStep = 0;
+  showTourStep();
+}
+
+function showTourStep() {
+  // Clean up previous
+  if (tourOverlay) tourOverlay.remove();
+  document.querySelectorAll('.tour-tooltip,.tour-spotlight').forEach(el => el.remove());
+
+  if (tourStep >= TOUR_STEPS.length) { endTour(); return; }
+
+  const step = TOUR_STEPS[tourStep];
+  if (step.action) step.action();
+
+  // Create overlay
+  tourOverlay = document.createElement('div');
+  tourOverlay.className = 'tour-overlay';
+  tourOverlay.addEventListener('click', e => { if (e.target === tourOverlay) nextTourStep(); });
+  document.body.appendChild(tourOverlay);
+
+  const target = document.querySelector(step.target);
+
+  // Spotlight
+  if (target) {
+    const rect = target.getBoundingClientRect();
+    const spotlight = document.createElement('div');
+    spotlight.className = 'tour-spotlight';
+    spotlight.style.top = (rect.top + window.scrollY - 8) + 'px';
+    spotlight.style.left = (rect.left - 8) + 'px';
+    spotlight.style.width = (rect.width + 16) + 'px';
+    spotlight.style.height = (rect.height + 16) + 'px';
+    document.body.appendChild(spotlight);
+
+    // Scroll into view
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // Tooltip
+  setTimeout(() => {
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tour-tooltip';
+    tooltip.innerHTML = `
+      <div class="tour-arrow ${step.arrow}"></div>
+      <div class="tour-step">Step ${tourStep + 1} of ${TOUR_STEPS.length}</div>
+      <h3>${step.title}</h3>
+      <p>${!target && step.fallbackText ? step.fallbackText : step.text}</p>
+      <div class="tour-actions">
+        <button class="btn btn-sm" onclick="endTour()">Skip Tour</button>
+        <button class="btn btn-primary btn-sm" onclick="nextTourStep()">${tourStep < TOUR_STEPS.length - 1 ? 'Next' : 'Done!'}</button>
+      </div>`;
+
+    if (target) {
+      const rect = target.getBoundingClientRect();
+      if (step.arrow === 'top' || step.arrow === 'left') {
+        tooltip.style.position = 'absolute';
+        tooltip.style.top = (rect.bottom + window.scrollY + 16) + 'px';
+        tooltip.style.left = Math.max(8, rect.left) + 'px';
+      } else {
+        tooltip.style.position = 'absolute';
+        tooltip.style.top = (rect.top + window.scrollY - 180) + 'px';
+        tooltip.style.left = Math.max(8, rect.left) + 'px';
+      }
+    } else {
+      tooltip.style.position = 'fixed';
+      tooltip.style.top = '50%';
+      tooltip.style.left = '50%';
+      tooltip.style.transform = 'translate(-50%, -50%)';
+    }
+
+    document.body.appendChild(tooltip);
+  }, 100);
+}
+
+function nextTourStep() {
+  tourStep++;
+  showTourStep();
+}
+
+function endTour() {
+  if (tourOverlay) tourOverlay.remove();
+  document.querySelectorAll('.tour-tooltip,.tour-spotlight,.tour-overlay').forEach(el => el.remove());
+  tourOverlay = null;
+  state.tourCompleted = true;
+  saveState();
+}
+
+function shouldShowTour() {
+  // Show tour on first visit (no pinned achievements and tour not completed)
+  return !state.tourCompleted && !(state.pinnedAchievements && state.pinnedAchievements.length > 0);
 }
 
 /* ========== DRAG-AND-DROP REORDER ========== */
@@ -5926,6 +6084,9 @@ renderStarterPacks();
 renderStreakDisplay();
 checkBadges();
 initDragDrop();
+
+// Auto-start tour for first-time visitors
+if (shouldShowTour()) { setTimeout(startTour, 800); }
 
 // Load search index: try static file first, then localStorage cache, then build at runtime
 async function initSearchIndex() {

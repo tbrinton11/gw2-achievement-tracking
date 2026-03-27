@@ -2952,9 +2952,14 @@ document.getElementById('syncBtn').addEventListener('click', async () => {
         if (pinnedResp.ok) {
           const pinnedData = await pinnedResp.json();
           if (!state.pinnedProgress) state.pinnedProgress = {};
+          let newCompletions = 0;
           pinnedData.forEach(p => {
+            const prev = (state.pinnedProgress || {})[p.id];
+            const wasDone = prev && prev.done;
             state.pinnedProgress[p.id] = { current: p.current || 0, max: p.max || 0, done: !!p.done, bits: p.bits || [] };
+            if (p.done && !wasDone) newCompletions++;
           });
+          if (newCompletions > 0) setTimeout(launchConfetti, 500);
         }
       } catch(e) { /* non-fatal */ }
     }

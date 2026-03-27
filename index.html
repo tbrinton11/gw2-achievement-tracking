@@ -1732,6 +1732,171 @@ html[data-theme="light"] .stat-card {
     animation: none !important;
   }
 }
+
+/* ========== Tab Bar ========== */
+.tab-bar{
+  display:flex;gap:0;background:var(--bg-header);border-bottom:1px solid var(--gold-dim);
+  max-width:1200px;margin:0 auto;padding:0 1.5rem;
+}
+.tab-btn{
+  padding:0.7rem 1.5rem;font-family:'Cinzel',Georgia,serif;font-size:0.95rem;
+  color:var(--text-secondary);background:none;border:none;border-bottom:3px solid transparent;
+  cursor:pointer;transition:all 0.2s;font-weight:600;letter-spacing:0.03em;
+}
+.tab-btn:hover{color:var(--gold-light)}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* ========== Daily Routine View ========== */
+#dailyView .daily-container{max-width:900px;margin:0 auto;padding:2rem}
+
+#dailyView .daily-status-bar{
+  display:flex;justify-content:space-between;align-items:center;
+  background:var(--bg-card);border:1px solid rgba(138,114,52,0.25);
+  border-radius:var(--radius);padding:12px 20px;margin-bottom:20px;
+}
+#dailyView .daily-progress-text{font-size:0.95rem}
+#dailyView .daily-progress-text span{color:var(--gold);font-weight:bold}
+#dailyView .daily-progress-bar-bg{
+  flex:1;height:10px;background:var(--progress-bg);border-radius:5px;
+  margin:0 16px;overflow:hidden;
+}
+#dailyView .daily-progress-bar-fill{
+  height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));
+  border-radius:5px;transition:width 0.4s ease;
+}
+#dailyView .daily-reset-btn{
+  background:var(--gold);color:var(--bg-body);border:none;padding:6px 14px;
+  border-radius:var(--radius-sm);cursor:pointer;font-size:0.85rem;
+  font-weight:600;transition:opacity 0.2s;font-family:inherit;
+}
+#dailyView .daily-reset-btn:hover{opacity:0.8}
+#dailyView .daily-last-reset{color:var(--text-dim);font-size:0.75rem;text-align:right;margin-bottom:16px}
+
+#dailyView .daily-section{
+  background:var(--bg-card);border:1px solid rgba(138,114,52,0.15);
+  border-left:3px solid var(--gold);
+  border-radius:var(--radius);margin-bottom:1.25rem;overflow:hidden;
+}
+#dailyView .daily-section-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;cursor:pointer;user-select:none;transition:background 0.2s;
+}
+#dailyView .daily-section-header:hover{background:var(--bg-card-hover)}
+#dailyView .daily-section-header h2{
+  font-size:1.1rem;display:flex;align-items:center;gap:10px;
+  font-family:'Cinzel',Georgia,serif;color:var(--gold);
+}
+#dailyView .daily-badge{
+  font-size:0.7rem;padding:2px 8px;border-radius:10px;font-weight:600;
+  color:#fff;text-transform:uppercase;letter-spacing:0.03em;
+}
+.daily-badge-core{background:var(--red)}
+.daily-badge-high{background:var(--purple)}
+.daily-badge-weekly{background:#1a5276}
+#dailyView .daily-time-est{color:var(--text-dim);font-size:0.85rem}
+#dailyView .daily-chevron{
+  transition:transform 0.3s;color:var(--text-dim);font-size:1.2rem;
+}
+#dailyView .daily-section.collapsed .daily-chevron{transform:rotate(-90deg)}
+#dailyView .daily-section.collapsed .daily-section-body{display:none}
+#dailyView .daily-section-body{padding:0 20px 16px}
+
+#dailyView .daily-task-row{
+  display:grid;grid-template-columns:36px 1fr auto;align-items:start;
+  padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);transition:opacity 0.3s;
+}
+#dailyView .daily-task-row:last-child{border-bottom:none}
+#dailyView .daily-task-row.checked{opacity:0.45}
+#dailyView .daily-task-row.checked .daily-task-name{text-decoration:line-through}
+
+#dailyView .daily-task-check{
+  width:22px;height:22px;appearance:none;-webkit-appearance:none;
+  border:2px solid var(--text-dim);border-radius:4px;cursor:pointer;
+  position:relative;margin-top:2px;transition:all 0.2s;background:transparent;
+}
+#dailyView .daily-task-check:checked{background:var(--green);border-color:var(--green)}
+#dailyView .daily-task-check:checked::after{
+  content:'\2713';position:absolute;top:-1px;left:3px;
+  color:#000;font-weight:bold;font-size:14px;
+}
+
+#dailyView .daily-task-info{padding-right:12px}
+#dailyView .daily-task-name{font-weight:600;font-size:0.95rem;margin-bottom:3px}
+#dailyView .daily-task-desc{color:var(--text-secondary);font-size:0.82rem;line-height:1.4}
+
+#dailyView .daily-task-meta{text-align:right;white-space:nowrap}
+#dailyView .daily-wp-code{
+  display:inline-block;background:rgba(0,0,0,0.3);
+  color:var(--gold-light);font-family:'Consolas','Courier New',monospace;
+  font-size:0.78rem;padding:3px 8px;border-radius:4px;cursor:pointer;
+  margin-bottom:4px;border:1px solid transparent;transition:border-color 0.2s;
+}
+#dailyView .daily-wp-code:hover{border-color:var(--gold)}
+#dailyView .daily-wp-code.copied{border-color:var(--green);color:var(--green)}
+#dailyView .daily-task-time{color:var(--text-dim);font-size:0.78rem}
+
+/* Daily Reference sections */
+#dailyView .daily-ref-section{
+  background:var(--bg-card);border:1px solid rgba(138,114,52,0.25);
+  border-radius:var(--radius);margin-bottom:16px;overflow:hidden;
+}
+#dailyView .daily-ref-header{
+  padding:12px 20px;cursor:pointer;user-select:none;
+  display:flex;justify-content:space-between;align-items:center;
+}
+#dailyView .daily-ref-header:hover{background:var(--bg-card-hover)}
+#dailyView .daily-ref-header h3{font-size:0.95rem;color:var(--blue);font-family:'Cinzel',Georgia,serif}
+#dailyView .daily-ref-section.collapsed .daily-ref-body{display:none}
+#dailyView .daily-ref-section.collapsed .daily-chevron{transform:rotate(-90deg)}
+#dailyView .daily-ref-body{padding:0 20px 16px}
+
+#dailyView table{width:100%;border-collapse:collapse;font-size:0.82rem}
+#dailyView th{
+  text-align:left;padding:8px 10px;border-bottom:1px solid rgba(138,114,52,0.3);
+  color:var(--gold);font-weight:600;
+}
+#dailyView td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--text-secondary)}
+#dailyView tr:last-child td{border-bottom:none}
+
+#dailyView .daily-links-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#dailyView .daily-link-card{
+  background:rgba(0,0,0,0.2);padding:10px 14px;border-radius:var(--radius-sm);
+  border:1px solid rgba(138,114,52,0.25);transition:border-color 0.2s;
+}
+#dailyView .daily-link-card:hover{border-color:var(--gold)}
+#dailyView .daily-link-card a{color:var(--blue);text-decoration:none;font-weight:600;font-size:0.85rem}
+#dailyView .daily-link-card a:hover{text-decoration:underline}
+#dailyView .daily-link-desc{color:var(--text-dim);font-size:0.75rem;margin-top:2px}
+
+#dailyView .daily-flow-steps{display:flex;flex-wrap:wrap;gap:8px;padding:10px 0}
+#dailyView .daily-flow-step{
+  display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.2);
+  padding:8px 14px;border-radius:20px;font-size:0.82rem;
+  border:1px solid rgba(138,114,52,0.25);color:var(--text-secondary);
+}
+#dailyView .daily-step-num{
+  background:var(--gold);color:var(--bg-body);width:20px;height:20px;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:0.7rem;font-weight:bold;flex-shrink:0;
+}
+
+#dailyView .daily-toast{
+  position:fixed;bottom:20px;left:50%;
+  transform:translateX(-50%) translateY(60px);
+  background:var(--green);color:#000;padding:8px 20px;border-radius:var(--radius-sm);
+  font-weight:600;font-size:0.85rem;opacity:0;transition:all 0.3s;
+  pointer-events:none;z-index:100;
+}
+#dailyView .daily-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+@media(max-width:600px){
+  #dailyView .daily-task-row{grid-template-columns:32px 1fr}
+  #dailyView .daily-task-meta{grid-column:2;margin-top:6px;text-align:left}
+  #dailyView .daily-links-grid{grid-template-columns:1fr}
+  #dailyView .daily-status-bar{flex-wrap:wrap;gap:8px}
+  #dailyView .daily-progress-bar-bg{order:3;flex-basis:100%;margin:0}
+  .tab-btn{padding:0.6rem 1rem;font-size:0.85rem}
+}
 </style>
 </head>
 <body>
@@ -1781,6 +1946,15 @@ html[data-theme="light"] .stat-card {
     <span class="rt-value" id="weeklyResetValue">--</span>
   </div>
 </div>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="achievements" onclick="switchTab('achievements')">Achievements</button>
+  <button class="tab-btn" data-tab="daily" onclick="switchTab('daily')">Daily Routine</button>
+</div>
+
+<!-- ACHIEVEMENT VIEW (default) -->
+<div id="achievementView">
 
 <!-- SEARCH BAR (right after header) -->
 <div class="search-section">
@@ -1941,6 +2115,286 @@ html[data-theme="light"] .stat-card {
   </div>
   <div class="footer-info kbd-hint" style="margin-top:0.5rem">Keyboard shortcuts: ?</div>
 </footer>
+
+</div><!-- /achievementView -->
+
+<!-- DAILY ROUTINE VIEW -->
+<div id="dailyView" style="display:none">
+  <div class="daily-container">
+
+    <div class="daily-status-bar">
+      <div class="daily-progress-text"><span id="daily-done-count">0</span> / <span id="daily-total-count">0</span></div>
+      <div class="daily-progress-bar-bg"><div class="daily-progress-bar-fill" id="daily-progress-fill" style="width:0%"></div></div>
+      <button class="daily-reset-btn" onclick="dailyResetAll()">Reset All</button>
+    </div>
+    <div class="daily-last-reset" id="daily-last-reset"></div>
+
+    <!-- PRIORITY 1: CORE -->
+    <div class="daily-section" id="daily-sec-core">
+      <div class="daily-section-header" onclick="dailyToggleSection('daily-sec-core')">
+        <h2><span class="daily-badge daily-badge-core">CORE</span> Priority 1 &mdash; Every Day</h2>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="daily-time-est">~12-15 min</span>
+          <span class="daily-chevron">&#9660;</span>
+        </div>
+      </div>
+      <div class="daily-section-body">
+
+        <div class="daily-task-row" data-daily-id="wv">
+          <input type="checkbox" class="daily-task-check" onchange="dailySave()">
+          <div class="daily-task-info">
+            <div class="daily-task-name">Wizard's Vault Dailies</div>
+            <div class="daily-task-desc">Complete 4/5 daily objectives for 1g + 20 Astral Acclaim. Hero Panel (H) &gt; Wizard's Vault. Many overlap with normal play.</div>
+          </div>
+          <div class="daily-task-meta">
+            <div class="daily-task-time">3-6 min</div>
+          </div>
+        </div>
+
+        <div class="daily-task-row" data-daily-id="tg">
+          <input type="checkbox" class="daily-task-check" onchange="dailySave()">
+          <div class="daily-task-info">
+            <div class="daily-task-name">Time-Gated Crafting (Core 4)</div>
+            <div class="daily-task-desc">Craft Lump of Mithrillium, Glob of Elder Spirit Residue, Spool of Silk Weaving Thread, Spool of Thick Elonian Cord. Requires 450+ crafting. See reference table below.</div>
+          </div>
+          <div class="daily-task-meta">
+            <div class="daily-wp-code" onclick="dailyCopyWP(this)">[&amp;BBAEAAA=]</div>
+            <div class="daily-task-time">2-3 min</div>
+          </div>
+        </div>
+
+        <div class="daily-task-row" data-daily-id="cq">
+          <input type="checkbox" class="daily-task-check" onchange="dailySave()">
+          <div class="daily-task-info">
+            <div class="daily-task-name">Charged Quartz Crystal</div>
+            <div class="daily-task-desc">Have 25 Quartz Crystal, commune at Place of Power. 1/account/day. Queensdale Shaemoor &rarr; walk east to Tamini PoP.</div>
+          </div>
+          <div class="daily-task-meta">
+            <div class="daily-wp-code" onclick="dailyCopyWP(this)">[&amp;BPcAAAA=]</div>
+            <div class="daily-task-time">1 min</div>
+          </div>
+        </div>
+
+        <div class="daily-task-row" data-daily-id="psna">
+          <input type="checkbox" class="daily-task-check" onchange="dailySave()">
+          <div class="daily-task-info">
+            <div class="daily-task-name">Pact Supply Network Agents (x6)</div>
+            <div class="daily-task-desc">Type <code>/wiki psna</code> in-game for today's 6 locations. Buy Pact Scout's Mapping Materials (5,250 karma each). Use on profitable map bonus weeks.</div>
+          </div>
+          <div class="daily-task-meta">
+            <div class="daily-wp-code" onclick="dailyCopyWP(this)" style="font-size:0.7rem">/wiki psna</div>
+            <div class="daily-task-time">5-8 min</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PRIORITY 2: HIGH -->
+    <div class="daily-section" id="daily-sec-high">
+      <div class="daily-section-header" onclick="dailyToggleSection('daily-sec-high')">
+        <h2><span class="daily-badge daily-badge-high">HIGH</span> Priority 2 &mdash; When Time Allows</h2>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="daily-time-est">~5-10 min</span>
+          <span class="daily-chevron">&#9660;</span>
+        </div>
+      </div>
+      <div class="daily-section-body">
+
+        <div class="daily-task-row" data-daily-id="ei">
+          <input type="checkbox" class="daily-task-check" onchange="dailySave()">
+          <div class="daily-task-info">
+            <div class="daily-task-name">Eternal Ice Chest Run (Bjora Marches)</div>
+            <div class="daily-task-desc">Collect Essence Chests &amp; Norn Chests. Convert ice to LW4 currencies at camp vendors (75 ice &rarr; 10 currency, no daily limit). Use TacO/BlishHUD marker pack for route. Feeds legendary crafting.</div>
+          </div>
+          <div class="daily-task-meta">
+            <div class="daily-wp-code" onclick="dailyCopyWP(this)">[&amp;BCcMAAA=]</div>
+            <div class="daily-task-time">5-10 min</div>
+          </div>
+        </div>
+
+        <div class="daily-task-row" data-daily-id="lla">
+          <input type="checkbox" class="daily-task-check" onchange="dailySave()">
+          <div class="daily-task-info">
+            <div class="daily-task-name">Ley-Line Anomaly (1 Mystic Coin)</div>
+            <div class="daily-task-desc">Spawns every 2h at :20 past even hours UTC. Kill for 1 Mystic Coin/day (~2g). Rotates: Timberline Falls, Iron Marches, Gendarran Fields. Check event timer.</div>
+          </div>
+          <div class="daily-task-meta">
+            <div class="daily-wp-code" onclick="dailyCopyWP(this)">[&amp;BEwCAAA=]</div>
+            <div class="daily-wp-code" onclick="dailyCopyWP(this)">[&amp;BOYBAAA=]</div>
+            <div class="daily-wp-code" onclick="dailyCopyWP(this)">[&amp;BOQAAAA=]</div>
+            <div class="daily-task-time">5-15 min</div>
+          </div>
+        </div>
+
+        <div class="daily-task-row" data-daily-id="hi">
+          <input type="checkbox" class="daily-task-check" onchange="dailySave()">
+          <div class="daily-task-info">
+            <div class="daily-task-name">Home Instance Gathering</div>
+            <div class="daily-task-desc">Gather all purchased nodes. Priority: Quartz Crystal Formation, Ancient Sapling, Orichalcum node.</div>
+          </div>
+          <div class="daily-task-meta">
+            <div class="daily-task-time">3-5 min</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PRIORITY 3: WEEKLY -->
+    <div class="daily-section" id="daily-sec-weekly">
+      <div class="daily-section-header" onclick="dailyToggleSection('daily-sec-weekly')">
+        <h2><span class="daily-badge daily-badge-weekly">WEEKLY</span> Priority 3 &mdash; Batch / Passive</h2>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="daily-time-est">park &amp; batch</span>
+          <span class="daily-chevron">&#9660;</span>
+        </div>
+      </div>
+      <div class="daily-section-body">
+
+        <div class="daily-task-row" data-daily-id="pt">
+          <input type="checkbox" class="daily-task-check" onchange="dailySave()">
+          <div class="daily-task-info">
+            <div class="daily-task-name">Provisioner Tokens (Weekly)</div>
+            <div class="daily-task-desc">Visit HoT vendors (7/week cap). Use GW2 Lunchbox Provisioner Helper for cheapest items. Needed for legendary armor/sigils/runes.</div>
+          </div>
+          <div class="daily-task-meta">
+            <div class="daily-wp-code" onclick="dailyCopyWP(this)">[&amp;BN4HAAA=]</div>
+            <div class="daily-wp-code" onclick="dailyCopyWP(this)">[&amp;BNYHAAA=]</div>
+            <div class="daily-wp-code" onclick="dailyCopyWP(this)">[&amp;BMwHAAA=]</div>
+            <div class="daily-task-time">5 min/week</div>
+          </div>
+        </div>
+
+        <div class="daily-task-row" data-daily-id="ap">
+          <input type="checkbox" class="daily-task-check" onchange="dailySave()">
+          <div class="daily-task-info">
+            <div class="daily-task-name">Alt Parking Chests</div>
+            <div class="daily-task-desc">Park alts at daily chest spots. Log in &rarr; loot &rarr; log out. Best: Tomb of Primeval Kings (Desert Highlands).</div>
+          </div>
+          <div class="daily-task-meta">
+            <div class="daily-wp-code" onclick="dailyCopyWP(this)">[&amp;BCwLAAA=]</div>
+            <div class="daily-task-time">30s/alt</div>
+          </div>
+        </div>
+
+        <div class="daily-task-row" data-daily-id="gh">
+          <input type="checkbox" class="daily-task-check" onchange="dailySave()">
+          <div class="daily-task-info">
+            <div class="daily-task-name">Guild Hall Nodes</div>
+            <div class="daily-task-desc">Gather ore/wood synthesizers if guild has Workshop upgrades.</div>
+          </div>
+          <div class="daily-task-meta">
+            <div class="daily-task-time">2-3 min</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- REFERENCE: Time-Gated Crafting -->
+    <div class="daily-ref-section collapsed" id="daily-ref-crafting">
+      <div class="daily-ref-header" onclick="dailyToggleRef('daily-ref-crafting')">
+        <h3>Time-Gated Crafting Reference</h3>
+        <span class="daily-chevron">&#9660;</span>
+      </div>
+      <div class="daily-ref-body">
+        <table>
+          <tr><th>Material</th><th>Discipline</th><th>Key Ingredients</th><th>Becomes</th><th>~Value</th></tr>
+          <tr><td style="color:var(--text)">Lump of Mithrillium</td><td>Armor/Weapon</td><td>50 Mithril Ingot + 1 Ecto + 10 Thermo Reagent</td><td>Deldrimor Steel Ingot</td><td style="color:var(--gold)">1-2g</td></tr>
+          <tr><td style="color:var(--text)">Glob of Elder Spirit Residue</td><td>Artif/Hunts/Weapon</td><td>50 Elder Wood Plank + 1 Ecto + 10 Thermo Reagent</td><td>Spiritwood Plank</td><td style="color:var(--gold)">1-2g</td></tr>
+          <tr><td style="color:var(--text)">Spool of Silk Weaving Thread</td><td>Armor/Leather/Tailor</td><td>100 Bolt of Silk + 1 Ecto + 25 Gossamer Thread</td><td>Bolt of Damask</td><td style="color:var(--gold)">3-6g</td></tr>
+          <tr><td style="color:var(--text)">Spool of Thick Elonian Cord</td><td>Leatherworker</td><td>50 Cured Thick Leather + 1 Ecto + 10 Thermo Reagent</td><td>Elonian Leather Square</td><td style="color:var(--gold)">2-5g</td></tr>
+          <tr><td style="color:var(--text)">Charged Quartz Crystal</td><td>None (commune)</td><td>25 Quartz Crystal at Place of Power</td><td>Celestial gear / Trinkets</td><td>Account-bound</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- REFERENCE: Eternal Ice Conversion -->
+    <div class="daily-ref-section collapsed" id="daily-ref-ice">
+      <div class="daily-ref-header" onclick="dailyToggleRef('daily-ref-ice')">
+        <h3>Eternal Ice Conversion Rates</h3>
+        <span class="daily-chevron">&#9660;</span>
+      </div>
+      <div class="daily-ref-body">
+        <table>
+          <tr><th>Conversion</th><th>Rate</th></tr>
+          <tr><td>Eternal Ice &rarr; LW4 currencies (Difluorite, Mistonium, Branded Mass, etc.)</td><td style="color:var(--gold-light)">75 ice &rarr; 10 currency</td></tr>
+          <tr><td>Eternal Ice &rarr; Volatile Magic</td><td style="color:var(--gold-light)">1 ice &rarr; 10 VM</td></tr>
+          <tr><td>Eternal Ice &rarr; Kralkatorrik Ore</td><td style="color:var(--gold-light)">Varies</td></tr>
+        </table>
+        <p style="color:var(--text-dim);font-size:0.8rem;margin-top:10px;">No daily conversion limit. LW4 currencies needed for Gen 2 legendaries and Vision/Aurora trinkets. Bjora is faster than farming each LW4 map individually.</p>
+      </div>
+    </div>
+
+    <!-- REFERENCE: Wizard's Vault Spending -->
+    <div class="daily-ref-section collapsed" id="daily-ref-wv">
+      <div class="daily-ref-header" onclick="dailyToggleRef('daily-ref-wv')">
+        <h3>Wizard's Vault Spending Priority</h3>
+        <span class="daily-chevron">&#9660;</span>
+      </div>
+      <div class="daily-ref-body">
+        <table>
+          <tr><th>Reward</th><th>Cost</th><th>Value</th></tr>
+          <tr><td style="color:var(--text)">Mystic Coins (60x)</td><td>9 Acclaim</td><td style="color:var(--gold)">~120g (best ratio)</td></tr>
+          <tr><td style="color:var(--text)">Bag of Gold</td><td>800 Acclaim</td><td style="color:var(--gold)">100g</td></tr>
+          <tr><td style="color:var(--text)">Mystic Clovers (seasonal)</td><td>Varies</td><td>Legendary value</td></tr>
+          <tr><td style="color:var(--text)">Bags of Laurels</td><td>1,500 Acclaim</td><td>Ascended accessories</td></tr>
+        </table>
+        <p style="color:var(--text-dim);font-size:0.8rem;margin-top:10px;">Acclaim cap: 1,300. Spend before you cap.</p>
+      </div>
+    </div>
+
+    <!-- REFERENCE: Suggested Flow -->
+    <div class="daily-ref-section" id="daily-ref-flow">
+      <div class="daily-ref-header" onclick="dailyToggleRef('daily-ref-flow')">
+        <h3>Suggested 20-Minute Flow</h3>
+        <span class="daily-chevron">&#9660;</span>
+      </div>
+      <div class="daily-ref-body">
+        <div class="daily-flow-steps">
+          <div class="daily-flow-step"><span class="daily-step-num">1</span> Log in &rarr; Wizard's Vault login (30s)</div>
+          <div class="daily-flow-step"><span class="daily-step-num">2</span> Crafting station &rarr; Core 4 mats (2m)</div>
+          <div class="daily-flow-step"><span class="daily-step-num">3</span> Queensdale &rarr; Charged Quartz (1m)</div>
+          <div class="daily-flow-step"><span class="daily-step-num">4</span> /wiki psna &rarr; 6 agents (6m)</div>
+          <div class="daily-flow-step"><span class="daily-step-num">5</span> Bjora Marches &rarr; Ice chests (8m)</div>
+          <div class="daily-flow-step"><span class="daily-step-num">6</span> Log alts &rarr; loot parked chests (1m/alt)</div>
+          <div class="daily-flow-step"><span class="daily-step-num">7</span> Finish Wizard's Vault dailies</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REFERENCE: Useful Links -->
+    <div class="daily-ref-section collapsed" id="daily-ref-links">
+      <div class="daily-ref-header" onclick="dailyToggleRef('daily-ref-links')">
+        <h3>Useful Links &amp; Tools</h3>
+        <span class="daily-chevron">&#9660;</span>
+      </div>
+      <div class="daily-ref-body">
+        <div class="daily-links-grid">
+          <div class="daily-link-card">
+            <a href="https://gw2timer.com" target="_blank">gw2timer.com</a>
+            <div class="daily-link-desc">Ley-Line Anomaly &amp; meta event timers</div>
+          </div>
+          <div class="daily-link-card">
+            <a href="https://www.gw2lunchbox.com/ProvisionerHelper.html" target="_blank">GW2 Lunchbox</a>
+            <div class="daily-link-desc">Cheapest provisioner items (live TP prices)</div>
+          </div>
+          <div class="daily-link-card">
+            <a href="https://fast.farming-community.eu/conversions/eternal-ice-shard" target="_blank">[fast] Farming Community</a>
+            <div class="daily-link-desc">Eternal Ice conversion values</div>
+          </div>
+          <div class="daily-link-card">
+            <a href="https://wiki.guildwars2.com/wiki/Map_bonus_reward/profit" target="_blank">Map Bonus Profit</a>
+            <div class="daily-link-desc">Best map for Mapping Materials this week</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /daily-container -->
+  <div class="daily-toast" id="daily-toast">Copied!</div>
+</div><!-- /dailyView -->
 
 <script>
 /* ========== DATA MODEL ========== */
@@ -7840,6 +8294,180 @@ setTimeout(applyRarityLabels, 100);
     observer.observe(target, { childList: true, subtree: true });
   });
 })();
+
+/* ========== TAB SYSTEM ========== */
+
+function switchTab(tab) {
+  const achView = document.getElementById('achievementView');
+  const dailyView = document.getElementById('dailyView');
+  const tabs = document.querySelectorAll('.tab-btn');
+
+  tabs.forEach(function(t) {
+    t.classList.toggle('active', t.getAttribute('data-tab') === tab);
+  });
+
+  if (tab === 'achievements') {
+    achView.style.display = '';
+    dailyView.style.display = 'none';
+  } else {
+    achView.style.display = 'none';
+    dailyView.style.display = '';
+    dailyRestore();
+  }
+
+  try { localStorage.setItem('gw2-active-tab', tab); } catch(e) {}
+}
+
+// Restore tab state on load
+(function initTab() {
+  var saved = null;
+  try { saved = localStorage.getItem('gw2-active-tab'); } catch(e) {}
+  if (saved === 'daily') {
+    switchTab('daily');
+  }
+})();
+
+/* ========== DAILY ROUTINE STATE MANAGEMENT ========== */
+
+var DAILY_STORAGE_KEY = 'gw2-daily-checklist';
+
+function dailyGetToday() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function dailyLoadState() {
+  try {
+    var raw = localStorage.getItem(DAILY_STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch(e) { return null; }
+}
+
+function dailyGetState() {
+  var state = dailyLoadState();
+  if (!state || state.date !== dailyGetToday()) {
+    state = { date: dailyGetToday(), checked: {} };
+    localStorage.setItem(DAILY_STORAGE_KEY, JSON.stringify(state));
+  }
+  return state;
+}
+
+function dailySave() {
+  var state = { date: dailyGetToday(), checked: {} };
+  document.querySelectorAll('#dailyView .daily-task-row').forEach(function(row) {
+    var id = row.getAttribute('data-daily-id');
+    var cb = row.querySelector('.daily-task-check');
+    state.checked[id] = cb.checked;
+    row.classList.toggle('checked', cb.checked);
+  });
+  localStorage.setItem(DAILY_STORAGE_KEY, JSON.stringify(state));
+  dailyUpdateProgress();
+}
+
+function dailyRestore() {
+  var state = dailyGetState();
+  document.querySelectorAll('#dailyView .daily-task-row').forEach(function(row) {
+    var id = row.getAttribute('data-daily-id');
+    var cb = row.querySelector('.daily-task-check');
+    cb.checked = !!state.checked[id];
+    row.classList.toggle('checked', cb.checked);
+  });
+  dailyUpdateProgress();
+  var el = document.getElementById('daily-last-reset');
+  if (el) el.textContent = 'Auto-resets daily \u2014 last reset: ' + state.date;
+}
+
+function dailyResetAll() {
+  var state = { date: dailyGetToday(), checked: {} };
+  localStorage.setItem(DAILY_STORAGE_KEY, JSON.stringify(state));
+  dailyRestore();
+}
+
+function dailyUpdateProgress() {
+  var boxes = document.querySelectorAll('#dailyView .daily-task-check');
+  var total = boxes.length;
+  var done = 0;
+  boxes.forEach(function(b) { if (b.checked) done++; });
+  var doneEl = document.getElementById('daily-done-count');
+  var totalEl = document.getElementById('daily-total-count');
+  var fillEl = document.getElementById('daily-progress-fill');
+  if (doneEl) doneEl.textContent = done;
+  if (totalEl) totalEl.textContent = total;
+  if (fillEl) fillEl.style.width = (total ? (done / total * 100) : 0) + '%';
+}
+
+function dailyToggleSection(id) {
+  var el = document.getElementById(id);
+  if (el) el.classList.toggle('collapsed');
+}
+
+function dailyToggleRef(id) {
+  var el = document.getElementById(id);
+  if (el) el.classList.toggle('collapsed');
+}
+
+function dailyCopyWP(el) {
+  var text = el.textContent.trim();
+  var toastEl = document.getElementById('daily-toast');
+
+  var doCopy = function() {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      el.classList.add('copied');
+      if (toastEl) {
+        toastEl.textContent = 'Copied: ' + text;
+        toastEl.classList.add('show');
+      }
+      setTimeout(function() {
+        if (toastEl) toastEl.classList.remove('show');
+        el.classList.remove('copied');
+      }, 1500);
+    }).catch(function() {
+      doCopy();
+      el.classList.add('copied');
+      if (toastEl) {
+        toastEl.textContent = 'Copied: ' + text;
+        toastEl.classList.add('show');
+      }
+      setTimeout(function() {
+        if (toastEl) toastEl.classList.remove('show');
+        el.classList.remove('copied');
+      }, 1500);
+    });
+  } else {
+    doCopy();
+    el.classList.add('copied');
+    if (toastEl) {
+      toastEl.textContent = 'Copied: ' + text;
+      toastEl.classList.add('show');
+    }
+    setTimeout(function() {
+      if (toastEl) toastEl.classList.remove('show');
+      el.classList.remove('copied');
+    }, 1500);
+  }
+}
+
+// Auto-reset daily checklist when date changes (check every 60s)
+setInterval(function() {
+  var state = dailyLoadState();
+  if (state && state.date !== dailyGetToday()) {
+    // Date changed, reset
+    var newState = { date: dailyGetToday(), checked: {} };
+    localStorage.setItem(DAILY_STORAGE_KEY, JSON.stringify(newState));
+    // If daily view is visible, refresh it
+    if (document.getElementById('dailyView').style.display !== 'none') {
+      dailyRestore();
+    }
+  }
+}, 60000);
 </script>
 </body>
 </html>

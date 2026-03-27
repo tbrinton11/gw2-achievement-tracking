@@ -406,6 +406,26 @@ a:hover{text-decoration:underline}
 .collapse-icon.open{transform:rotate(0deg)}
 .collapse-icon:not(.open){transform:rotate(-90deg)}
 
+/* Print Mode */
+@media print{
+  body{background:#fff!important;color:#000!important}
+  .site-header,.api-bar,.filter-bar,.site-footer,.share-bar,.stats-bar,
+  .session-planner,.reset-bar,#browseResults,#searchResults,#starterPacks,
+  .btn-danger,.badge-unlock-toast,.confetti-piece{display:none!important}
+  .achievement-card{break-inside:avoid;border:1px solid #ccc!important;margin-bottom:0.5rem}
+  .card-body{max-height:none!important;overflow:visible!important;display:block!important}
+  .card-body.open,.card-body{max-height:none!important}
+  .progress-fill{background:#666!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .badge{border:1px solid #999;background:transparent!important;color:#000!important}
+  *{color:#000!important;border-color:#ccc!important}
+  h1,h2,h3{color:#333!important}
+}
+
+/* Grid View */
+.achievement-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:1rem}
+.achievement-grid .achievement-card{margin-bottom:0}
+@media(max-width:768px){.achievement-grid{grid-template-columns:1fr}}
+
 /* Browse Table */
 .browse-table-header{display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.6rem;border-bottom:2px solid var(--gold-dim);font-size:0.72rem;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:0.04em;position:sticky;top:0;background:var(--bg-card);z-index:1}
 .browse-table-header span{cursor:pointer;user-select:none}
@@ -2821,7 +2841,12 @@ function renderDoNext() {
   const top = items.slice(0, 6);
   panel.style.display = '';
 
-  list.innerHTML = top.map(it => {
+  // Motivational message + festival calendar
+  const motivation = getMotivationalMessage();
+  const festival = renderFestivalCalendar();
+  const motivHtml = `<div style="font-size:0.8rem;color:var(--gold-light);padding:0.4rem 0.6rem;margin-bottom:0.5rem;background:rgba(212,168,83,0.06);border-radius:var(--radius-sm);border-left:3px solid var(--gold)">${motivation}</div>`;
+
+  list.innerHTML = motivHtml + festival + top.map(it => {
     const reasons = [];
     if (it.difficulty === 'quick') reasons.push('Quick win');
     if (it.source === 'pinned') reasons.push('Almost done!');
@@ -3026,6 +3051,17 @@ document.getElementById('syncBtn').addEventListener('click', async () => {
     if (state.wallet) statusParts.push('wallet synced');
     if (state.materials) statusParts.push('materials synced');
     if (state.mounts) statusParts.push('mounts synced');
+
+    // Fetch account overview
+    try {
+      const acctResp = await fetch(`${base}/account?access_token=${token}`);
+      if (acctResp.ok) {
+        const acct = await acctResp.json();
+        state.accountInfo = { name: acct.name, access: acct.access || [], dailyAp: acct.daily_ap || 0, monthlyAp: acct.monthly_ap || 0, fractalLevel: acct.fractal_level || 0, wvwRank: acct.wvw_rank || 0 };
+        statusParts.push(acct.name);
+      }
+    } catch(e) {}
+
     showApiStatus(`Sync complete! ${statusParts.join(', ')}.`, 'success');
   } catch(e) {
     showApiStatus('Sync failed: ' + e.message, 'error');
@@ -3436,6 +3472,13 @@ function renderPinnedAchievements() {
           ${prereqHtml}
           ${objectivesHtml}
           ${!ach.bits || !ach.bits.length ? '<div style="font-size:0.8rem;color:var(--text-dim);margin-top:0.5rem">Sync your API key to see detailed progress. <a href="https://wiki.guildwars2.com/wiki/' + wikiName + '" target="_blank" class="wiki-link">View full guide on Wiki</a></div>' : ''}
+          ${ach.prerequisites && ach.prerequisites.length ? '<div style="font-size:0.78rem;color:var(--orange);margin-top:0.5rem;padding:0.3rem 0.5rem;background:rgba(245,158,11,0.08);border-radius:var(--radius-sm)"><strong>Prerequisites:</strong> ' + ach.prerequisites.map(pid => {
+            const prereqAch = (state.pinnedAchievements||[]).find(a=>a.id===pid);
+            const prereqProg = (state.pinnedProgress||{})[pid];
+            const prereqDone = prereqProg && prereqProg.done;
+            return '<span style="color:' + (prereqDone?'var(--green)':'var(--orange)') + '">' + (prereqAch ? prereqAch.name : 'Achievement #'+pid) + (prereqDone?' ✓':'') + '</span>';
+          }).join(', ') + '</div>' : ''}
+          ${getNoteHtml(ach.id)}
         </div>
       </div>
     </section>`;
@@ -5330,13 +5373,22 @@ function renderStatsDashboard() {
 
   const pct = totalTracked > 0 ? Math.round(totalCompleted / totalTracked * 100) : 0;
 
-  el.innerHTML = `
+  // Account info line
+  const acct = state.accountInfo;
+  const acctHtml = acct ? `<div style="text-align:center;font-size:0.75rem;color:var(--text-secondary);margin-bottom:0.5rem">${acct.name} &middot; ${acct.dailyAp + acct.monthlyAp} total AP &middot; Fractal ${acct.fractalLevel}</div>` : '';
+
+  el.innerHTML = acctHtml + `
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center">
     <div class="stat-card"><div class="stat-value">${totalTracked}</div><div class="stat-label">Tracked</div></div>
     <div class="stat-card"><div class="stat-value">${totalCompleted}</div><div class="stat-label">Completed</div></div>
     <div class="stat-card"><div class="stat-value">${pct}%</div><div class="stat-label">Done</div></div>
     <div class="stat-card"><div class="stat-value">${totalAPEarned}</div><div class="stat-label">AP Earned</div></div>
     <div class="stat-card" style="cursor:pointer" onclick="generateShareUrl()" title="Share your tracked achievements">
       <div class="stat-value" style="font-size:1.1rem">&#128279;</div><div class="stat-label">Share</div>
+    </div>
+    <div class="stat-card" style="cursor:pointer" onclick="generateProgressImage()" title="Download progress image">
+      <div class="stat-value" style="font-size:1.1rem">&#128247;</div><div class="stat-label">Screenshot</div>
+    </div>
     </div>
   `;
 }
@@ -5545,6 +5597,183 @@ function renderBadgeSection() {
     </section>`;
 }
 
+/* ========== SOUND EFFECTS ========== */
+
+function playSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = type === 'tier' ? [523.25,659.25,783.99,1046.50]
+      : type === 'complete' ? [783.99,987.77,1174.66,1567.98]
+      : [659.25,783.99];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine'; osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.12, ctx.currentTime + i * 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.35);
+      osc.start(ctx.currentTime + i * 0.12);
+      osc.stop(ctx.currentTime + i * 0.12 + 0.35);
+    });
+  } catch(e) {}
+}
+
+/* ========== PROGRESS IMAGE GENERATOR ========== */
+
+function generateProgressImage() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 800; canvas.height = 60 + Math.min((state.pinnedAchievements||[]).length, 10) * 55 + 40;
+  const ctx = canvas.getContext('2d');
+
+  // Background
+  ctx.fillStyle = '#1a1a2e'; ctx.fillRect(0, 0, 800, canvas.height);
+  // Header
+  ctx.fillStyle = '#0f0f23'; ctx.fillRect(0, 0, 800, 55);
+  ctx.fillStyle = '#d4a853'; ctx.font = '600 22px Georgia, serif';
+  ctx.fillText('GW2 Achievement Tracker', 20, 36);
+  if (state.accountInfo) { ctx.font = '14px sans-serif'; ctx.fillStyle = '#9e9a8e'; ctx.fillText(state.accountInfo.name, 620, 36); }
+
+  // Achievement rows
+  let y = 70;
+  (state.pinnedAchievements || []).slice(0, 10).forEach(ach => {
+    const prog = (state.pinnedProgress || {})[ach.id];
+    const maxTier = ach.tiers && ach.tiers.length ? ach.tiers[ach.tiers.length-1].count : 1;
+    const current = prog ? (prog.current || 0) : 0;
+    const pct = Math.min(current / maxTier, 1);
+    const done = prog && prog.done;
+
+    ctx.fillStyle = '#e8e0d4'; ctx.font = '500 15px sans-serif';
+    ctx.fillText(ach.name.slice(0, 50), 20, y + 16);
+    // Bar
+    ctx.fillStyle = '#2a2a3e'; roundRect(ctx, 20, y + 24, 600, 10, 5); ctx.fill();
+    ctx.fillStyle = done ? '#4ade80' : '#d4a853'; roundRect(ctx, 20, y + 24, 600 * pct, 10, 5); ctx.fill();
+    // Count
+    ctx.fillStyle = '#d4a853'; ctx.font = '600 13px sans-serif';
+    ctx.fillText(`${current}/${maxTier}${done?' ✓':''}`, 640, y + 34);
+    y += 50;
+  });
+
+  // Watermark
+  ctx.fillStyle = '#5e5a4e'; ctx.font = '11px sans-serif';
+  ctx.fillText('tbrinton11.github.io/gw2-achievement-tracking', 20, canvas.height - 12);
+
+  canvas.toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'gw2-progress-' + new Date().toISOString().split('T')[0] + '.png';
+    a.click();
+  }, 'image/png');
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+/* ========== MOTIVATIONAL MESSAGES ========== */
+
+function getMotivationalMessage() {
+  const pinned = state.pinnedAchievements || [];
+  const prog = state.pinnedProgress || {};
+  let best = null;
+
+  pinned.forEach(ach => {
+    const p = prog[ach.id];
+    if (!p || p.done) return;
+    const maxTier = ach.tiers && ach.tiers.length ? ach.tiers[ach.tiers.length-1] : null;
+    if (!maxTier) return;
+    const remaining = maxTier.count - (p.current || 0);
+    const pct = (p.current || 0) / maxTier.count;
+    if (remaining > 0 && remaining <= 5 && (!best || remaining < best.remaining)) {
+      best = { name: ach.name, remaining, pct };
+    }
+  });
+
+  if (best) return `Almost there! Only ${best.remaining} more for ${best.name}!`;
+  if (pinned.length === 0) return 'Pin some achievements to start tracking your progress!';
+  const completed = Object.values(prog).filter(p => p.done).length;
+  if (completed > 0) return `${completed} achievement${completed>1?'s':''} completed. Keep going!`;
+  return 'Sync your API key to see your progress across all pinned achievements.';
+}
+
+/* ========== FESTIVAL CALENDAR ========== */
+
+function renderFestivalCalendar() {
+  const festivals = [
+    { name: 'Lunar New Year', months: [0, 1], color: '#ef4444' },
+    { name: 'Super Adventure Box', months: [3], color: '#4ade80' },
+    { name: 'Dragon Bash', months: [5], color: '#f59e0b' },
+    { name: 'Festival of the Four Winds', months: [6, 7], color: '#60a5fa' },
+    { name: 'Shadow of the Mad King', months: [9], color: '#f97316' },
+    { name: 'Wintersday', months: [11], color: '#67e8f9' }
+  ];
+  const now = new Date();
+  const currentMonth = now.getMonth();
+
+  // Find next festival
+  let next = null;
+  for (let offset = 0; offset < 12; offset++) {
+    const checkMonth = (currentMonth + offset) % 12;
+    const f = festivals.find(fst => fst.months.includes(checkMonth));
+    if (f) {
+      const isNow = offset === 0;
+      next = { ...f, isNow, monthsAway: offset };
+      break;
+    }
+  }
+
+  return next ? `<div style="font-size:0.78rem;color:var(--text-secondary);padding:0.4rem 0.6rem;background:rgba(0,0,0,0.15);border-radius:var(--radius-sm);margin-top:0.5rem;border-left:3px solid ${next.color}">
+    ${next.isNow ? '<strong style="color:' + next.color + '">Active now:</strong> ' + next.name + ' — participate for Festival Frequenter credit!'
+    : '<strong>Next festival:</strong> ' + next.name + ' (in ~' + next.monthsAway + ' month' + (next.monthsAway>1?'s':'') + ')'}
+  </div>` : '';
+}
+
+/* ========== CUSTOM NOTES PER ACHIEVEMENT ========== */
+
+function saveNote(achId, text) {
+  if (!state.achievementNotes) state.achievementNotes = {};
+  if (text.trim()) state.achievementNotes[achId] = text.trim();
+  else delete state.achievementNotes[achId];
+  saveState();
+}
+
+function getNoteHtml(achId) {
+  const note = (state.achievementNotes || {})[achId] || '';
+  return `<div style="margin-top:0.5rem">
+    <textarea class="search-input" style="width:100%;min-height:40px;font-size:0.78rem;resize:vertical"
+      placeholder="Add personal notes..."
+      onchange="saveNote(${achId},this.value)">${note.replace(/</g,'&lt;')}</textarea>
+  </div>`;
+}
+
+/* ========== DAILY LOGIN TRACKER ========== */
+
+function trackDailyLogin() {
+  const today = new Date().toISOString().split('T')[0];
+  if (!state.loginDays) state.loginDays = [];
+  if (!state.loginDays.includes(today)) {
+    state.loginDays.push(today);
+    if (state.loginDays.length > 365) state.loginDays = state.loginDays.slice(-365);
+    state.totalVisits = (state.totalVisits || 0) + 1;
+    saveState();
+  }
+}
+
+/* ========== PRINT MODE ========== */
+
+function printProgress() {
+  window.print();
+}
+
 /* ========== THEME TOGGLE ========== */
 
 function toggleTheme() {
@@ -5569,6 +5798,7 @@ function toggleTheme() {
 checkShareLink();
 loadFromShareUrl();
 
+trackDailyLogin();
 checkStreakValidity();
 renderAll();
 populateGroups();

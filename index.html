@@ -15,7 +15,7 @@
   --bg-body:#1a1a2e;--bg-card:#16213e;--bg-card-hover:#1c2845;
   --bg-header:#0f0f23;--bg-input:#0d1b2a;
   --gold:#d4a853;--gold-light:#e8c96a;--gold-dim:#8a7234;
-  --text:#e8e0d4;--text-secondary:#9e9a8e;--text-dim:#5e5a4e;
+  --text:#e8e0d4;--text-secondary:#b0ab9f;--text-dim:#7a756a;
   --green:#4ade80;--green-dark:#166534;--red:#ef4444;--orange:#f59e0b;
   --blue:#60a5fa;--purple:#a78bfa;
   --progress-bg:#2a2a3e;
@@ -25,7 +25,7 @@ html[data-theme="light"]{
   --bg-body:#f0ece4;--bg-card:#ffffff;--bg-card-hover:#f8f6f2;
   --bg-header:#e8e0d4;--bg-input:#ffffff;
   --gold:#8a6914;--gold-light:#6b5210;--gold-dim:#c4a45a;
-  --text:#1a1a2e;--text-secondary:#555050;--text-dim:#999590;
+  --text:#1a1a2e;--text-secondary:#4a4540;--text-dim:#6a655a;
   --green:#16a34a;--green-dark:#166534;--red:#dc2626;--orange:#d97706;
   --blue:#2563eb;--purple:#7c3aed;
   --progress-bg:#d4d0c8;
@@ -95,19 +95,19 @@ a:hover{text-decoration:underline}
 .btn-primary:hover{background:var(--gold-light)}
 .btn-danger{border-color:var(--red);color:var(--red)}
 .btn-danger:hover{background:var(--red);color:#fff}
-.btn-sm{padding:0.25rem 0.6rem;font-size:0.75rem}
+.btn-sm{padding:0.25rem 0.6rem;font-size:0.78rem}
 
 /* Main Layout */
-.main-content{max-width:1200px;margin:0 auto;padding:1.5rem}
+.main-content{max-width:1200px;margin:0 auto;padding:2rem}
 
 /* Do Next Panel */
 .do-next{
-  background:linear-gradient(135deg,#1a2340,#16213e);
-  border:1px solid var(--gold-dim);border-radius:var(--radius);
-  padding:1.25rem 1.5rem;margin-bottom:1.5rem;
-  border-left:4px solid var(--gold);
+  background:rgba(26,35,64,0.4);
+  border:none;border-radius:var(--radius);
+  padding:1.25rem 1.5rem;margin-bottom:1.75rem;
+  border-left:3px solid var(--gold-dim);
 }
-.do-next h2{font-size:1.2rem;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem}
+.do-next h2{font-size:1.2rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem}
 .do-next-list{display:flex;flex-direction:column;gap:0.6rem}
 .do-next-item{
   display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.75rem;
@@ -117,11 +117,11 @@ a:hover{text-decoration:underline}
 .do-next-item:hover{background:rgba(255,255,255,0.06)}
 .do-next-item .dn-name{flex:1;font-size:0.9rem;min-width:150px}
 .do-next-item .dn-meta{font-size:0.75rem;color:var(--text-secondary);display:flex;gap:0.75rem;align-items:center}
-.do-next-item .dn-reason{font-size:0.7rem;color:var(--text-dim);font-style:italic;width:100%;padding-left:2rem}
+.do-next-item .dn-reason{font-size:0.78rem;color:var(--text-dim);font-style:italic;width:100%;padding-left:2rem}
 
 /* Filter Bar */
 .filter-bar{
-  display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center;
+  display:flex;gap:0.75rem;margin-bottom:1.75rem;flex-wrap:wrap;align-items:center;
 }
 .filter-group{display:flex;gap:0.25rem}
 .filter-btn{
@@ -145,7 +145,7 @@ a:hover{text-decoration:underline}
 /* Difficulty Badges */
 .badge{
   display:inline-block;padding:0.15rem 0.5rem;border-radius:10px;
-  font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.03em;
+  font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.03em;
 }
 .badge-quick{background:#14532d;color:#4ade80}
 .badge-short{background:#1a3a1a;color:#86efac}
@@ -155,11 +155,11 @@ a:hover{text-decoration:underline}
 
 /* Achievement Cards */
 .achievement-card{
-  background:var(--bg-card);border:1px solid var(--gold-dim);border-radius:var(--radius);
-  margin-bottom:1.5rem;overflow:hidden;border-top:3px solid var(--gold);
+  background:var(--bg-card);border:1px solid rgba(138,114,52,0.25);border-radius:var(--radius);
+  margin-bottom:1.75rem;overflow:hidden;border-left:3px solid var(--gold);
 }
 .card-header{
-  padding:1rem 1.25rem;cursor:pointer;display:flex;align-items:center;
+  padding:1.1rem 1.5rem;cursor:pointer;display:flex;align-items:center;
   justify-content:space-between;gap:1rem;flex-wrap:wrap;
 }
 .card-header:hover{background:var(--bg-card-hover)}
@@ -174,14 +174,14 @@ a:hover{text-decoration:underline}
 .card-header[aria-expanded="true"] .card-chevron{transform:rotate(180deg)}
 .card-body{max-height:0;overflow:hidden;transition:max-height 0.4s ease}
 .card-body.open{max-height:none;overflow:visible}
-.card-body-inner{padding:0 1.25rem 1.25rem}
+.card-body-inner{padding:0 1.5rem 1.5rem}
 
 /* Tier Indicators */
 .tier-row{display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap}
 .tier-dot{
   display:flex;align-items:center;gap:0.3rem;
   padding:0.2rem 0.5rem;border-radius:var(--radius-sm);
-  font-size:0.7rem;border:1px solid var(--gold-dim);color:var(--text-dim);
+  font-size:0.78rem;border:1px solid var(--gold-dim);color:var(--text-dim);
 }
 .tier-dot.reached{border-color:var(--green);color:var(--green);background:rgba(74,222,128,0.1)}
 
@@ -225,7 +225,7 @@ a:hover{text-decoration:underline}
 .item-name{font-size:0.9rem;font-weight:500}
 .item-episode{font-size:0.75rem;color:var(--text-secondary)}
 .item-right{display:flex;align-items:center;gap:0.5rem;flex-shrink:0}
-.time-est{font-size:0.7rem;color:var(--text-dim);white-space:nowrap}
+.time-est{font-size:0.78rem;color:var(--text-dim);white-space:nowrap}
 
 /* Item Details (expandable) */
 .item-details{
@@ -242,7 +242,7 @@ a:hover{text-decoration:underline}
   padding:0.15rem 0.4rem;border-radius:3px;font-size:0.8rem;color:var(--gold-light);
 }
 .copy-btn{
-  padding:0.1rem 0.4rem;font-size:0.7rem;cursor:pointer;
+  padding:0.1rem 0.4rem;font-size:0.78rem;cursor:pointer;
   background:transparent;border:1px solid var(--gold-dim);border-radius:3px;
   color:var(--gold);transition:all 0.2s;
 }
@@ -274,13 +274,13 @@ a:hover{text-decoration:underline}
 .otter-tier-bar{margin:1rem 0}
 .otter-bar-track{position:relative;height:18px;background:var(--progress-bg);border-radius:9px;overflow:visible}
 .otter-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:9px;transition:width 0.5s ease}
-.otter-tier-marks{display:flex;justify-content:space-between;margin-top:0.3rem;font-size:0.7rem;color:var(--text-dim)}
+.otter-tier-marks{display:flex;justify-content:space-between;margin-top:0.3rem;font-size:0.78rem;color:var(--text-dim)}
 .otter-tier-mark.reached{color:var(--green);font-weight:600}
 
 /* Event Timers Section */
 .timers-section{
-  background:var(--bg-card);border:1px solid var(--gold-dim);border-radius:var(--radius);
-  padding:1.25rem 1.5rem;margin-bottom:1.5rem;
+  background:var(--bg-card);border:1px solid rgba(138,114,52,0.2);border-radius:var(--radius);
+  padding:1.25rem 1.5rem;margin-bottom:1.75rem;
 }
 .timers-section h2{font-size:1.1rem;margin-bottom:1rem}
 .timer-links{display:flex;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap}
@@ -300,8 +300,8 @@ a:hover{text-decoration:underline}
 
 /* Combos Section */
 .combos-section{
-  background:var(--bg-card);border:1px solid var(--gold-dim);border-radius:var(--radius);
-  padding:1.25rem 1.5rem;margin-bottom:1.5rem;
+  background:var(--bg-card);border:1px solid rgba(138,114,52,0.2);border-radius:var(--radius);
+  padding:1.25rem 1.5rem;margin-bottom:1.75rem;
 }
 .combos-section h2{font-size:1.1rem;margin-bottom:1rem}
 .combo-item{
@@ -317,7 +317,7 @@ a:hover{text-decoration:underline}
   border-top:1px solid var(--gold-dim);text-align:center;
 }
 .footer-actions{display:flex;gap:0.75rem;justify-content:center;margin-bottom:1rem;flex-wrap:wrap}
-.footer-info{font-size:0.75rem;color:var(--text-dim)}
+.footer-info{font-size:0.8rem;color:var(--text-dim)}
 
 /* Objectives */
 .objectives-section{margin-top:0.6rem}
@@ -346,15 +346,15 @@ a:hover{text-decoration:underline}
 /* Streak Counter */
 .streak-display{display:flex;align-items:center;gap:0.4rem;font-size:0.85rem}
 .streak-num{font-size:1.2rem;font-weight:700;font-family:'Cinzel',serif;color:var(--gold);min-width:1.2rem;text-align:center}
-.streak-label{color:var(--text-secondary);font-size:0.7rem}
-.streak-best{font-size:0.65rem;color:var(--text-dim)}
+.streak-label{color:var(--text-secondary);font-size:0.78rem}
+.streak-best{font-size:0.78rem;color:var(--text-dim)}
 @keyframes streak-pop{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
 .streak-milestone .streak-num{animation:streak-pop 0.4s ease;color:var(--green)}
 
 /* Badge Toast */
 .badge-unlock-toast{position:fixed;bottom:2rem;right:2rem;display:flex;align-items:center;gap:1rem;background:linear-gradient(135deg,#2a1f0a,#1a1530);border:2px solid var(--gold);border-radius:var(--radius);padding:1rem 1.5rem;z-index:2000;animation:badge-slide-in 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;box-shadow:0 4px 24px rgba(212,168,83,0.3)}
 .badge-unlock-icon{font-size:2rem}
-.badge-unlock-title{font-size:0.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em}
+.badge-unlock-title{font-size:0.78rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em}
 .badge-unlock-name{font-family:'Cinzel',serif;font-size:1rem;color:var(--gold);font-weight:700}
 .badge-unlock-desc{font-size:0.75rem;color:var(--text-secondary)}
 .badge-unlock-toast.fade-out{animation:badge-slide-out 0.5s ease forwards}
@@ -367,7 +367,7 @@ a:hover{text-decoration:underline}
 .tracker-badge.unlocked{border-color:var(--gold);background:rgba(212,168,83,0.08)}
 .tracker-badge.locked{opacity:0.25;filter:grayscale(1)}
 .tracker-badge-icon{font-size:1.4rem;margin-bottom:0.2rem}
-.tracker-badge-name{font-size:0.6rem;color:var(--text-secondary)}
+.tracker-badge-name{font-size:0.75rem;color:var(--text-secondary)}
 .tracker-badge.unlocked .tracker-badge-name{color:var(--gold)}
 .badge-count{font-size:0.75rem;color:var(--text-secondary);font-family:'Inter',sans-serif;font-weight:400}
 
@@ -380,10 +380,10 @@ a:hover{text-decoration:underline}
 .confetti-piece{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:9999;animation:confetti-fall 1.5s ease-out forwards}
 
 /* Stats Dashboard */
-.stats-bar{display:flex;gap:1rem;padding:1rem 1.5rem;flex-wrap:wrap;justify-content:center}
-.stat-card{background:var(--bg-card);border:1px solid var(--gold-dim);border-radius:var(--radius);padding:0.75rem 1.25rem;text-align:center;min-width:100px;flex:1;max-width:180px}
+.stats-bar{display:flex;gap:1rem;padding:1rem 1.5rem;flex-wrap:wrap;justify-content:center;border-bottom:1px solid rgba(138,114,52,0.2)}
+.stat-card{background:transparent;border:none;border-radius:var(--radius);padding:0.75rem 1.25rem;text-align:center;min-width:100px;flex:1;max-width:180px}
 .stat-value{font-size:1.5rem;font-weight:700;color:var(--gold);font-family:'Cinzel',serif}
-.stat-label{font-size:0.7rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.05em}
+.stat-label{font-size:0.78rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.05em}
 
 /* Achievement Icon */
 .ach-icon{width:32px;height:32px;border-radius:4px;flex-shrink:0;object-fit:contain;background:rgba(0,0,0,0.2)}
@@ -414,7 +414,7 @@ a:hover{text-decoration:underline}
 .tour-tooltip{position:absolute;z-index:5002;background:var(--bg-card);border:2px solid var(--gold);border-radius:var(--radius);padding:1.25rem 1.5rem;max-width:340px;width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.5);animation:tour-pop 0.3s cubic-bezier(0.34,1.56,0.64,1)}
 .tour-tooltip h3{font-size:1rem;color:var(--gold);margin-bottom:0.4rem}
 .tour-tooltip p{font-size:0.85rem;color:var(--text-secondary);margin-bottom:1rem;line-height:1.5}
-.tour-tooltip .tour-step{font-size:0.7rem;color:var(--text-dim);margin-bottom:0.75rem}
+.tour-tooltip .tour-step{font-size:0.78rem;color:var(--text-dim);margin-bottom:0.75rem}
 .tour-actions{display:flex;gap:0.5rem;justify-content:flex-end}
 .tour-arrow{position:absolute;width:12px;height:12px;background:var(--bg-card);border:2px solid var(--gold);transform:rotate(45deg)}
 .tour-arrow.top{top:-7px;left:30px;border-right:none;border-bottom:none}
@@ -434,22 +434,83 @@ a:hover{text-decoration:underline}
 .toc-toggle{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:91;background:var(--bg-header);border:1px solid var(--gold-dim);border-left:none;border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:0.5rem 0.3rem;cursor:pointer;color:var(--gold);font-size:0.75rem;writing-mode:vertical-rl;transition:left 0.3s ease,background 0.2s}
 .toc-toggle:hover{background:var(--bg-card-hover);color:var(--gold-light)}
 .toc-sidebar.open+.toc-toggle{left:220px}
-.toc-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gold);margin-bottom:0.75rem;font-weight:600}
+.toc-title{font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--gold);margin-bottom:0.75rem;font-weight:600}
 .toc-item{display:block;font-size:0.75rem;color:var(--text-secondary);padding:0.35rem 0.5rem;border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;border-left:2px solid transparent;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .toc-item:hover{color:var(--text);background:rgba(255,255,255,0.03);text-decoration:none}
 .toc-item.active{color:var(--gold);border-left-color:var(--gold);background:rgba(212,168,83,0.08);font-weight:500}
-.toc-item .toc-pct{float:right;font-size:0.65rem;color:var(--text-dim);font-weight:400}
+.toc-item .toc-pct{float:right;font-size:0.75rem;color:var(--text-dim);font-weight:400}
 .toc-item.active .toc-pct{color:var(--gold)}
-.toc-section{font-size:0.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;padding:0.6rem 0.5rem 0.2rem;margin-top:0.3rem}
+.toc-section{font-size:0.75rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;padding:0.6rem 0.5rem 0.2rem;margin-top:0.3rem}
 body.compact-mode .toc-sidebar,body.compact-mode .toc-toggle{display:none!important}
 @media(max-width:768px){.toc-sidebar,.toc-toggle{display:none!important}}
+
+/* Pinned Cards: Focal Point */
+#pinnedCards .achievement-card{
+  padding:0;
+}
+#pinnedCards .achievement-card .card-header{
+  padding:1.25rem 1.75rem;
+}
+#pinnedCards .achievement-card .card-title-area h2{
+  font-size:1.15rem;
+}
+#pinnedCards .achievement-card .progress-bar{
+  height:12px;width:170px;border-radius:6px;
+}
+#pinnedCards .achievement-card .progress-fill{
+  border-radius:6px;
+}
+#pinnedCards .achievement-card .card-body-inner{
+  padding:0 1.75rem 1.75rem;
+}
+
+/* Search Section (top of page) */
+.search-section{
+  max-width:1200px;margin:0 auto;padding:1rem 2rem 0.5rem;
+}
+.search-bar-wrapper{
+  position:relative;margin-bottom:0.75rem;
+}
+.search-bar-wrapper #achSearchInput{
+  width:100%;padding:0.7rem 1rem;font-size:0.95rem;
+  background:var(--bg-input);border:1px solid var(--gold-dim);
+  border-radius:var(--radius);color:var(--text);font-family:inherit;
+}
+.search-bar-wrapper #achSearchInput::placeholder{color:var(--text-dim)}
+.search-bar-wrapper #achSearchInput:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(212,168,83,0.15),0 0 8px rgba(212,168,83,0.1);
+  outline:none;
+}
+.search-dropdown{
+  position:absolute;top:100%;left:0;right:0;z-index:200;
+  max-height:350px;overflow-y:auto;display:none;
+  background:var(--bg-card);border:1px solid var(--gold-dim);
+  border-radius:0 0 var(--radius) var(--radius);
+  box-shadow:0 8px 24px rgba(0,0,0,0.3);
+}
+.browse-controls{
+  display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;
+  font-size:0.85rem;
+}
+.browse-controls .filter-select{
+  padding:0.35rem 0.5rem;background:var(--bg-input);border:1px solid var(--gold-dim);
+  border-radius:var(--radius-sm);color:var(--text);font-family:inherit;font-size:0.82rem;
+}
+.browse-controls #browseResults{
+  position:absolute;top:100%;left:0;right:0;z-index:200;
+  max-height:350px;overflow-y:auto;
+  background:var(--bg-card);border:1px solid var(--gold-dim);
+  border-radius:0 0 var(--radius) var(--radius);
+  box-shadow:0 8px 24px rgba(0,0,0,0.3);
+}
 
 /* Print Mode */
 @media print{
   .toc-sidebar,.toc-toggle{display:none!important}
   body{background:#fff!important;color:#000!important}
   .site-header,.api-bar,.filter-bar,.site-footer,.share-bar,.stats-bar,
-  .session-planner,.reset-bar,#browseResults,#searchResults,#starterPacks,
+  .session-planner,.reset-bar,.search-section,#browseResults,#searchResults,#starterPacks,
   .btn-danger,.badge-unlock-toast,.confetti-piece{display:none!important}
   .achievement-card{break-inside:avoid;border:1px solid #ccc!important;margin-bottom:0.5rem}
   .card-body{max-height:none!important;overflow:visible!important;display:block!important}
@@ -461,12 +522,12 @@ body.compact-mode .toc-sidebar,body.compact-mode .toc-toggle{display:none!import
 }
 
 /* Grid View */
-.achievement-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:1rem}
+.achievement-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:1.25rem}
 .achievement-grid .achievement-card{margin-bottom:0}
 @media(max-width:768px){.achievement-grid{grid-template-columns:1fr}}
 
 /* Browse Table */
-.browse-table-header{display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.6rem;border-bottom:2px solid var(--gold-dim);font-size:0.72rem;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:0.04em;position:sticky;top:0;background:var(--bg-card);z-index:1}
+.browse-table-header{display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.6rem;border-bottom:2px solid var(--gold-dim);font-size:0.78rem;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:0.04em;position:sticky;top:0;background:var(--bg-card);z-index:1}
 .browse-table-header span{cursor:pointer;user-select:none}
 .browse-table-header span:hover{color:var(--gold-light)}
 .browse-row{display:flex;align-items:center;gap:0.5rem;padding:0.45rem 0.6rem;border-bottom:1px solid rgba(138,114,52,0.08);transition:background 0.15s}
@@ -515,10 +576,10 @@ body.compact-mode .toc-sidebar,body.compact-mode .toc-toggle{display:none!import
 
 /* Session Planner */
 .session-planner{
-  background:linear-gradient(135deg,#1a2340,#16213e);
-  border:1px solid var(--gold-dim);border-radius:var(--radius);
-  padding:1.25rem 1.5rem;margin-bottom:1.5rem;
-  border-left:4px solid var(--purple);
+  background:rgba(26,35,64,0.4);
+  border:none;border-radius:var(--radius);
+  padding:1.25rem 1.5rem;margin-bottom:1.75rem;
+  border-left:3px solid var(--purple);
 }
 .session-planner h2{font-size:1.1rem;margin-bottom:0.75rem;color:var(--purple);display:flex;align-items:center;gap:0.5rem}
 .sp-time-btns{display:flex;gap:0.4rem;margin-bottom:1rem;flex-wrap:wrap}
@@ -536,8 +597,8 @@ body.compact-mode .toc-sidebar,body.compact-mode .toc-toggle{display:none!import
 
 /* Map View */
 .map-group-card{
-  background:var(--bg-card);border:1px solid var(--gold-dim);border-radius:var(--radius);
-  margin-bottom:1rem;overflow:hidden;border-top:3px solid var(--blue);
+  background:var(--bg-card);border:1px solid rgba(138,114,52,0.25);border-radius:var(--radius);
+  margin-bottom:1rem;overflow:hidden;border-left:3px solid var(--blue);
 }
 .map-group-header{
   padding:0.75rem 1rem;cursor:pointer;display:flex;align-items:center;
@@ -550,8 +611,8 @@ body.compact-mode .toc-sidebar,body.compact-mode .toc-toggle{display:none!import
 
 /* Festival Calendar */
 .festival-panel{
-  background:var(--bg-card);border:1px solid var(--gold-dim);border-radius:var(--radius);
-  padding:1.25rem 1.5rem;margin-bottom:1.5rem;
+  background:var(--bg-card);border:1px solid rgba(138,114,52,0.2);border-radius:var(--radius);
+  padding:1.25rem 1.5rem;margin-bottom:1.75rem;
 }
 .festival-panel h2{font-size:1.1rem;margin-bottom:1rem}
 .festival-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:0.75rem}
@@ -563,7 +624,7 @@ body.compact-mode .toc-sidebar,body.compact-mode .toc-toggle{display:none!import
 .festival-card.next-up{border-left-color:var(--gold);background:rgba(212,168,83,0.05)}
 .festival-card .fv-name{font-weight:600;color:var(--text);margin-bottom:0.2rem}
 .festival-card .fv-dates{font-size:0.75rem;color:var(--text-secondary)}
-.festival-card .fv-status{font-size:0.72rem;font-weight:600;margin-top:0.3rem}
+.festival-card .fv-status{font-size:0.78rem;font-weight:600;margin-top:0.3rem}
 .festival-card .fv-status.active-status{color:var(--green)}
 .festival-card .fv-status.next-status{color:var(--gold)}
 
@@ -589,7 +650,7 @@ body.compact-mode .toc-sidebar,body.compact-mode .toc-toggle{display:none!import
 }
 
 /* Completion dates */
-.completion-date{font-size:0.7rem;color:var(--text-dim);margin-left:0.5rem;font-style:italic}
+.completion-date{font-size:0.78rem;color:var(--text-dim);margin-left:0.5rem;font-style:italic}
 
 /* Cost calculator */
 .cost-calc{
@@ -631,7 +692,7 @@ button,a.timer-link{touch-action:manipulation}
 .sort-toggle .filter-btn.active{background:var(--gold);color:var(--bg-body);border-color:var(--gold);font-weight:600}
 .pct-badge{
   display:inline-block;padding:0.1rem 0.4rem;border-radius:8px;
-  font-size:0.7rem;font-weight:700;margin-left:0.4rem;
+  font-size:0.78rem;font-weight:700;margin-left:0.4rem;
   background:rgba(212,168,83,0.15);color:var(--gold);
 }
 .pct-badge.high{background:rgba(74,222,128,0.15);color:var(--green)}
@@ -653,10 +714,10 @@ button,a.timer-link{touch-action:manipulation}
 
 /* AP Efficiency (Feature 3) */
 .ap-efficiency{
-  background:linear-gradient(135deg,#1a2340,#16213e);
-  border:1px solid var(--gold-dim);border-radius:var(--radius);
-  padding:1.25rem 1.5rem;margin-bottom:1.5rem;
-  border-left:4px solid var(--orange);
+  background:rgba(26,35,64,0.4);
+  border:none;border-radius:var(--radius);
+  padding:1.25rem 1.5rem;margin-bottom:1.75rem;
+  border-left:3px solid var(--orange);
 }
 .ap-efficiency h2{font-size:1.1rem;margin-bottom:0.75rem;color:var(--orange);display:flex;align-items:center;gap:0.5rem;cursor:pointer}
 .ap-efficiency .ap-body{display:none}
@@ -677,8 +738,8 @@ button,a.timer-link{touch-action:manipulation}
 
 /* Progress Stats Dashboard (Feature 6) */
 .progress-stats{
-  background:var(--bg-card);border:1px solid var(--gold-dim);border-radius:var(--radius);
-  padding:1.25rem 1.5rem;margin-bottom:1.5rem;
+  background:var(--bg-card);border:1px solid rgba(138,114,52,0.2);border-radius:var(--radius);
+  padding:1.25rem 1.5rem;margin-bottom:1.75rem;
 }
 .progress-stats h2{font-size:1.1rem;margin-bottom:0.75rem;cursor:pointer;display:flex;align-items:center;gap:0.5rem}
 .progress-stats .ps-body{display:none}
@@ -693,7 +754,7 @@ button,a.timer-link{touch-action:manipulation}
 /* Hidden Tasks (Feature 7) */
 .hide-task-btn{
   background:none;border:none;color:var(--text-dim);cursor:pointer;
-  font-size:0.75rem;padding:0.2rem;transition:color 0.2s;opacity:0.5;
+  font-size:0.78rem;padding:0.2rem;transition:color 0.2s;opacity:0.5;
 }
 .hide-task-btn:hover{color:var(--gold);opacity:1}
 .checklist-item.hidden-task{display:none}
@@ -708,9 +769,9 @@ button,a.timer-link{touch-action:manipulation}
 /* Blocked-By Indicators (Feature 8) */
 .blocked-indicator{
   display:inline-flex;align-items:center;gap:0.3rem;
-  font-size:0.7rem;color:var(--red);font-weight:600;
+  font-size:0.78rem;color:var(--red);font-weight:600;
 }
-.blocked-indicator .blocked-text{font-size:0.68rem;color:var(--text-dim);font-weight:400}
+.blocked-indicator .blocked-text{font-size:0.78rem;color:var(--text-dim);font-weight:400}
 .checklist-item.blocked-item .cb-box{opacity:0.3;border-color:var(--red)}
 .checklist-item.blocked-item .item-name{opacity:0.5}
 
@@ -763,9 +824,9 @@ button,a.timer-link{touch-action:manipulation}
 /* ========== Completion Heatmap Calendar ========== */
 .heatmap-section{margin-top:1rem}
 .heatmap-section h3{font-size:0.85rem;color:var(--text-dim);margin-bottom:0.5rem;font-family:'Cinzel',serif}
-.heatmap-grid{display:grid;grid-template-columns:auto repeat(13,1fr);gap:2px;font-size:0.65rem}
+.heatmap-grid{display:grid;grid-template-columns:auto repeat(13,1fr);gap:2px;font-size:0.75rem}
 .heatmap-label{color:var(--text-dim);text-align:right;padding-right:4px;line-height:12px;height:12px}
-.heatmap-month{color:var(--text-dim);text-align:center;font-size:0.6rem;height:14px;line-height:14px}
+.heatmap-month{color:var(--text-dim);text-align:center;font-size:0.75rem;height:14px;line-height:14px}
 .heatmap-cell{width:12px;height:12px;border-radius:2px;cursor:default;position:relative}
 .heatmap-cell.level-0{background:#2a2a3e}
 .heatmap-cell.level-1{background:rgba(212,168,83,0.3)}
@@ -774,7 +835,7 @@ button,a.timer-link{touch-action:manipulation}
 .heatmap-tooltip{
   position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
   background:#0f0f23;border:1px solid var(--gold-dim);border-radius:var(--radius-sm);
-  padding:0.25rem 0.5rem;font-size:0.7rem;color:var(--text);white-space:nowrap;
+  padding:0.25rem 0.5rem;font-size:0.78rem;color:var(--text);white-space:nowrap;
   pointer-events:none;z-index:10;display:none;
 }
 .heatmap-cell:hover .heatmap-tooltip{display:block}
@@ -827,7 +888,7 @@ button,a.timer-link{touch-action:manipulation}
   color:var(--gold);text-align:center;min-width:2rem;white-space:nowrap;
 }
 .kbd-desc{font-size:0.85rem;color:var(--text-secondary)}
-.kbd-hint{font-size:0.7rem;color:var(--text-dim);font-style:italic}
+.kbd-hint{font-size:0.78rem;color:var(--text-dim);font-style:italic}
 
 /* Keyboard focused checklist item */
 .checklist-item.keyboard-focused{
@@ -889,7 +950,7 @@ button,a.timer-link{touch-action:manipulation}
   body{background:#fff!important;color:#000!important;font-size:12pt;line-height:1.4}
   .site-header,.site-footer,.api-bar,.filter-bar,.session-planner,.reset-bar,
   .do-next,.timers-section,.combos-section,#shoppingList,
-  .achievement-card[style*="border-top-color:var(--blue)"],
+  .search-section,
   .btn,.expand-btn,.counter-btn,.notes-btn,.hide-task-btn,.copy-btn,
   .bulk-action-bar,.bulk-cb,.kbd-overlay,.undo-toast,.share-toast,
   .ap-efficiency,.progress-stats,#apEfficiencyPanel,#progressStatsPanel,
@@ -897,7 +958,7 @@ button,a.timer-link{touch-action:manipulation}
   .main-content{padding:0!important;max-width:none!important}
   .achievement-card{
     background:#fff!important;border:1px solid #ccc!important;
-    border-top:2px solid #999!important;margin-bottom:0.5rem!important;
+    border-left:2px solid #999!important;margin-bottom:0.5rem!important;
     box-shadow:none!important;page-break-before:always;
   }
   .achievement-card:first-child{page-break-before:auto}
@@ -955,12 +1016,12 @@ button,a.timer-link{touch-action:manipulation}
 }
 .notif-toggle-btn:hover{border-color:var(--gold);color:var(--gold)}
 .notif-toggle-btn.active{border-color:var(--green);color:var(--green);background:rgba(74,222,128,0.1)}
-.notif-status{font-size:0.7rem;color:var(--text-dim);margin-top:0.3rem}
+.notif-status{font-size:0.78rem;color:var(--text-dim);margin-top:0.3rem}
 
 /* ========== Gold Farming Guide ========== */
 .gold-farming-guide{
-  background:var(--bg-card);border:1px solid var(--gold-dim);border-radius:var(--radius);
-  padding:1.25rem 1.5rem;margin-bottom:1.5rem;border-left:4px solid var(--orange);
+  background:var(--bg-card);border:1px solid rgba(138,114,52,0.2);border-radius:var(--radius);
+  padding:1.25rem 1.5rem;margin-bottom:1.75rem;border-left:3px solid var(--orange);
 }
 .gold-farming-guide h2{font-size:1.1rem;margin-bottom:0.75rem;color:var(--orange);cursor:pointer;display:flex;align-items:center;gap:0.5rem}
 .gold-farming-guide .gfg-body{display:none}
@@ -978,7 +1039,7 @@ button,a.timer-link{touch-action:manipulation}
 }
 .gfg-method .gfm-name{font-weight:600;color:var(--text);font-size:0.88rem;margin-bottom:0.2rem}
 .gfg-method .gfm-rate{font-size:0.78rem;color:var(--gold)}
-.gfg-method .gfm-note{font-size:0.72rem;color:var(--text-dim);margin-top:0.3rem;font-style:italic}
+.gfg-method .gfm-note{font-size:0.78rem;color:var(--text-dim);margin-top:0.3rem;font-style:italic}
 .gfg-method.synergy{border-left-color:var(--green);background:rgba(74,222,128,0.05)}
 .gfg-funded{margin-top:0.75rem;padding:0.75rem;background:rgba(0,0,0,0.15);border-radius:var(--radius-sm)}
 .gfg-funded .gff-title{font-size:0.85rem;color:var(--text);font-weight:600;margin-bottom:0.5rem}
@@ -991,7 +1052,7 @@ button,a.timer-link{touch-action:manipulation}
 /* ========== Achievement Rarity Labels ========== */
 .rarity-label{
   display:inline-block;padding:0.1rem 0.4rem;border-radius:8px;
-  font-size:0.65rem;font-weight:600;letter-spacing:0.03em;margin-left:0.3rem;
+  font-size:0.75rem;font-weight:600;letter-spacing:0.03em;margin-left:0.3rem;
 }
 .rarity-common{background:rgba(158,154,142,0.15);color:#9e9a8e}
 .rarity-uncommon{background:rgba(74,222,128,0.15);color:#4ade80}
@@ -1006,12 +1067,12 @@ button,a.timer-link{touch-action:manipulation}
 
 /* ========== Feature: Search Hint ========== */
 .search-hint{
-  font-size:0.68rem;color:var(--text-dim);margin-top:0.2rem;
+  font-size:0.78rem;color:var(--text-dim);margin-top:0.2rem;
 }
 .search-hint kbd{
   display:inline-block;padding:0.1rem 0.35rem;background:var(--bg-input);
   border:1px solid var(--gold-dim);border-radius:3px;
-  font-family:'Consolas','Courier New',monospace;font-size:0.7rem;color:var(--gold);
+  font-family:'Consolas','Courier New',monospace;font-size:0.78rem;color:var(--gold);
 }
 
 /* ========== Feature: Compact/Overlay Mode ========== */
@@ -1046,8 +1107,8 @@ body.compact-mode .site-header #streakDisplay{display:none!important}
 
 body.compact-mode .site-title span{display:none}
 
-/* Browse section hidden in compact mode */
-body.compact-mode .main-content:last-of-type{display:none!important}
+/* Search section hidden in compact mode */
+body.compact-mode .search-section{display:none!important}
 
 /* Compact pinned cards: super-compact single-line */
 body.compact-mode .achievement-card .card-body{display:none!important}
@@ -1060,7 +1121,7 @@ body.compact-mode .achievement-card .pct-badge{display:none}
 body.compact-mode .achievement-card .badge-blocked{display:none}
 body.compact-mode .achievement-card .card-progress-area .progress-bar{width:120px}
 body.compact-mode .achievement-card .focus-btn{display:none}
-body.compact-mode .achievement-card{margin-bottom:0.4rem;border-top-width:2px}
+body.compact-mode .achievement-card{margin-bottom:0.4rem;border-left-width:2px}
 
 /* Focus card is always fully shown in compact mode */
 body.compact-mode #focusCardContainer .focus-card{display:block!important}
@@ -1231,14 +1292,10 @@ body.compact-mode #focusCardContainer{display:block!important}
   opacity: 1;
 }
 
-/* Completed achievement cards: gold glow border pulse */
-@keyframes completed-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(212,168,83,0); border-color: var(--green); }
-  50% { box-shadow: 0 0 12px 2px rgba(74,222,128,0.2); }
-}
+/* Completed achievement cards: subtle green left border */
 .achievement-card.card-completed {
-  animation: completed-glow 3s ease-in-out infinite;
-  border-top-color: var(--green);
+  border-left-color: var(--green);
+  opacity: 0.85;
 }
 
 /* --- 3. HEADER & NAVIGATION POLISH --- */
@@ -1321,14 +1378,13 @@ html[data-theme="light"] .browse-row:nth-child(even) {
 
 /* Stat cards gradient background + hover */
 .stat-card {
-  background: linear-gradient(135deg, var(--bg-card), rgba(212,168,83,0.04));
+  background: transparent;
   transition: all var(--anim-normal) var(--ease-smooth);
   will-change: transform;
 }
 .stat-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.3), 0 0 10px rgba(212,168,83,0.1);
-  border-color: var(--gold);
+  transform: translateY(-2px);
+  background: rgba(212,168,83,0.04);
 }
 
 /* Counting animation class for stat values */
@@ -1516,16 +1572,12 @@ html[data-theme="light"] body {
     radial-gradient(ellipse at 50% 100%, rgba(124,58,237,0.02) 0%, transparent 40%);
 }
 
-/* Gradient borders on cards */
+/* Card left border accents */
 .achievement-card {
-  border-image: linear-gradient(180deg, var(--gold-dim), rgba(138,114,52,0.3)) 1;
-  border-image-slice: 1;
-  border-top: 3px solid var(--gold);
+  border-left: 3px solid var(--gold);
 }
 .achievement-card.card-completed {
-  border-image: linear-gradient(180deg, var(--green), rgba(74,222,128,0.3)) 1;
-  border-image-slice: 1;
-  border-top: 3px solid var(--green);
+  border-left: 3px solid var(--green);
 }
 
 /* Text shadow on gold headings for depth */
@@ -1662,10 +1714,10 @@ html[data-theme="light"] .map-group-card:hover {
   box-shadow: 0 4px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(138,105,20,0.1);
 }
 html[data-theme="light"] .stat-card:hover {
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08), 0 0 10px rgba(138,105,20,0.05);
+  background: rgba(138,105,20,0.04);
 }
 html[data-theme="light"] .stat-card {
-  background: linear-gradient(135deg, var(--bg-card), rgba(138,105,20,0.04));
+  background: transparent;
 }
 
 /* --- Reduced motion: respect user preference --- */
@@ -1714,7 +1766,7 @@ html[data-theme="light"] .stat-card {
       <button class="btn btn-danger btn-sm" id="clearKeyBtn">Clear Key</button>
     </div>
     <div class="api-status" id="apiStatus"></div>
-    <div class="api-status" id="lastSyncTime" style="font-size:0.7rem"></div>
+    <div class="api-status" id="lastSyncTime" style="font-size:0.78rem"></div>
   </div>
 </div>
 
@@ -1728,6 +1780,37 @@ html[data-theme="light"] .stat-card {
     <span class="rt-label">Weekly reset in:</span>
     <span class="rt-value" id="weeklyResetValue">--</span>
   </div>
+</div>
+
+<!-- SEARCH BAR (right after header) -->
+<div class="search-section">
+  <div class="search-bar-wrapper">
+    <input type="text" id="achSearchInput" placeholder="Search achievements..." oninput="onAchSearch(this.value)">
+    <div id="searchResults" class="search-dropdown"></div>
+  </div>
+  <div class="browse-controls">
+    <select class="filter-select" id="groupSelect" onchange="onGroupSelect()" style="min-width:180px">
+      <option value="">Browse by group...</option>
+    </select>
+    <select class="filter-select" id="categorySelect" onchange="onCategorySelect()" disabled style="min-width:220px">
+      <option value="">Select a category...</option>
+    </select>
+    <input type="number" id="achIdInput" placeholder="ID lookup" class="search-input" style="width:90px">
+    <button class="btn btn-primary btn-sm" onclick="lookupAchievementById()">Look Up</button>
+    <span id="browseStatus" style="font-size:0.82rem;color:var(--text-dim)"></span>
+    <div id="searchIndexStatus" style="font-size:0.78rem;color:var(--text-dim)"></div>
+    <div class="search-hint">Press <kbd>/</kbd> or <kbd>Ctrl+K</kbd> to search</div>
+  </div>
+  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem" id="starterPacks"></div>
+  <!-- Browse Reward Filters -->
+  <div class="browse-filters" id="browseRewardFilters" style="display:none;margin-top:0.5rem">
+    <button class="filter-btn btn-sm active" data-reward-filter="all" onclick="setBrowseRewardFilter('all',this)">All</button>
+    <button class="filter-btn btn-sm" data-reward-filter="skins" onclick="setBrowseRewardFilter('skins',this)">Has Skins</button>
+    <button class="filter-btn btn-sm" data-reward-filter="titles" onclick="setBrowseRewardFilter('titles',this)">Has Titles</button>
+    <button class="filter-btn btn-sm" data-reward-filter="highap" onclick="setBrowseRewardFilter('highap',this)">High AP (10+)</button>
+    <button class="filter-btn btn-sm" data-reward-filter="mastery" onclick="setBrowseRewardFilter('mastery',this)">Mastery Points</button>
+  </div>
+  <div id="browseResults" style="max-height:400px;overflow-y:auto;margin-top:0.5rem"></div>
 </div>
 
 <!-- STATS DASHBOARD -->
@@ -1835,60 +1918,7 @@ html[data-theme="light"] .stat-card {
   <div id="badgeSection"></div>
 </div>
 
-<!-- BROWSE & ADD ACHIEVEMENTS -->
-<div class="main-content" style="padding-top:0">
-  <section class="achievement-card" style="border-top-color:var(--blue)">
-    <div class="card-header" aria-expanded="false" onclick="toggleCard(this)">
-      <div class="card-title-area">
-        <h2 style="color:var(--blue)">+ Browse &amp; Add Any Achievement</h2>
-        <div class="card-subtitle">Search 9,000+ GW2 achievements by name or browse by category</div>
-      </div>
-      <span class="card-chevron">&#9662;</span>
-    </div>
-    <div class="card-body">
-      <div class="card-body-inner">
-        <!-- Text search -->
-        <div style="margin-bottom:1rem">
-          <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
-            <input type="text" id="achSearchInput" placeholder="Search achievements by name..." class="search-input" style="flex:1;min-width:250px" oninput="onAchSearch(this.value)">
-            <input type="number" id="achIdInput" placeholder="or ID" class="search-input" style="width:100px">
-            <button class="btn btn-primary btn-sm" onclick="lookupAchievementById()">Look Up ID</button>
-          </div>
-          <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-top:0.3rem">
-            <div id="searchIndexStatus" style="font-size:0.7rem;color:var(--text-dim)"></div>
-            <div class="search-hint">Press <kbd>/</kbd> or <kbd>Ctrl+K</kbd> to search</div>
-          </div>
-        </div>
-        <!-- Browse Reward Filters -->
-        <div class="browse-filters" id="browseRewardFilters" style="display:none">
-          <button class="filter-btn btn-sm active" data-reward-filter="all" onclick="setBrowseRewardFilter('all',this)">All</button>
-          <button class="filter-btn btn-sm" data-reward-filter="skins" onclick="setBrowseRewardFilter('skins',this)">Has Skins</button>
-          <button class="filter-btn btn-sm" data-reward-filter="titles" onclick="setBrowseRewardFilter('titles',this)">Has Titles</button>
-          <button class="filter-btn btn-sm" data-reward-filter="highap" onclick="setBrowseRewardFilter('highap',this)">High AP (10+)</button>
-          <button class="filter-btn btn-sm" data-reward-filter="mastery" onclick="setBrowseRewardFilter('mastery',this)">Mastery Points</button>
-        </div>
-        <!-- Search results -->
-        <div id="searchResults" style="max-height:300px;overflow-y:auto;display:none;margin-bottom:1rem;border:1px solid var(--gold-dim);border-radius:var(--radius-sm)"></div>
-        <!-- Suggested Packs -->
-        <div style="margin-bottom:1.25rem">
-          <div style="font-size:0.85rem;color:var(--gold);font-weight:600;margin-bottom:0.5rem">Suggested Packs</div>
-          <div style="display:flex;gap:0.5rem;flex-wrap:wrap" id="starterPacks"></div>
-        </div>
-        <!-- Browse by category -->
-        <div style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center">
-          <select class="filter-select" id="groupSelect" onchange="onGroupSelect()" style="min-width:180px">
-            <option value="">Browse by group...</option>
-          </select>
-          <select class="filter-select" id="categorySelect" onchange="onCategorySelect()" disabled style="min-width:220px">
-            <option value="">Select a category...</option>
-          </select>
-          <span id="browseStatus" style="font-size:0.8rem;color:var(--text-dim)"></span>
-        </div>
-        <div id="browseResults" style="max-height:400px;overflow-y:auto"></div>
-      </div>
-    </div>
-  </section>
-</div>
+<!-- Browse section moved to search-section at top -->
 
 <!-- FOOTER -->
 <footer class="site-footer">
@@ -3126,7 +3156,7 @@ function renderChecklistItem(item, achievementKey) {
 
   const blockedBadge = isBlocked ? `<span class="blocked-indicator"><span class="badge badge-blocked">BLOCKED</span></span>` : '';
   const blockedByName = isBlocked ? getAllChecklistItems().find(i => i.key === item.blockedBy) : null;
-  const blockedByHtml = isBlocked && blockedByName ? `<div style="font-size:0.7rem;color:var(--text-dim);margin-left:1.8rem">Requires: ${blockedByName.name}</div>` : '';
+  const blockedByHtml = isBlocked && blockedByName ? `<div style="font-size:0.78rem;color:var(--text-dim);margin-left:1.8rem">Requires: ${blockedByName.name}</div>` : '';
 
   return `
     <div class="checklist-item ${doneClass}${hiddenClass}${blockedClass}" data-key="${item.key}" data-difficulty="${item.difficulty}" data-achievement="${achievementKey}" data-search="${searchText}">
@@ -3606,10 +3636,10 @@ function renderDoNext() {
       if (it.wpCode) details += `<div style="font-size:0.75rem;color:var(--text-secondary)"><strong>Waypoint:</strong> <span class="wp-code">${it.wpCode}</span> <button class="copy-btn" onclick="event.stopPropagation();copyToClipboard('${it.wpCode}',this)">Copy</button></div>`;
       if (it.tips) details += `<div style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.2rem">${it.tips}</div>`;
       if (obj) {
-        if (obj.meta) details += `<div style="font-size:0.72rem;color:var(--purple);margin-top:0.3rem;font-style:italic">Meta: ${obj.meta}</div>`;
-        if (obj.req) details += `<div style="font-size:0.72rem;color:var(--gold);margin-top:0.2rem"><strong>Objectives (${obj.req}):</strong></div>`;
-        if (obj.list && obj.list.length) details += `<ul style="font-size:0.72rem;color:var(--text-secondary);margin:0.2rem 0 0 1rem;padding:0">${obj.list.slice(0,8).map(o=>'<li style="margin:0.1rem 0">'+o+'</li>').join('')}${obj.list.length>8?'<li style="color:var(--text-dim)">...and '+(obj.list.length-8)+' more</li>':''}</ul>`;
-        if (obj.note) details += `<div style="font-size:0.7rem;color:var(--text-dim);margin-top:0.3rem;font-style:italic">${obj.note}</div>`;
+        if (obj.meta) details += `<div style="font-size:0.78rem;color:var(--purple);margin-top:0.3rem;font-style:italic">Meta: ${obj.meta}</div>`;
+        if (obj.req) details += `<div style="font-size:0.78rem;color:var(--gold);margin-top:0.2rem"><strong>Objectives (${obj.req}):</strong></div>`;
+        if (obj.list && obj.list.length) details += `<ul style="font-size:0.78rem;color:var(--text-secondary);margin:0.2rem 0 0 1rem;padding:0">${obj.list.slice(0,8).map(o=>'<li style="margin:0.1rem 0">'+o+'</li>').join('')}${obj.list.length>8?'<li style="color:var(--text-dim)">...and '+(obj.list.length-8)+' more</li>':''}</ul>`;
+        if (obj.note) details += `<div style="font-size:0.78rem;color:var(--text-dim);margin-top:0.3rem;font-style:italic">${obj.note}</div>`;
       }
       if (it.source === 'pinned') {
         // For pinned achievements, show the requirement text
@@ -3689,13 +3719,13 @@ function renderShoppingList() {
       const color = have >= n.needed ? 'var(--green)' : 'var(--orange)';
       haveHtml = `<span style="color:${color};font-weight:600"> — you have ${have.toLocaleString()}</span>`;
     }
-    const itemList = n.items.map(name => `<div style="font-size:0.72rem;color:var(--text-secondary);padding:0.1rem 0">&#8226; ${name}</div>`).join('');
+    const itemList = n.items.map(name => `<div style="font-size:0.78rem;color:var(--text-secondary);padding:0.1rem 0">&#8226; ${name}</div>`).join('');
     return `<div style="border-bottom:1px solid rgba(138,114,52,0.15);cursor:pointer" onclick="var d=this.querySelector('.sl-details');d.style.display=d.style.display==='none'?'block':'none';this.querySelector('.sl-arrow')?.classList.toggle('open')">
       <div style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0;font-size:0.85rem">
         <span style="color:var(--gold);font-weight:600;min-width:50px">${n.needed.toLocaleString()}</span>
         <span style="color:var(--text)">${n.name}</span>
         ${haveHtml}
-        <span style="color:var(--text-dim);font-size:0.7rem;margin-left:auto">(${n.items.length} item${n.items.length>1?'s':''})</span>
+        <span style="color:var(--text-dim);font-size:0.78rem;margin-left:auto">(${n.items.length} item${n.items.length>1?'s':''})</span>
         <span class="sl-arrow" style="font-size:0.6rem;color:var(--text-dim);transition:transform 0.2s">&#9662;</span>
       </div>
       <div class="sl-details" style="display:none;padding:0.2rem 0 0.4rem 3.5rem">${itemList}</div>
@@ -4061,7 +4091,7 @@ function renderBrowseResults(achievements, skipStoreForFilter) {
       <span class="bth-diff"><span class="badge badge-${diff.badge}">${diff.label}</span></span>
       <div class="bth-name">
         <div style="font-size:0.85rem;font-weight:500;color:var(--text)">${ach.name}</div>
-        <div style="font-size:0.7rem;color:var(--text-dim)">${ach.requirement || ach.description || ''}</div>
+        <div style="font-size:0.78rem;color:var(--text-dim)">${ach.requirement || ach.description || ''}</div>
       </div>
       <span class="bth-ap" style="color:var(--gold);font-weight:600;font-size:0.8rem">${totalAP}</span>
       <span class="bth-goal" style="font-size:0.78rem;color:var(--text-secondary)">${maxCount > 1 ? maxCount : (bitCount ? bitCount + ' obj' : '1')}</span>
@@ -4160,12 +4190,12 @@ function renderPinnedAchievements() {
     if (enrichKey === 'otter') {
       return `<div style="position:relative">${enrichPctBadge}${renderOtterCard()}
         <button class="${focusBtnClass}" onclick="event.stopPropagation();setFocusedAchievement(${ach.id})" title="Set as currently working on" style="position:absolute;top:0.5rem;right:6rem">${focusBtnLabel}</button>
-        <button class="btn btn-danger btn-sm" onclick="togglePinAchievement(${ach.id})" title="Remove" style="position:absolute;top:0.5rem;right:0.5rem;font-size:0.7rem;padding:0.15rem 0.5rem;opacity:0.7">Remove</button></div>`;
+        <button class="btn btn-danger btn-sm" onclick="togglePinAchievement(${ach.id})" title="Remove" style="position:absolute;top:0.5rem;right:0.5rem;font-size:0.78rem;padding:0.15rem 0.5rem;opacity:0.7">Remove</button></div>`;
     }
     if (enrichKey) {
       return `<div style="position:relative">${enrichPctBadge}${renderChecklistCard(enrichKey)}
         <button class="${focusBtnClass}" onclick="event.stopPropagation();setFocusedAchievement(${ach.id})" title="Set as currently working on" style="position:absolute;top:0.5rem;right:6rem">${focusBtnLabel}</button>
-        <button class="btn btn-danger btn-sm" onclick="togglePinAchievement(${ach.id})" title="Remove" style="position:absolute;top:0.5rem;right:0.5rem;font-size:0.7rem;padding:0.15rem 0.5rem;opacity:0.7">Remove</button></div>`;
+        <button class="btn btn-danger btn-sm" onclick="togglePinAchievement(${ach.id})" title="Remove" style="position:absolute;top:0.5rem;right:0.5rem;font-size:0.78rem;padding:0.15rem 0.5rem;opacity:0.7">Remove</button></div>`;
     }
 
     // Generic achievement rendering — rich guide from API data
@@ -4225,7 +4255,7 @@ function renderPinnedAchievements() {
     const iconUrl = ach.icon || '';
     const iconHtml = iconUrl ? `<img class="ach-icon" src="${iconUrl}" alt="" loading="lazy">` : '';
 
-    return `<section class="achievement-card card-enter${isDone?' celebrate':''}" style="border-top-color:${isDone?'var(--green)':'var(--blue)'}" draggable="true" data-ach-id="${ach.id}">
+    return `<section class="achievement-card card-enter${isDone?' celebrate':''}" style="border-left-color:${isDone?'var(--green)':'var(--blue)'}" draggable="true" data-ach-id="${ach.id}">
       <div class="card-header" aria-expanded="false" onclick="toggleCard(this)">
         <div class="card-title-area" style="display:flex;gap:0.75rem;align-items:center">
           ${iconHtml}
@@ -4534,7 +4564,7 @@ function onAchSearch(query) {
     }
 
     resultsDiv.style.display = 'block';
-    resultsDiv.innerHTML = `<div style="padding:0.3rem 0.6rem;font-size:0.7rem;color:var(--text-dim);border-bottom:1px solid rgba(138,114,52,0.1)">${matches.length}${scored.length>50?'+':''} results for "${query.replace(/</g,'&lt;')}"</div>` +
+    resultsDiv.innerHTML = `<div style="padding:0.3rem 0.6rem;font-size:0.78rem;color:var(--text-dim);border-bottom:1px solid rgba(138,114,52,0.1)">${matches.length}${scored.length>50?'+':''} results for "${query.replace(/</g,'&lt;')}"</div>` +
     matches.map(m => {
       const isPinned = pinnedIds.includes(m.id);
       const diff = estimateDifficulty(m);
@@ -4542,7 +4572,7 @@ function onAchSearch(query) {
         <span class="bth-diff"><span class="badge badge-${diff.badge}">${diff.label}</span></span>
         <div class="bth-name">
           <div style="font-size:0.85rem;color:var(--text)">${highlight(m.name)}</div>
-          <div style="font-size:0.68rem;color:var(--text-dim)">${m.ap} AP${m.max>1?' &middot; Goal: '+m.max:''}${m.bits?' &middot; '+m.bits+' obj':''}</div>
+          <div style="font-size:0.78rem;color:var(--text-dim)">${m.ap} AP${m.max>1?' &middot; Goal: '+m.max:''}${m.bits?' &middot; '+m.bits+' obj':''}</div>
         </div>
         <span class="bth-ap" style="color:var(--gold);font-weight:600;font-size:0.8rem">${m.ap}</span>
         <span class="bth-goal" style="font-size:0.78rem;color:var(--text-secondary)">${m.max > 1 ? m.max : (m.bits ? m.bits+' obj' : '1')}</span>
@@ -4726,7 +4756,7 @@ function renderSessionPlan() {
       <span style="color:var(--text-dim);font-size:0.75rem;min-width:1.5rem">${i+1}.</span>
       <span class="badge badge-${it.difficulty}" style="flex-shrink:0">${it.difficulty}</span>
       <span style="flex:1;min-width:0">${it.name}</span>
-      <span style="font-size:0.7rem;color:var(--text-dim);flex-shrink:0">${it.time || '~' + it.est + ' min'}</span>
+      <span style="font-size:0.78rem;color:var(--text-dim);flex-shrink:0">${it.time || '~' + it.est + ' min'}</span>
     </div>
   `).join('');
 
@@ -4832,7 +4862,7 @@ function renderMapView() {
           <span class="cb-box"></span>
           <div class="item-info">
             <div class="item-name">${it.name}${completionDateHtml}</div>
-            <div class="item-episode" style="font-size:0.72rem;color:var(--text-dim)">${achLabel}${it.episode ? ' — ' + it.episode : ''}</div>
+            <div class="item-episode" style="font-size:0.78rem;color:var(--text-dim)">${achLabel}${it.episode ? ' — ' + it.episode : ''}</div>
           </div>
         </label>
         <div class="item-right">
@@ -5254,7 +5284,7 @@ function renderPrereqSection(prereqs, progData) {
     html += `<div class="prereq-item">
       ${statusBadge}
       <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</span>
-      <span style="font-size:0.7rem;color:var(--text-dim)">${current}/${maxTier.count}</span>
+      <span style="font-size:0.78rem;color:var(--text-dim)">${current}/${maxTier.count}</span>
       <div class="prereq-bar"><div class="prereq-fill" style="width:${pct.toFixed(1)}%"></div></div>
     </div>`;
 
@@ -5271,7 +5301,7 @@ function renderPrereqSection(prereqs, progData) {
         html += `<div class="prereq-item" style="font-size:0.75rem">
           ${spBadge}
           <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sp.name}</span>
-          <span style="font-size:0.65rem;color:var(--text-dim)">${spCurrent}/${spMax.count}</span>
+          <span style="font-size:0.78rem;color:var(--text-dim)">${spCurrent}/${spMax.count}</span>
           <div class="prereq-bar" style="width:60px"><div class="prereq-fill" style="width:${spPct.toFixed(1)}%"></div></div>
         </div>`;
       });
@@ -5868,18 +5898,15 @@ function toggleKbShortcutsOverlay() {
 }
 
 function focusAchSearchInput() {
-  // Open the browse panel if collapsed
-  var browseCard = document.getElementById('achSearchInput');
-  if (!browseCard) return;
-  var cardBody = browseCard.closest('.card-body');
-  if (cardBody && !cardBody.classList.contains('open')) {
-    var header = cardBody.previousElementSibling;
-    if (header && header.classList.contains('card-header')) {
-      toggleCard(header);
-    }
-  }
-  browseCard.focus();
-  browseCard.select();
+  var searchInput = document.getElementById('achSearchInput');
+  if (!searchInput) return;
+  // Scroll to top where search bar now lives
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Delay focus slightly so the '/' keypress doesn't enter the input
+  setTimeout(function() {
+    searchInput.focus();
+    searchInput.select();
+  }, 10);
 }
 
 function scrollToPinnedCard(n) {
@@ -6286,7 +6313,7 @@ function generateShareUrl() {
   bar.style.display = '';
   document.getElementById('shareBarText').innerHTML =
     'Share link copied! <a onclick="document.getElementById(\'shareBar\').style.display=\'none\'">dismiss</a> &mdash; ' +
-    '<code style="font-size:0.7rem;color:var(--gold)">' + url + '</code>';
+    '<code style="font-size:0.78rem;color:var(--gold)">' + url + '</code>';
 }
 
 function loadFromShareUrl() {
@@ -6342,7 +6369,7 @@ function renderEmptyState() {
     <p>Pin achievements you're working toward. Search by name, browse by category, or pick a starter pack.</p>
     <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem">
       <button class="btn btn-primary" onclick="startTour()">Take the Tour</button>
-      <button class="btn" onclick="document.querySelector('.achievement-card[style*=blue] .card-header')?.click();setTimeout(()=>document.getElementById('achSearchInput')?.focus(),300)">Search Achievements</button>
+      <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'});setTimeout(()=>document.getElementById('achSearchInput')?.focus(),300)">Search Achievements</button>
     </div>
     <div style="font-size:0.8rem;color:var(--text-dim);padding:0.5rem 1rem;background:rgba(212,168,83,0.05);border-radius:var(--radius-sm);border:1px dashed var(--gold-dim)">
       <span style="color:var(--gold)">Tip:</span> Connect your GW2 API key above to auto-sync progress from your account
@@ -6469,11 +6496,10 @@ const TOUR_STEPS = [
     target: '#achSearchInput',
     title: 'Search Any Achievement',
     text: 'Type any achievement name to find it instantly across 8,000+ GW2 achievements. Try "Seasons", "Jumping", or "Legendary".',
-    arrow: 'top',
+    arrow: 'bottom',
     action: () => {
-      // Open the browse panel if collapsed
-      const header = document.querySelector('#achSearchInput')?.closest('.card-body-inner')?.closest('.achievement-card')?.querySelector('.card-header');
-      if (header && header.getAttribute('aria-expanded') === 'false') header.click();
+      // Search is now at top of page, scroll up
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   },
   {

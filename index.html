@@ -980,6 +980,117 @@ button,a.timer-link{touch-action:manipulation}
   animation:rarity-glow 2s ease-in-out infinite;
 }
 @keyframes rarity-glow{0%,100%{box-shadow:0 0 6px rgba(212,168,83,0.4)}50%{box-shadow:0 0 12px rgba(212,168,83,0.7)}}
+
+/* ========== Feature: Search Hint ========== */
+.search-hint{
+  font-size:0.68rem;color:var(--text-dim);margin-top:0.2rem;
+}
+.search-hint kbd{
+  display:inline-block;padding:0.1rem 0.35rem;background:var(--bg-input);
+  border:1px solid var(--gold-dim);border-radius:3px;
+  font-family:'Consolas','Courier New',monospace;font-size:0.7rem;color:var(--gold);
+}
+
+/* ========== Feature: Compact/Overlay Mode ========== */
+.compact-overlay-btn{
+  padding:0.3rem 0.6rem;border-radius:var(--radius-sm);border:1px solid var(--gold-dim);
+  background:transparent;color:var(--gold);font-family:inherit;font-size:0.8rem;
+  cursor:pointer;transition:all 0.2s;white-space:nowrap;
+}
+.compact-overlay-btn:hover{background:var(--gold);color:var(--bg-body);border-color:var(--gold)}
+.compact-overlay-btn.active{background:var(--gold);color:var(--bg-body);border-color:var(--gold);font-weight:600}
+
+body.compact-mode .api-bar,
+body.compact-mode .reset-bar,
+body.compact-mode .stats-bar,
+body.compact-mode .share-bar,
+body.compact-mode .do-next,
+body.compact-mode #shoppingList,
+body.compact-mode .session-planner,
+body.compact-mode .filter-bar,
+body.compact-mode #achievementCards,
+body.compact-mode #mapView,
+body.compact-mode #apEfficiencyPanel,
+body.compact-mode #dynamicPanels,
+body.compact-mode #progressStatsPanel,
+body.compact-mode #badgeSection,
+body.compact-mode .timers-section,
+body.compact-mode .combos-section,
+body.compact-mode .site-footer{display:none!important}
+
+body.compact-mode .site-header .header-progress,
+body.compact-mode .site-header #streakDisplay{display:none!important}
+
+body.compact-mode .site-title span{display:none}
+
+/* Browse section hidden in compact mode */
+body.compact-mode .main-content:last-of-type{display:none!important}
+
+/* Compact pinned cards: super-compact single-line */
+body.compact-mode .achievement-card .card-body{display:none!important}
+body.compact-mode .achievement-card .card-header{padding:0.5rem 0.75rem;flex-wrap:nowrap}
+body.compact-mode .achievement-card .card-header .card-chevron{display:none}
+body.compact-mode .achievement-card .card-header .btn-danger{display:none}
+body.compact-mode .achievement-card .card-title-area h2{font-size:0.9rem;margin-bottom:0}
+body.compact-mode .achievement-card .card-subtitle{display:none}
+body.compact-mode .achievement-card .pct-badge{display:none}
+body.compact-mode .achievement-card .badge-blocked{display:none}
+body.compact-mode .achievement-card .card-progress-area .progress-bar{width:120px}
+body.compact-mode .achievement-card .focus-btn{display:none}
+body.compact-mode .achievement-card{margin-bottom:0.4rem;border-top-width:2px}
+
+/* Focus card is always fully shown in compact mode */
+body.compact-mode #focusCardContainer .focus-card{display:block!important}
+body.compact-mode #focusCardContainer{display:block!important}
+
+/* ========== Feature: Focus Card ========== */
+.focus-card{
+  background:linear-gradient(135deg,#1a2340,#16213e);
+  border:2px solid var(--gold);border-radius:var(--radius);
+  padding:1.25rem 1.5rem;margin-bottom:1.5rem;
+  border-left:4px solid var(--gold);
+  position:relative;
+}
+.focus-card h2{font-size:1.3rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.75rem}
+.focus-card .focus-icon-img{width:48px;height:48px;border-radius:6px;object-fit:contain;background:rgba(0,0,0,0.2)}
+.focus-card .focus-progress-bar{
+  width:100%;height:16px;background:var(--progress-bg);border-radius:8px;overflow:hidden;margin:0.5rem 0;
+}
+.focus-card .focus-progress-fill{
+  height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:8px;transition:width 0.5s ease;
+}
+.focus-card .focus-progress-fill.done{background:var(--green)}
+.focus-card .focus-count{
+  font-size:1.1rem;font-weight:700;color:var(--gold);font-family:'Cinzel',serif;text-align:center;margin-bottom:0.5rem;
+}
+.focus-card .focus-objectives{margin-top:0.75rem}
+.focus-card .focus-objectives ul{list-style:none;padding:0;margin:0;columns:1}
+.focus-card .focus-objectives li{
+  font-size:0.82rem;color:var(--text-secondary);padding:0.25rem 0 0.25rem 1.4rem;position:relative;break-inside:avoid;
+}
+.focus-card .focus-objectives li::before{
+  content:'';position:absolute;left:0;top:0.55rem;width:8px;height:8px;border:1.5px solid var(--gold-dim);border-radius:2px;
+}
+.focus-card .focus-objectives li.obj-done{color:var(--green);text-decoration:line-through;opacity:0.6}
+.focus-card .focus-objectives li.obj-done::before{background:var(--green);border-color:var(--green)}
+@media(min-width:768px){.focus-card .focus-objectives ul.two-col{columns:2;column-gap:1.5rem}}
+.focus-card .unfocus-btn{
+  position:absolute;top:0.75rem;right:0.75rem;
+  padding:0.3rem 0.7rem;border-radius:var(--radius-sm);border:1px solid var(--red);
+  background:transparent;color:var(--red);font-family:inherit;font-size:0.75rem;
+  cursor:pointer;transition:all 0.2s;
+}
+.focus-card .unfocus-btn:hover{background:var(--red);color:#fff}
+.focus-card .focus-meta{font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.25rem}
+
+/* Focus button on pinned cards */
+.focus-btn{
+  background:none;border:1px solid var(--text-dim);border-radius:var(--radius-sm);
+  color:var(--text-dim);cursor:pointer;font-size:0.75rem;padding:0.15rem 0.4rem;
+  transition:all 0.2s;display:inline-flex;align-items:center;gap:0.25rem;
+}
+.focus-btn:hover{color:var(--gold);border-color:var(--gold)}
+.focus-btn.is-focused{color:var(--gold);border-color:var(--gold);background:rgba(212,168,83,0.1)}
 </style>
 </head>
 <body>
@@ -990,6 +1101,7 @@ button,a.timer-link{touch-action:manipulation}
     <h1 class="site-title">GW2 Achievement Tracker</h1>
     <div class="header-progress" id="headerProgress"></div>
     <span id="streakDisplay" class="streak-display"></span>
+    <button class="compact-overlay-btn" id="compactToggle" onclick="toggleCompactMode()" title="Toggle compact overlay mode">Compact</button>
     <button class="btn btn-sm" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode" style="font-size:0.85rem;padding:0.3rem 0.6rem">&#9790;</button>
   </div>
 </header>
@@ -1032,6 +1144,9 @@ button,a.timer-link{touch-action:manipulation}
 
 <!-- MAIN CONTENT -->
 <div class="main-content">
+
+  <!-- FOCUS CARD (Currently Working On) -->
+  <div id="focusCardContainer"></div>
 
   <!-- SESSION PLANNER -->
   <section class="session-planner" id="sessionPlanner" style="display:none">
@@ -1143,7 +1258,10 @@ button,a.timer-link{touch-action:manipulation}
             <input type="number" id="achIdInput" placeholder="or ID" class="search-input" style="width:100px">
             <button class="btn btn-primary btn-sm" onclick="lookupAchievementById()">Look Up ID</button>
           </div>
-          <div id="searchIndexStatus" style="font-size:0.7rem;color:var(--text-dim);margin-top:0.3rem"></div>
+          <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-top:0.3rem">
+            <div id="searchIndexStatus" style="font-size:0.7rem;color:var(--text-dim)"></div>
+            <div class="search-hint">Press <kbd>/</kbd> or <kbd>Ctrl+K</kbd> to search</div>
+          </div>
         </div>
         <!-- Browse Reward Filters -->
         <div class="browse-filters" id="browseRewardFilters" style="display:none">
@@ -2224,6 +2342,8 @@ function loadState() {
     if (!saved.pinnedPrereqs) saved.pinnedPrereqs = {};
     if (saved.celebrationsEnabled == null) saved.celebrationsEnabled = true;
     if (!saved.viewDensity) saved.viewDensity = 'detailed';
+    if (saved.focusedAchId == null) saved.focusedAchId = null;
+    if (saved.compactMode == null) saved.compactMode = false;
     return saved;
   } catch(e) { return getDefaultState(); }
 }
@@ -2560,6 +2680,7 @@ function renderDynamicPanels() {
 function renderAll() {
   document.getElementById('achievementCards').innerHTML = '';
   renderHeaderProgress();
+  renderFocusCard();
   renderDoNext();
   renderShoppingList();
   renderCostCalculator();
@@ -3327,6 +3448,7 @@ async function togglePinAchievement(id, btn) {
     state.pinnedAchievements.splice(idx, 1);
     if (state.pinnedProgress) delete state.pinnedProgress[id];
     if (state.pinnedPrereqs) delete state.pinnedPrereqs[id];
+    if (state.focusedAchId === id) { state.focusedAchId = null; }
     if (btn) { btn.textContent = '+ Add'; btn.className = 'btn btn-primary btn-sm'; }
   } else {
     try {
@@ -3373,6 +3495,7 @@ async function togglePinAchievement(id, btn) {
   }
 
   saveState();
+  renderFocusCard();
   renderPinnedAchievements();
   renderSortToggleVisibility();
 }
@@ -3399,12 +3522,17 @@ function renderPinnedAchievements() {
     const enrichPct = (getCompletionPct(ach) * 100).toFixed(1);
     const enrichPctClass = parseFloat(enrichPct) >= 75 ? ' high' : '';
     const enrichPctBadge = state.sortMode === 'nearest' ? `<span class="pct-badge${enrichPctClass}" style="position:absolute;top:0.5rem;left:0.5rem;z-index:1">${enrichPct}%</span>` : '';
+    const isFocused = state.focusedAchId === ach.id;
+    const focusBtnClass = isFocused ? 'focus-btn is-focused' : 'focus-btn';
+    const focusBtnLabel = isFocused ? '&#9678; Focused' : '&#9678; Focus';
     if (enrichKey === 'otter') {
       return `<div style="position:relative">${enrichPctBadge}${renderOtterCard()}
+        <button class="${focusBtnClass}" onclick="event.stopPropagation();setFocusedAchievement(${ach.id})" title="Set as currently working on" style="position:absolute;top:0.5rem;right:6rem">${focusBtnLabel}</button>
         <button class="btn btn-danger btn-sm" onclick="togglePinAchievement(${ach.id})" title="Remove" style="position:absolute;top:0.5rem;right:0.5rem;font-size:0.7rem;padding:0.15rem 0.5rem;opacity:0.7">Remove</button></div>`;
     }
     if (enrichKey) {
       return `<div style="position:relative">${enrichPctBadge}${renderChecklistCard(enrichKey)}
+        <button class="${focusBtnClass}" onclick="event.stopPropagation();setFocusedAchievement(${ach.id})" title="Set as currently working on" style="position:absolute;top:0.5rem;right:6rem">${focusBtnLabel}</button>
         <button class="btn btn-danger btn-sm" onclick="togglePinAchievement(${ach.id})" title="Remove" style="position:absolute;top:0.5rem;right:0.5rem;font-size:0.7rem;padding:0.15rem 0.5rem;opacity:0.7">Remove</button></div>`;
     }
 
@@ -3477,6 +3605,7 @@ function renderPinnedAchievements() {
         <div class="card-progress-area">
           <span class="progress-text">${current} / ${maxCount}</span>
           <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;${isDone?'background:var(--green)':''}"></div></div>
+          <button class="${focusBtnClass}" onclick="event.stopPropagation();setFocusedAchievement(${ach.id})" title="Set as currently working on">${focusBtnLabel}</button>
           <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();togglePinAchievement(${ach.id})" title="Remove from tracker" style="padding:0.15rem 0.4rem">&#10005;</button>
           <span class="card-chevron">&#9662;</span>
         </div>
@@ -5041,15 +5170,13 @@ function toggleKbShortcutsOverlay() {
     '<h2>Keyboard Shortcuts</h2>' +
     '<div class="kbd-grid">' +
     '<span class="kbd-key">?</span><span class="kbd-desc">Toggle this help overlay</span>' +
-    '<span class="kbd-key">Esc</span><span class="kbd-desc">Close overlay / exit bulk mode</span>' +
-    '<span class="kbd-key">/</span><span class="kbd-desc">Focus the search input</span>' +
+    '<span class="kbd-key">/ or Ctrl+K</span><span class="kbd-desc">Focus the achievement search input (opens browse panel)</span>' +
+    '<span class="kbd-key">Esc</span><span class="kbd-desc">Close modals, clear search, collapse panels, exit bulk mode</span>' +
+    '<span class="kbd-key">1-9</span><span class="kbd-desc">Quick-scroll to Nth pinned achievement card</span>' +
     '<span class="kbd-key">j</span><span class="kbd-desc">Move down to next checklist item</span>' +
     '<span class="kbd-key">k</span><span class="kbd-desc">Move up to previous checklist item</span>' +
     '<span class="kbd-key">Space / Enter</span><span class="kbd-desc">Toggle checkbox of focused item</span>' +
     '<span class="kbd-key">e</span><span class="kbd-desc">Expand/collapse details of focused item</span>' +
-    '<span class="kbd-key">1</span><span class="kbd-desc">Filter: All</span>' +
-    '<span class="kbd-key">2</span><span class="kbd-desc">Filter: Incomplete</span>' +
-    '<span class="kbd-key">3</span><span class="kbd-desc">Filter: Completed</span>' +
     '<span class="kbd-key">Ctrl+Z</span><span class="kbd-desc">Undo last action</span>' +
     '<span class="kbd-key">Ctrl+Shift+Z</span><span class="kbd-desc">Redo last undone action</span>' +
     '</div>' +
@@ -5063,9 +5190,47 @@ function toggleKbShortcutsOverlay() {
   document.body.appendChild(overlay);
 }
 
+function focusAchSearchInput() {
+  // Open the browse panel if collapsed
+  var browseCard = document.getElementById('achSearchInput');
+  if (!browseCard) return;
+  var cardBody = browseCard.closest('.card-body');
+  if (cardBody && !cardBody.classList.contains('open')) {
+    var header = cardBody.previousElementSibling;
+    if (header && header.classList.contains('card-header')) {
+      toggleCard(header);
+    }
+  }
+  browseCard.focus();
+  browseCard.select();
+}
+
+function scrollToPinnedCard(n) {
+  var cards = document.querySelectorAll('#pinnedCards .achievement-card');
+  if (n <= 0 || n > cards.length) return;
+  var card = cards[n - 1];
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  // Brief highlight
+  card.style.boxShadow = '0 0 0 3px var(--gold)';
+  setTimeout(function() { card.style.boxShadow = ''; }, 1500);
+}
+
 document.addEventListener('keydown', function(e) {
+  // Ctrl+K: focus achievement search (works even from inputs)
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+    e.preventDefault();
+    focusAchSearchInput();
+    return;
+  }
+
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
     if (e.key === 'Escape') {
+      // Clear value if search input, then blur
+      if (e.target.id === 'achSearchInput' || e.target.id === 'searchInput') {
+        e.target.value = '';
+        if (e.target.id === 'achSearchInput') { onAchSearch(''); }
+        if (e.target.id === 'searchInput') { applyFilters(); }
+      }
       e.target.blur();
       e.preventDefault();
     }
@@ -5092,18 +5257,27 @@ document.addEventListener('keydown', function(e) {
       break;
     case 'Escape':
       e.preventDefault();
+      // Close modals/overlays first
       if (document.getElementById('kbdOverlay')) {
         document.getElementById('kbdOverlay').remove();
+      } else if (document.querySelector('.tour-overlay')) {
+        // Tour overlay - leave to its own handler
       } else if (bulkMode) {
         cancelBulkMode();
       } else {
+        // Clear search inputs
+        var taskSearch = document.getElementById('searchInput');
+        if (taskSearch && taskSearch.value) { taskSearch.value = ''; applyFilters(); }
+        var achSearch = document.getElementById('achSearchInput');
+        if (achSearch && achSearch.value) { achSearch.value = ''; onAchSearch(''); }
+        // Clear keyboard focus
         clearKbFocus();
         kbFocusedIndex = -1;
       }
       break;
     case '/':
       e.preventDefault();
-      document.getElementById('searchInput').focus();
+      focusAchSearchInput();
       break;
     case 'j':
       e.preventDefault();
@@ -5139,29 +5313,10 @@ document.addEventListener('keydown', function(e) {
         }
       }
       break;
-    case '1':
+    case '1': case '2': case '3': case '4': case '5':
+    case '6': case '7': case '8': case '9':
       e.preventDefault();
-      document.querySelectorAll('#completionFilter .filter-btn').forEach(function(b) { b.classList.remove('active'); });
-      document.querySelector('#completionFilter .filter-btn[data-filter="all"]').classList.add('active');
-      state.completionFilter = 'all';
-      saveState();
-      applyFilters();
-      break;
-    case '2':
-      e.preventDefault();
-      document.querySelectorAll('#completionFilter .filter-btn').forEach(function(b) { b.classList.remove('active'); });
-      document.querySelector('#completionFilter .filter-btn[data-filter="incomplete"]').classList.add('active');
-      state.completionFilter = 'incomplete';
-      saveState();
-      applyFilters();
-      break;
-    case '3':
-      e.preventDefault();
-      document.querySelectorAll('#completionFilter .filter-btn').forEach(function(b) { b.classList.remove('active'); });
-      document.querySelector('#completionFilter .filter-btn[data-filter="completed"]').classList.add('active');
-      state.completionFilter = 'completed';
-      saveState();
-      applyFilters();
+      scrollToPinnedCard(parseInt(e.key, 10));
       break;
   }
 });
@@ -6070,11 +6225,201 @@ function toggleTheme() {
   if (btn) btn.textContent = saved === 'dark' ? '\u263E' : '\u2600';
 })();
 
+/* ========== FEATURE: COMPACT/OVERLAY MODE ========== */
+
+function toggleCompactMode() {
+  var isCompact = document.body.classList.toggle('compact-mode');
+  var btn = document.getElementById('compactToggle');
+  btn.classList.toggle('active', isCompact);
+  btn.textContent = isCompact ? 'Full View' : 'Compact';
+  state.compactMode = isCompact;
+  saveState();
+  // In compact mode, render focus card prominently
+  renderFocusCard();
+}
+
+function restoreCompactMode() {
+  if (state.compactMode) {
+    document.body.classList.add('compact-mode');
+    var btn = document.getElementById('compactToggle');
+    if (btn) {
+      btn.classList.add('active');
+      btn.textContent = 'Full View';
+    }
+  }
+}
+
+/* ========== FEATURE: CURRENTLY WORKING ON (FOCUS CARD) ========== */
+
+function setFocusedAchievement(achId) {
+  state.focusedAchId = achId;
+  saveState();
+  renderFocusCard();
+  renderPinnedAchievements();
+}
+
+function clearFocusedAchievement() {
+  state.focusedAchId = null;
+  saveState();
+  renderFocusCard();
+  renderPinnedAchievements();
+}
+
+function renderFocusCard() {
+  var container = document.getElementById('focusCardContainer');
+  if (!container) return;
+
+  var achId = state.focusedAchId;
+  if (!achId) { container.innerHTML = ''; return; }
+
+  // Find the achievement data
+  var ach = null;
+  var enrichKey = ENRICHED_KEYS[achId];
+
+  if (enrichKey) {
+    ach = ACHIEVEMENTS[enrichKey];
+    // Render enriched focus card
+    var count, total, name, iconHtml, objectivesHtml;
+    name = ach.name;
+    total = ach.total;
+    iconHtml = '';
+
+    if (enrichKey === 'otter') {
+      count = state.otterCount;
+      objectivesHtml = '';
+      // Show prereqs as objectives
+      var prereqItems = ach.prerequisites || [];
+      if (prereqItems.length) {
+        objectivesHtml = '<div class="focus-objectives"><ul>';
+        prereqItems.forEach(function(p) {
+          var done = state.checkedItems[p.key];
+          objectivesHtml += '<li class="' + (done ? 'obj-done' : '') + '">' + p.name + '</li>';
+        });
+        objectivesHtml += '</ul></div>';
+      }
+    } else {
+      count = countCompleted(enrichKey);
+      // Show sections as objectives
+      objectivesHtml = '<div class="focus-objectives"><ul class="' + (getAllEnrichedItems(enrichKey).length > 6 ? 'two-col' : '') + '">';
+      getAllEnrichedItems(enrichKey).forEach(function(it) {
+        var done = state.checkedItems[it.key];
+        objectivesHtml += '<li class="' + (done ? 'obj-done' : '') + '">' + it.name + '</li>';
+      });
+      objectivesHtml += '</ul></div>';
+    }
+
+    var pct = total > 0 ? (count / total * 100).toFixed(1) : 0;
+    var isDone = count >= total;
+
+    container.innerHTML = '<div class="focus-card">' +
+      '<button class="unfocus-btn" onclick="clearFocusedAchievement()">Unfocus</button>' +
+      '<h2>' + iconHtml + name + (isDone ? ' <span style="color:var(--green);font-size:0.9rem;font-family:Inter,sans-serif">&#10003; Complete</span>' : '') + '</h2>' +
+      '<div class="focus-meta">Currently Working On</div>' +
+      '<div class="focus-count">' + count + ' / ' + total + '</div>' +
+      '<div class="focus-progress-bar"><div class="focus-progress-fill' + (isDone ? ' done' : '') + '" style="width:' + pct + '%"></div></div>' +
+      objectivesHtml +
+      '</div>';
+    return;
+  }
+
+  // Generic pinned achievement
+  var pinnedAchs = state.pinnedAchievements || [];
+  ach = pinnedAchs.find(function(a) { return a.id === achId; });
+  if (!ach) { container.innerHTML = ''; state.focusedAchId = null; saveState(); return; }
+
+  var prog = (state.pinnedProgress || {})[ach.id];
+  var maxTier = ach.tiers && ach.tiers.length ? ach.tiers[ach.tiers.length - 1] : { count: 1 };
+  var maxCount = maxTier.count;
+  var current = 0;
+  var doneBits = [];
+  var isDoneGeneric = false;
+  if (prog) { current = prog.current || 0; doneBits = prog.bits || []; isDoneGeneric = !!prog.done; }
+
+  var pctGeneric = maxCount > 0 ? (Math.min(current, maxCount) / maxCount * 100).toFixed(1) : (isDoneGeneric ? '100' : '0');
+
+  var iconUrl = ach.icon || '';
+  var iconHtmlGeneric = iconUrl ? '<img class="focus-icon-img" src="' + iconUrl + '" alt="" loading="lazy">' : '';
+
+  // Objectives
+  var objHtml = '';
+  if (ach.bits && ach.bits.length) {
+    var completedCount = doneBits.length;
+    objHtml = '<div class="focus-objectives"><div style="font-size:0.8rem;color:var(--gold);font-weight:600;margin-bottom:0.3rem">Objectives (' + completedCount + '/' + ach.bits.length + '):</div>';
+    objHtml += '<ul class="' + (ach.bits.length > 6 ? 'two-col' : '') + '">';
+    ach.bits.forEach(function(b, i) {
+      var done = doneBits.includes(i);
+      var text = b.text || (b.type === 'Text' ? 'Objective ' + (i + 1) : b.type + (b.id ? ' #' + b.id : ''));
+      objHtml += '<li class="' + (done ? 'obj-done' : '') + '">' + text + '</li>';
+    });
+    objHtml += '</ul></div>';
+  }
+
+  container.innerHTML = '<div class="focus-card">' +
+    '<button class="unfocus-btn" onclick="clearFocusedAchievement()">Unfocus</button>' +
+    '<h2>' + iconHtmlGeneric + ' ' + ach.name + (isDoneGeneric ? ' <span style="color:var(--green);font-size:0.9rem;font-family:Inter,sans-serif">&#10003; Complete</span>' : '') + '</h2>' +
+    '<div class="focus-meta">Currently Working On' + (ach.requirement ? ' &mdash; ' + ach.requirement : '') + '</div>' +
+    '<div class="focus-count">' + current + ' / ' + maxCount + '</div>' +
+    '<div class="focus-progress-bar"><div class="focus-progress-fill' + (isDoneGeneric ? ' done' : '') + '" style="width:' + pctGeneric + '%"></div></div>' +
+    objHtml +
+    '</div>';
+}
+
+function getAllEnrichedItems(enrichKey) {
+  var items = [];
+  ACHIEVEMENTS[enrichKey].sections.forEach(function(sec) {
+    sec.items.forEach(function(it) { items.push(it); });
+  });
+  return items;
+}
+
+/* ========== FEATURE: QUICK-ADD FROM URL (?add=) ========== */
+
+async function handleAddFromUrl() {
+  var params = new URLSearchParams(window.location.search);
+  var addParam = params.get('add');
+  if (!addParam) return;
+
+  var id = parseInt(addParam, 10);
+  if (!id || id <= 0) return;
+
+  // Clean the URL immediately to prevent re-add on refresh
+  var cleanUrl = window.location.pathname;
+  // Preserve other params except 'add'
+  params.delete('add');
+  var remaining = params.toString();
+  if (remaining) cleanUrl += '?' + remaining;
+  history.replaceState(null, '', cleanUrl + window.location.hash);
+
+  // Check if already pinned
+  if (!state.pinnedAchievements) state.pinnedAchievements = [];
+  var alreadyPinned = state.pinnedAchievements.some(function(a) { return a.id === id; });
+  if (alreadyPinned) {
+    // Just scroll to it
+    setTimeout(function() {
+      var card = document.querySelector('[data-ach-id="' + id + '"]');
+      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 300);
+    return;
+  }
+
+  // Pin the achievement
+  await togglePinAchievement(id);
+
+  // Scroll to the newly pinned card
+  setTimeout(function() {
+    var card = document.querySelector('[data-ach-id="' + id + '"]');
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 500);
+}
+
 /* ========== INIT ========== */
 
 // Check for shared progress link
 checkShareLink();
 loadFromShareUrl();
+
+// Handle ?add= URL parameter
+handleAddFromUrl();
 
 trackDailyLogin();
 checkStreakValidity();
@@ -6150,6 +6495,9 @@ if (state.viewDensity === 'compact') {
   });
   applyViewDensity();
 }
+
+// Restore compact overlay mode
+restoreCompactMode();
 
 // Show last sync time if available
 if (state.lastSync) {

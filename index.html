@@ -1174,8 +1174,8 @@ body.compact-mode #focusCardContainer{display:block!important}
 
   <!-- SHOPPING LIST (collapsible) -->
   <section class="do-next" id="shoppingList" style="display:none;border-left-color:var(--orange)">
-    <h2 style="color:var(--orange);cursor:pointer;display:flex;align-items:center;gap:0.5rem" onclick="this.nextElementSibling.classList.toggle('collapsed');this.parentElement.querySelector('.sl-sub').classList.toggle('collapsed');this.querySelector('.collapse-icon').classList.toggle('open')">&#128722; Shopping List <span class="collapse-icon open" style="font-size:0.7rem;transition:transform 0.2s">&#9662;</span></h2>
-    <div class="sl-sub collapsible-body" style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.5rem">Currencies needed for remaining vendor purchases</div>
+    <h2 style="color:var(--orange);cursor:pointer;display:flex;align-items:center;gap:0.5rem" onclick="this.parentElement.querySelectorAll('.collapsible-body').forEach(el=>el.classList.toggle('collapsed'));this.querySelector('.collapse-icon').classList.toggle('open')">&#128722; Shopping List <span class="collapse-icon open" style="font-size:0.7rem;transition:transform 0.2s">&#9662;</span></h2>
+    <div class="collapsible-body" style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.5rem">Currencies needed for remaining vendor purchases</div>
     <div class="collapsible-body" id="shoppingListBody"></div>
   </section>
 

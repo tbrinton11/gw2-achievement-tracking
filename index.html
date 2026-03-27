@@ -333,6 +333,44 @@ a:hover{text-decoration:underline}
 .guide-box strong{color:var(--text)}
 @media(min-width:768px){.objectives-list.two-col{columns:2;column-gap:1.5rem}}
 
+/* Checkbox Pop */
+.cb-label input:checked + .cb-box{animation:cb-pop 0.35s cubic-bezier(0.175,0.885,0.32,1.275)}
+@keyframes cb-pop{0%{transform:scale(1)}40%{transform:scale(1.3)}100%{transform:scale(1)}}
+
+/* Progress Color Shifts */
+.progress-fill[data-pct="low"]{background:linear-gradient(90deg,#5e5a4e,#8a7234)}
+.progress-fill[data-pct="mid"]{background:linear-gradient(90deg,var(--gold-dim),var(--gold))}
+.progress-fill[data-pct="high"]{background:linear-gradient(90deg,var(--gold),var(--green))}
+.progress-fill[data-pct="done"]{background:var(--green)}
+
+/* Streak Counter */
+.streak-display{display:flex;align-items:center;gap:0.4rem;font-size:0.85rem}
+.streak-num{font-size:1.2rem;font-weight:700;font-family:'Cinzel',serif;color:var(--gold);min-width:1.2rem;text-align:center}
+.streak-label{color:var(--text-secondary);font-size:0.7rem}
+.streak-best{font-size:0.65rem;color:var(--text-dim)}
+@keyframes streak-pop{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.streak-milestone .streak-num{animation:streak-pop 0.4s ease;color:var(--green)}
+
+/* Badge Toast */
+.badge-unlock-toast{position:fixed;bottom:2rem;right:2rem;display:flex;align-items:center;gap:1rem;background:linear-gradient(135deg,#2a1f0a,#1a1530);border:2px solid var(--gold);border-radius:var(--radius);padding:1rem 1.5rem;z-index:2000;animation:badge-slide-in 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;box-shadow:0 4px 24px rgba(212,168,83,0.3)}
+.badge-unlock-icon{font-size:2rem}
+.badge-unlock-title{font-size:0.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em}
+.badge-unlock-name{font-family:'Cinzel',serif;font-size:1rem;color:var(--gold);font-weight:700}
+.badge-unlock-desc{font-size:0.75rem;color:var(--text-secondary)}
+.badge-unlock-toast.fade-out{animation:badge-slide-out 0.5s ease forwards}
+@keyframes badge-slide-in{0%{opacity:0;transform:translateX(100px)}100%{opacity:1;transform:translateX(0)}}
+@keyframes badge-slide-out{0%{opacity:1;transform:translateX(0)}100%{opacity:0;transform:translateX(100px)}}
+
+/* Badge Grid */
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(85px,1fr));gap:0.5rem;margin-top:0.75rem}
+.tracker-badge{text-align:center;padding:0.6rem 0.4rem;background:rgba(0,0,0,0.2);border-radius:var(--radius-sm);border:1px solid transparent;transition:all 0.2s}
+.tracker-badge.unlocked{border-color:var(--gold);background:rgba(212,168,83,0.08)}
+.tracker-badge.locked{opacity:0.25;filter:grayscale(1)}
+.tracker-badge-icon{font-size:1.4rem;margin-bottom:0.2rem}
+.tracker-badge-name{font-size:0.6rem;color:var(--text-secondary)}
+.tracker-badge.unlocked .tracker-badge-name{color:var(--gold)}
+.badge-count{font-size:0.75rem;color:var(--text-secondary);font-family:'Inter',sans-serif;font-weight:400}
+
 /* Completion Celebration */
 @keyframes confetti-fall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(100px) rotate(720deg);opacity:0}}
 @keyframes pulse-green{0%{box-shadow:0 0 0 0 rgba(74,222,128,0.5)}70%{box-shadow:0 0 0 15px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
@@ -915,6 +953,7 @@ button,a.timer-link{touch-action:manipulation}
   <div class="header-inner">
     <h1 class="site-title">GW2 Achievement Tracker</h1>
     <div class="header-progress" id="headerProgress"></div>
+    <span id="streakDisplay" class="streak-display"></span>
     <button class="btn btn-sm" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode" style="font-size:0.85rem;padding:0.3rem 0.6rem">&#9790;</button>
   </div>
 </header>
@@ -1043,6 +1082,9 @@ button,a.timer-link{touch-action:manipulation}
 
   <!-- PROGRESS STATS DASHBOARD (Feature 6) -->
   <div id="progressStatsPanel"></div>
+
+  <!-- TRACKER BADGES -->
+  <div id="badgeSection"></div>
 </div>
 
 <!-- BROWSE & ADD ACHIEVEMENTS -->
@@ -2495,6 +2537,7 @@ function renderAll() {
   restoreSessionState();
   renderProgressStats();
   renderStatsDashboard();
+  renderBadgeSection();
   applyViewDensity();
 }
 
@@ -3614,6 +3657,7 @@ function onAchSearch(query) {
   }
 
   searchTimeout = setTimeout(() => {
+    if (!state.hasSearched) { state.hasSearched = true; saveState(); checkBadges(); }
     const q = query.toLowerCase();
     const matches = searchIndex.entries.filter(e => e.name.toLowerCase().includes(q)).slice(0, 50);
     const pinnedIds = (state.pinnedAchievements || []).map(a => a.id);
@@ -5319,6 +5363,7 @@ function launchConfetti() {
 function generateShareUrl() {
   const pinned = state.pinnedAchievements || [];
   if (pinned.length === 0) return;
+  if (!state.hasShared) { state.hasShared = true; saveState(); checkBadges(); }
   const ids = pinned.map(a => a.id).join(',');
   const url = window.location.origin + window.location.pathname + '?pin=' + ids;
 
@@ -5388,6 +5433,118 @@ function renderEmptyState() {
   </div>`;
 }
 
+/* ========== STREAK TRACKING ========== */
+
+function updateStreak() {
+  const today = new Date().toISOString().split('T')[0];
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+  if (state.streakLastDate === today) return;
+  if (state.streakLastDate === yesterday) { state.streakCurrent = (state.streakCurrent || 0) + 1; }
+  else { state.streakCurrent = 1; }
+  state.streakLastDate = today;
+  if ((state.streakCurrent || 0) > (state.streakBest || 0)) state.streakBest = state.streakCurrent;
+  saveState();
+  renderStreakDisplay();
+  checkBadges();
+}
+
+function checkStreakValidity() {
+  if (!state.streakLastDate) return;
+  const today = new Date().toISOString().split('T')[0];
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+  if (state.streakLastDate !== today && state.streakLastDate !== yesterday) {
+    state.streakCurrent = 0;
+    saveState();
+  }
+}
+
+function renderStreakDisplay() {
+  const el = document.getElementById('streakDisplay');
+  if (!el) return;
+  const s = state.streakCurrent || 0;
+  if (s === 0) { el.innerHTML = ''; return; }
+  const flames = s >= 7 ? '&#128293;&#128293;&#128293;' : s >= 3 ? '&#128293;&#128293;' : '&#128293;';
+  el.innerHTML = `<span>${flames}</span><span class="streak-num">${s}</span><span class="streak-label">day streak</span>`;
+}
+
+/* ========== TRACKER BADGES ========== */
+
+const TRACKER_BADGES = [
+  { id:'first-pin', name:'First Pin', desc:'Pinned your first achievement', icon:'&#128204;',
+    test: () => (state.pinnedAchievements || []).length >= 1 },
+  { id:'five-pins', name:'Collector', desc:'Pinned 5 achievements', icon:'&#128218;',
+    test: () => (state.pinnedAchievements || []).length >= 5 },
+  { id:'ten-pins', name:'Dedicated', desc:'Pinned 10 achievements', icon:'&#11088;',
+    test: () => (state.pinnedAchievements || []).length >= 10 },
+  { id:'first-complete', name:'First Victory', desc:'Completed a pinned achievement', icon:'&#127942;',
+    test: () => Object.values(state.pinnedProgress || {}).some(p => p.done) },
+  { id:'five-complete', name:'Champion', desc:'Completed 5 pinned achievements', icon:'&#127775;',
+    test: () => Object.values(state.pinnedProgress || {}).filter(p => p.done).length >= 5 },
+  { id:'api-sync', name:'Connected', desc:'Synced with GW2 API', icon:'&#128279;',
+    test: () => !!state.lastSync },
+  { id:'streak-3', name:'On a Roll', desc:'3-day streak', icon:'&#128293;',
+    test: () => (state.streakBest || 0) >= 3 },
+  { id:'streak-7', name:'Week Warrior', desc:'7-day streak', icon:'&#9876;',
+    test: () => (state.streakBest || 0) >= 7 },
+  { id:'streak-30', name:'Monthly Master', desc:'30-day streak', icon:'&#128081;',
+    test: () => (state.streakBest || 0) >= 30 },
+  { id:'searcher', name:'Explorer', desc:'Used the search feature', icon:'&#128270;',
+    test: () => !!state.hasSearched },
+  { id:'shared', name:'Social', desc:'Shared your tracker', icon:'&#128172;',
+    test: () => !!state.hasShared }
+];
+
+function checkBadges() {
+  if (!state.unlockedBadges) state.unlockedBadges = [];
+  let newBadges = [];
+  TRACKER_BADGES.forEach(badge => {
+    if (!state.unlockedBadges.includes(badge.id) && badge.test()) {
+      state.unlockedBadges.push(badge.id);
+      newBadges.push(badge);
+    }
+  });
+  if (newBadges.length > 0) {
+    saveState();
+    newBadges.forEach((badge, i) => { setTimeout(() => showBadgeUnlock(badge), i * 1500); });
+  }
+}
+
+function showBadgeUnlock(badge) {
+  const el = document.createElement('div');
+  el.className = 'badge-unlock-toast';
+  el.innerHTML = `
+    <div class="badge-unlock-icon">${badge.icon}</div>
+    <div>
+      <div class="badge-unlock-title">Badge Unlocked!</div>
+      <div class="badge-unlock-name">${badge.name}</div>
+      <div class="badge-unlock-desc">${badge.desc}</div>
+    </div>`;
+  document.body.appendChild(el);
+  launchConfetti();
+  setTimeout(() => el.classList.add('fade-out'), 3000);
+  setTimeout(() => el.remove(), 3500);
+}
+
+function renderBadgeSection() {
+  const container = document.getElementById('badgeSection');
+  if (!container) return;
+  if (!state.unlockedBadges) state.unlockedBadges = [];
+  const count = state.unlockedBadges.length;
+  container.innerHTML = `
+    <section class="do-next" style="border-left-color:var(--purple)">
+      <h2 style="color:var(--purple);cursor:pointer;display:flex;align-items:center;gap:0.5rem" onclick="this.nextElementSibling.classList.toggle('collapsed')">
+        &#127942; Tracker Badges <span style="font-family:Inter,sans-serif;font-size:0.8rem;font-weight:400;color:var(--text-secondary)">${count}/${TRACKER_BADGES.length}</span>
+      </h2>
+      <div class="badge-grid collapsible-body">${TRACKER_BADGES.map(b => {
+        const unlocked = state.unlockedBadges.includes(b.id);
+        return `<div class="tracker-badge ${unlocked?'unlocked':'locked'}" title="${b.desc}">
+          <div class="tracker-badge-icon">${b.icon}</div>
+          <div class="tracker-badge-name">${b.name}</div>
+        </div>`;
+      }).join('')}</div>
+    </section>`;
+}
+
 /* ========== THEME TOGGLE ========== */
 
 function toggleTheme() {
@@ -5412,9 +5569,12 @@ function toggleTheme() {
 checkShareLink();
 loadFromShareUrl();
 
+checkStreakValidity();
 renderAll();
 populateGroups();
 renderStarterPacks();
+renderStreakDisplay();
+checkBadges();
 
 // Load search index: try static file first, then localStorage cache, then build at runtime
 async function initSearchIndex() {

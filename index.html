@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#d4a853">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -334,7 +336,519 @@ a:hover{text-decoration:underline}
   .filter-group{flex-wrap:wrap}
   .do-next-item{flex-direction:column;align-items:flex-start}
   .do-next-item .dn-reason{padding-left:0}
+  .session-planner .sp-time-btns{flex-direction:column}
+  .session-planner .sp-time-btns .filter-btn{min-height:44px}
+  .btn{min-height:44px}
+  .copy-btn{min-height:36px;padding:0.3rem 0.6rem}
+  .expand-btn{min-height:44px;min-width:44px}
+  .counter-btn{min-height:44px;min-width:44px}
+  .filter-bar{flex-direction:row;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;padding-bottom:0.5rem}
+  .filter-group{flex-shrink:0}
+  .notes-btn{min-height:44px;min-width:44px}
 }
+
+/* Reset Timer Bar */
+.reset-bar{
+  background:var(--bg-header);border-bottom:1px solid rgba(138,114,52,0.3);
+  padding:0.35rem 1.5rem;display:flex;gap:1.5rem;justify-content:center;
+  font-size:0.78rem;color:var(--text-secondary);flex-wrap:wrap;
+}
+.reset-timer{display:flex;align-items:center;gap:0.4rem}
+.reset-timer .rt-label{color:var(--text-dim)}
+.reset-timer .rt-value{color:var(--gold);font-weight:600;font-variant-numeric:tabular-nums;min-width:5rem}
+.reset-timer.warning .rt-value{color:var(--orange);animation:pulse-glow 2s ease-in-out infinite}
+@keyframes pulse-glow{0%,100%{opacity:1}50%{opacity:0.6}}
+
+/* Session Planner */
+.session-planner{
+  background:linear-gradient(135deg,#1a2340,#16213e);
+  border:1px solid var(--gold-dim);border-radius:var(--radius);
+  padding:1.25rem 1.5rem;margin-bottom:1.5rem;
+  border-left:4px solid var(--purple);
+}
+.session-planner h2{font-size:1.1rem;margin-bottom:0.75rem;color:var(--purple);display:flex;align-items:center;gap:0.5rem}
+.sp-time-btns{display:flex;gap:0.4rem;margin-bottom:1rem;flex-wrap:wrap}
+.sp-time-btns .filter-btn.active{background:var(--purple);border-color:var(--purple);color:#fff}
+.sp-time-btns .filter-btn:hover{border-color:var(--purple);color:var(--purple)}
+.sp-checklist{display:flex;flex-direction:column;gap:0.4rem}
+.sp-checklist-item{
+  display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.6rem;
+  background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);font-size:0.85rem;
+}
+.sp-checklist-item.session-highlight{background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3)}
+.sp-footer{display:flex;gap:0.75rem;margin-top:1rem;align-items:center;flex-wrap:wrap}
+.sp-total{font-size:0.8rem;color:var(--text-secondary)}
+.session-active .checklist-item:not(.session-highlight){opacity:0.4}
+
+/* Map View */
+.map-group-card{
+  background:var(--bg-card);border:1px solid var(--gold-dim);border-radius:var(--radius);
+  margin-bottom:1rem;overflow:hidden;border-top:3px solid var(--blue);
+}
+.map-group-header{
+  padding:0.75rem 1rem;cursor:pointer;display:flex;align-items:center;
+  justify-content:space-between;gap:0.75rem;
+}
+.map-group-header:hover{background:var(--bg-card-hover)}
+.map-group-header h3{font-size:1rem;color:var(--blue);margin:0}
+.map-group-count{font-size:0.8rem;color:var(--text-secondary)}
+.map-group-body{padding:0 1rem 1rem}
+
+/* Festival Calendar */
+.festival-panel{
+  background:var(--bg-card);border:1px solid var(--gold-dim);border-radius:var(--radius);
+  padding:1.25rem 1.5rem;margin-bottom:1.5rem;
+}
+.festival-panel h2{font-size:1.1rem;margin-bottom:1rem}
+.festival-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:0.75rem}
+.festival-card{
+  padding:0.75rem;background:rgba(0,0,0,0.2);border-radius:var(--radius-sm);
+  border-left:3px solid var(--text-dim);font-size:0.83rem;
+}
+.festival-card.active{border-left-color:var(--green);background:rgba(74,222,128,0.05)}
+.festival-card.next-up{border-left-color:var(--gold);background:rgba(212,168,83,0.05)}
+.festival-card .fv-name{font-weight:600;color:var(--text);margin-bottom:0.2rem}
+.festival-card .fv-dates{font-size:0.75rem;color:var(--text-secondary)}
+.festival-card .fv-status{font-size:0.72rem;font-weight:600;margin-top:0.3rem}
+.festival-card .fv-status.active-status{color:var(--green)}
+.festival-card .fv-status.next-status{color:var(--gold)}
+
+/* Notes */
+.notes-btn{
+  background:none;border:none;color:var(--text-dim);cursor:pointer;
+  font-size:0.8rem;padding:0.2rem;transition:color 0.2s;
+}
+.notes-btn:hover{color:var(--gold)}
+.notes-btn.has-note{color:var(--gold)}
+.note-area{
+  margin-top:0.5rem;margin-left:1.8rem;
+}
+.note-area textarea{
+  width:100%;min-height:50px;padding:0.4rem 0.6rem;
+  background:var(--bg-input);border:1px solid var(--gold-dim);border-radius:var(--radius-sm);
+  color:var(--text);font-family:inherit;font-size:0.8rem;resize:vertical;
+}
+.note-inline{
+  font-size:0.75rem;color:var(--text-secondary);font-style:italic;
+  margin-left:1.8rem;margin-top:0.2rem;padding:0.2rem 0.5rem;
+  background:rgba(212,168,83,0.05);border-radius:var(--radius-sm);
+}
+
+/* Completion dates */
+.completion-date{font-size:0.7rem;color:var(--text-dim);margin-left:0.5rem;font-style:italic}
+
+/* Cost calculator */
+.cost-calc{
+  margin-top:0.75rem;padding:0.75rem;background:rgba(0,0,0,0.15);
+  border-radius:var(--radius-sm);border-left:3px solid var(--orange);
+}
+.cost-calc h4{font-size:0.85rem;color:var(--orange);margin-bottom:0.5rem;font-family:'Cinzel',serif}
+.gold-display{color:var(--gold);font-weight:600}
+.gold-display .gold-coin{color:#d4a853}
+.gold-display .silver-coin{color:#c0c0c0}
+.gold-display .copper-coin{color:#b87333}
+
+/* Share button */
+.share-toast{
+  position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);
+  background:var(--gold);color:var(--bg-body);padding:0.6rem 1.5rem;
+  border-radius:var(--radius);font-weight:600;font-size:0.85rem;
+  z-index:1000;animation:toast-in 0.3s ease;
+}
+@keyframes toast-in{from{opacity:0;transform:translateX(-50%) translateY(1rem)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* Recent activity */
+.recent-activity{margin-top:1rem;border-top:1px solid rgba(138,114,52,0.2);padding-top:0.75rem}
+.recent-activity h3{font-size:0.85rem;color:var(--text-dim);margin-bottom:0.5rem;font-family:'Cinzel',serif}
+.recent-item{font-size:0.78rem;color:var(--text-secondary);padding:0.2rem 0;display:flex;gap:0.5rem}
+.recent-item .ri-date{color:var(--text-dim);flex-shrink:0;min-width:5rem}
+
+/* Mobile improvements */
+button,a.timer-link{touch-action:manipulation}
+@supports(padding: env(safe-area-inset-bottom)){
+  body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+  .site-footer{padding-bottom:calc(1.5rem + env(safe-area-inset-bottom))}
+  .reset-bar{padding-left:calc(1.5rem + env(safe-area-inset-left));padding-right:calc(1.5rem + env(safe-area-inset-right))}
+}
+
+/* Sort Toggle (Feature 1) */
+.sort-toggle{display:flex;align-items:center;gap:0.4rem;margin-left:auto}
+.sort-toggle .sort-label{font-size:0.75rem;color:var(--text-dim);white-space:nowrap}
+.sort-toggle .filter-btn.active{background:var(--gold);color:var(--bg-body);border-color:var(--gold);font-weight:600}
+.pct-badge{
+  display:inline-block;padding:0.1rem 0.4rem;border-radius:8px;
+  font-size:0.7rem;font-weight:700;margin-left:0.4rem;
+  background:rgba(212,168,83,0.15);color:var(--gold);
+}
+.pct-badge.high{background:rgba(74,222,128,0.15);color:var(--green)}
+
+/* Prerequisites (Feature 2) */
+.prereqs-section{
+  margin-top:0.75rem;padding:0.75rem;background:rgba(0,0,0,0.15);
+  border-radius:var(--radius-sm);border-left:3px solid var(--orange);
+}
+.prereqs-section h4{font-size:0.85rem;color:var(--orange);margin-bottom:0.5rem;font-family:'Cinzel',serif}
+.prereq-item{
+  display:flex;align-items:center;gap:0.5rem;padding:0.3rem 0;
+  font-size:0.8rem;border-bottom:1px solid rgba(138,114,52,0.1);
+}
+.prereq-item:last-child{border-bottom:none}
+.prereq-item .prereq-bar{width:80px;height:6px;background:var(--progress-bg);border-radius:3px;overflow:hidden;flex-shrink:0}
+.prereq-item .prereq-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:3px}
+.badge-blocked{background:#3a1a1a;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:0.05em}
+
+/* AP Efficiency (Feature 3) */
+.ap-efficiency{
+  background:linear-gradient(135deg,#1a2340,#16213e);
+  border:1px solid var(--gold-dim);border-radius:var(--radius);
+  padding:1.25rem 1.5rem;margin-bottom:1.5rem;
+  border-left:4px solid var(--orange);
+}
+.ap-efficiency h2{font-size:1.1rem;margin-bottom:0.75rem;color:var(--orange);display:flex;align-items:center;gap:0.5rem;cursor:pointer}
+.ap-efficiency .ap-body{display:none}
+.ap-efficiency .ap-body.open{display:block}
+.ap-row{
+  display:flex;align-items:center;gap:0.75rem;padding:0.4rem 0.5rem;
+  border-bottom:1px solid rgba(138,114,52,0.1);font-size:0.83rem;
+}
+.ap-row:last-child{border-bottom:none}
+.ap-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.ap-stat{font-size:0.75rem;color:var(--text-secondary);min-width:50px;text-align:right;flex-shrink:0}
+.ap-ratio{font-size:0.8rem;color:var(--gold);font-weight:600;min-width:60px;text-align:right;flex-shrink:0}
+
+/* Browse Reward Filters (Feature 4) */
+.browse-filters{display:flex;gap:0.3rem;flex-wrap:wrap;margin-bottom:0.75rem}
+.browse-filters .filter-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.browse-filters .filter-btn:hover{border-color:var(--blue);color:var(--blue)}
+
+/* Progress Stats Dashboard (Feature 6) */
+.progress-stats{
+  background:var(--bg-card);border:1px solid var(--gold-dim);border-radius:var(--radius);
+  padding:1.25rem 1.5rem;margin-bottom:1.5rem;
+}
+.progress-stats h2{font-size:1.1rem;margin-bottom:0.75rem;cursor:pointer;display:flex;align-items:center;gap:0.5rem}
+.progress-stats .ps-body{display:none}
+.progress-stats .ps-body.open{display:block}
+.ps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.75rem;margin-bottom:1rem}
+.ps-stat{padding:0.6rem 0.75rem;background:rgba(0,0,0,0.2);border-radius:var(--radius-sm)}
+.ps-stat .ps-value{font-size:1.3rem;color:var(--gold);font-weight:700;font-family:'Cinzel',serif}
+.ps-stat .ps-label{font-size:0.75rem;color:var(--text-secondary);margin-top:0.2rem}
+.ascii-bar{font-family:'Consolas','Courier New',monospace;font-size:0.8rem;color:var(--text-dim);margin-top:0.5rem}
+.ascii-bar .filled{color:var(--gold)}
+
+/* Hidden Tasks (Feature 7) */
+.hide-task-btn{
+  background:none;border:none;color:var(--text-dim);cursor:pointer;
+  font-size:0.75rem;padding:0.2rem;transition:color 0.2s;opacity:0.5;
+}
+.hide-task-btn:hover{color:var(--gold);opacity:1}
+.checklist-item.hidden-task{display:none}
+.checklist-item.hidden-task.show-hidden{display:flex;opacity:0.4}
+.show-hidden-toggle{
+  font-size:0.78rem;color:var(--text-dim);cursor:pointer;
+  background:none;border:1px dashed var(--text-dim);border-radius:var(--radius-sm);
+  padding:0.3rem 0.75rem;margin-top:0.3rem;transition:all 0.2s;
+}
+.show-hidden-toggle:hover{color:var(--gold);border-color:var(--gold)}
+
+/* Blocked-By Indicators (Feature 8) */
+.blocked-indicator{
+  display:inline-flex;align-items:center;gap:0.3rem;
+  font-size:0.7rem;color:var(--red);font-weight:600;
+}
+.blocked-indicator .blocked-text{font-size:0.68rem;color:var(--text-dim);font-weight:400}
+.checklist-item.blocked-item .cb-box{opacity:0.3;border-color:var(--red)}
+.checklist-item.blocked-item .item-name{opacity:0.5}
+
+/* ========== Celebration Animations ========== */
+@keyframes confetti-burst{
+  0%{transform:translate(0,0) rotate(0deg) scale(1);opacity:1}
+  100%{opacity:0}
+}
+@keyframes task-flash{
+  0%{box-shadow:0 0 0 0 rgba(212,168,83,0)}
+  30%{box-shadow:0 0 12px 4px rgba(212,168,83,0.5)}
+  100%{box-shadow:0 0 0 0 rgba(212,168,83,0)}
+}
+@keyframes ach-banner-in{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(0.7)}
+  100%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+}
+@keyframes ach-banner-out{
+  0%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.1)}
+}
+@keyframes shimmer{
+  0%{background-position:-200% 0}
+  100%{background-position:200% 0}
+}
+.celebrating{animation:task-flash 0.5s ease}
+.confetti-particle{
+  position:absolute;width:6px;height:6px;border-radius:2px;
+  pointer-events:none;will-change:transform,opacity;
+  animation:confetti-burst 1.5s ease-out forwards;
+  z-index:1000;
+}
+.ach-complete-banner{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  z-index:2000;padding:1.5rem 3rem;
+  background:linear-gradient(135deg,#2a1f0a,#1a1530);
+  border:2px solid var(--gold);border-radius:var(--radius);
+  font-family:'Cinzel',Georgia,serif;font-size:1.5rem;color:var(--gold);
+  text-align:center;pointer-events:none;will-change:transform,opacity;
+  animation:ach-banner-in 0.4s ease forwards;
+}
+.ach-complete-banner .shimmer-bar{
+  height:3px;margin-top:0.75rem;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--gold-light),transparent);
+  background-size:200% 100%;
+  animation:shimmer 1.5s linear infinite;
+}
+.ach-complete-banner.fade-out{animation:ach-banner-out 0.5s ease forwards}
+
+/* ========== Completion Heatmap Calendar ========== */
+.heatmap-section{margin-top:1rem}
+.heatmap-section h3{font-size:0.85rem;color:var(--text-dim);margin-bottom:0.5rem;font-family:'Cinzel',serif}
+.heatmap-grid{display:grid;grid-template-columns:auto repeat(13,1fr);gap:2px;font-size:0.65rem}
+.heatmap-label{color:var(--text-dim);text-align:right;padding-right:4px;line-height:12px;height:12px}
+.heatmap-month{color:var(--text-dim);text-align:center;font-size:0.6rem;height:14px;line-height:14px}
+.heatmap-cell{width:12px;height:12px;border-radius:2px;cursor:default;position:relative}
+.heatmap-cell.level-0{background:#2a2a3e}
+.heatmap-cell.level-1{background:rgba(212,168,83,0.3)}
+.heatmap-cell.level-2{background:rgba(212,168,83,0.55)}
+.heatmap-cell.level-3{background:rgba(212,168,83,0.85)}
+.heatmap-tooltip{
+  position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:#0f0f23;border:1px solid var(--gold-dim);border-radius:var(--radius-sm);
+  padding:0.25rem 0.5rem;font-size:0.7rem;color:var(--text);white-space:nowrap;
+  pointer-events:none;z-index:10;display:none;
+}
+.heatmap-cell:hover .heatmap-tooltip{display:block}
+
+/* ========== Progress Chart ========== */
+.chart-section{margin-top:1rem;border-top:1px solid rgba(138,114,52,0.2);padding-top:0.75rem}
+.chart-section h3{
+  font-size:0.85rem;color:var(--text-dim);margin-bottom:0.5rem;font-family:'Cinzel',serif;
+  cursor:pointer;display:flex;align-items:center;gap:0.5rem;
+}
+.chart-section h3 .chart-chevron{font-size:0.7rem;transition:transform 0.3s;color:var(--text-dim)}
+.chart-section h3[aria-expanded="false"] .chart-chevron{transform:rotate(-90deg)}
+.chart-body{transition:max-height 0.3s ease}
+.chart-body.collapsed{max-height:0;overflow:hidden}
+.chart-canvas{width:100%;height:200px;display:block}
+.chart-empty{font-size:0.8rem;color:var(--text-dim);padding:1rem 0;text-align:center}
+
+/* ========== Compact/Detailed View Toggle ========== */
+.view-density-group{display:flex;gap:0.25rem}
+.compact-mode .checklist-item{padding:0.3rem 0.5rem}
+.compact-mode .badge{display:none}
+.compact-mode .time-est{display:none}
+.compact-mode .expand-btn{display:none}
+.compact-mode .item-episode{display:none}
+.compact-mode .item-details{display:none!important}
+.compact-mode .notes-btn{display:none}
+.compact-mode .hide-task-btn{display:none}
+.compact-mode .note-inline{display:none}
+.compact-mode .note-area{display:none!important}
+.compact-mode .blocked-indicator{display:none}
+.compact-mode .item-right{gap:0.25rem}
+.compact-mode .completion-date{display:none}
+
+/* ========== Keyboard Shortcuts Overlay ========== */
+.kbd-overlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.8);z-index:3000;display:flex;
+  align-items:center;justify-content:center;
+}
+.kbd-overlay-inner{
+  background:var(--bg-card);border:1px solid var(--gold-dim);border-radius:var(--radius);
+  padding:2rem 2.5rem;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;
+}
+.kbd-overlay-inner h2{font-size:1.2rem;margin-bottom:1rem;text-align:center}
+.kbd-grid{display:grid;grid-template-columns:auto 1fr;gap:0.5rem 1.5rem;align-items:center}
+.kbd-key{
+  display:inline-block;padding:0.2rem 0.5rem;background:var(--bg-input);
+  border:1px solid var(--gold-dim);border-radius:var(--radius-sm);
+  font-family:'Consolas','Courier New',monospace;font-size:0.8rem;
+  color:var(--gold);text-align:center;min-width:2rem;white-space:nowrap;
+}
+.kbd-desc{font-size:0.85rem;color:var(--text-secondary)}
+.kbd-hint{font-size:0.7rem;color:var(--text-dim);font-style:italic}
+
+/* Keyboard focused checklist item */
+.checklist-item.keyboard-focused{
+  outline:2px solid var(--gold);outline-offset:1px;
+  background:rgba(212,168,83,0.06);
+}
+
+/* ========== Undo Toast ========== */
+.undo-toast{
+  position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);
+  background:var(--bg-card);border:1px solid var(--gold-dim);
+  color:var(--text);padding:0.6rem 1.5rem;border-radius:var(--radius);
+  font-size:0.85rem;z-index:1500;pointer-events:none;
+  animation:undo-toast-anim 2s ease forwards;
+}
+@keyframes undo-toast-anim{
+  0%{opacity:0;transform:translateX(-50%) translateY(1rem)}
+  15%{opacity:1;transform:translateX(-50%) translateY(0)}
+  75%{opacity:1;transform:translateX(-50%) translateY(0)}
+  100%{opacity:0;transform:translateX(-50%) translateY(-0.5rem)}
+}
+
+/* ========== Bulk Operations ========== */
+.bulk-select-btn{
+  padding:0.35rem 0.75rem;border-radius:var(--radius-sm);border:1px solid var(--blue);
+  background:transparent;color:var(--blue);font-family:inherit;font-size:0.8rem;
+  cursor:pointer;transition:all 0.2s;
+}
+.bulk-select-btn:hover{background:rgba(96,165,250,0.15)}
+.bulk-select-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+.bulk-cb{
+  width:18px;height:18px;border:2px solid var(--blue);border-radius:3px;
+  flex-shrink:0;cursor:pointer;display:none;align-items:center;justify-content:center;
+  transition:all 0.2s;margin-right:0.25rem;
+}
+.bulk-mode .bulk-cb{display:flex}
+.bulk-cb.selected{background:var(--blue);border-color:var(--blue)}
+.bulk-cb.selected::after{
+  content:'';display:block;width:5px;height:9px;
+  border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);
+  margin-top:-2px;
+}
+
+.bulk-action-bar{
+  position:fixed;bottom:0;left:0;width:100%;
+  background:var(--bg-header);border-top:2px solid var(--blue);
+  padding:0.75rem 1.5rem;display:flex;align-items:center;
+  justify-content:center;gap:1rem;z-index:1500;
+  animation:slide-up 0.2s ease;
+}
+@keyframes slide-up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.bulk-action-bar .bulk-count{font-size:0.85rem;color:var(--text);font-weight:600}
+.bulk-action-bar .btn{min-width:100px}
+
+/* ========== Print Mode ========== */
+@media print{
+  *{transition:none!important;animation:none!important}
+  body{background:#fff!important;color:#000!important;font-size:12pt;line-height:1.4}
+  .site-header,.site-footer,.api-bar,.filter-bar,.session-planner,.reset-bar,
+  .do-next,.timers-section,.combos-section,#shoppingList,
+  .achievement-card[style*="border-top-color:var(--blue)"],
+  .btn,.expand-btn,.counter-btn,.notes-btn,.hide-task-btn,.copy-btn,
+  .bulk-action-bar,.bulk-cb,.kbd-overlay,.undo-toast,.share-toast,
+  .ap-efficiency,.progress-stats,#apEfficiencyPanel,#progressStatsPanel,
+  #dynamicPanels,.bulk-select-btn{display:none!important}
+  .main-content{padding:0!important;max-width:none!important}
+  .achievement-card{
+    background:#fff!important;border:1px solid #ccc!important;
+    border-top:2px solid #999!important;margin-bottom:0.5rem!important;
+    box-shadow:none!important;page-break-before:always;
+  }
+  .achievement-card:first-child{page-break-before:auto}
+  .card-body{max-height:none!important;overflow:visible!important}
+  .card-body.open{display:block}
+  .card-header{background:none!important}
+  .card-title-area h2{color:#333!important;font-size:14pt!important}
+  .card-subtitle{color:#666!important}
+  .card-chevron{display:none!important}
+  .progress-text{color:#333!important}
+  .progress-bar{border:1px solid #999}
+  .progress-fill{background:#999!important}
+  .checklist-item{padding:0.25rem 0.3rem!important;border:none!important;outline:none!important}
+  .checklist-item.done{opacity:0.7!important}
+  .checklist-item.filtered-out{display:none!important}
+  .cb-label input[type="checkbox"]{display:none!important}
+  .cb-box{display:none!important}
+  .cb-label::before{
+    content:'\2610';font-size:1.1rem;margin-right:0.3rem;color:#333;
+  }
+  .checklist-item.done .cb-label::before{content:'\2611'}
+  .item-name{color:#000!important;font-size:10pt!important}
+  .item-episode{color:#666!important}
+  .item-details{display:none!important}
+  .item-right{display:none!important}
+  .note-area{display:none!important}
+  .note-inline{color:#666!important;background:none!important}
+  .badge{border:1px solid #999!important;background:none!important;color:#333!important}
+  .tier-row{margin-bottom:0.3rem!important}
+  .tier-dot{border-color:#999!important;color:#333!important;background:none!important}
+  .tier-dot.reached{border-color:#333!important;font-weight:700}
+  .sub-header{color:#333!important;border-bottom-color:#ccc!important}
+  .sub-body{max-height:none!important;overflow:visible!important}
+  .sub-body.collapsed{max-height:none!important;overflow:visible!important}
+  .blocked-indicator{display:none!important}
+  a{color:#333!important;text-decoration:none!important}
+  #pinnedCards{page-break-before:auto}
+  .pct-badge{display:none!important}
+}
+
+/* ========== PWA Install Button ========== */
+.pwa-install-btn{
+  display:none;padding:0.45rem 1rem;border-radius:var(--radius-sm);border:1px solid var(--gold);
+  background:transparent;color:var(--gold);font-family:inherit;font-size:0.8rem;
+  cursor:pointer;transition:all 0.2s;white-space:nowrap;
+}
+.pwa-install-btn:hover{background:var(--gold);color:var(--bg-body)}
+.pwa-install-btn.visible{display:inline-flex;align-items:center;gap:0.4rem}
+
+/* ========== Notification Toggle ========== */
+.notif-toggle-btn{
+  padding:0.45rem 1rem;border-radius:var(--radius-sm);border:1px solid var(--text-dim);
+  background:transparent;color:var(--text-secondary);font-family:inherit;font-size:0.8rem;
+  cursor:pointer;transition:all 0.2s;white-space:nowrap;
+}
+.notif-toggle-btn:hover{border-color:var(--gold);color:var(--gold)}
+.notif-toggle-btn.active{border-color:var(--green);color:var(--green);background:rgba(74,222,128,0.1)}
+.notif-status{font-size:0.7rem;color:var(--text-dim);margin-top:0.3rem}
+
+/* ========== Gold Farming Guide ========== */
+.gold-farming-guide{
+  background:var(--bg-card);border:1px solid var(--gold-dim);border-radius:var(--radius);
+  padding:1.25rem 1.5rem;margin-bottom:1.5rem;border-left:4px solid var(--orange);
+}
+.gold-farming-guide h2{font-size:1.1rem;margin-bottom:0.75rem;color:var(--orange);cursor:pointer;display:flex;align-items:center;gap:0.5rem}
+.gold-farming-guide .gfg-body{display:none}
+.gold-farming-guide .gfg-body.open{display:block}
+.gfg-summary{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.75rem;margin-bottom:1rem;
+}
+.gfg-stat{padding:0.6rem 0.75rem;background:rgba(0,0,0,0.2);border-radius:var(--radius-sm)}
+.gfg-stat .gfg-value{font-size:1.2rem;color:var(--gold);font-weight:700;font-family:'Cinzel',serif}
+.gfg-stat .gfg-label{font-size:0.75rem;color:var(--text-secondary);margin-top:0.2rem}
+.gfg-methods{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;margin-bottom:1rem}
+.gfg-method{
+  padding:0.75rem;background:rgba(0,0,0,0.2);border-radius:var(--radius-sm);
+  border-left:3px solid var(--gold-dim);
+}
+.gfg-method .gfm-name{font-weight:600;color:var(--text);font-size:0.88rem;margin-bottom:0.2rem}
+.gfg-method .gfm-rate{font-size:0.78rem;color:var(--gold)}
+.gfg-method .gfm-note{font-size:0.72rem;color:var(--text-dim);margin-top:0.3rem;font-style:italic}
+.gfg-method.synergy{border-left-color:var(--green);background:rgba(74,222,128,0.05)}
+.gfg-funded{margin-top:0.75rem;padding:0.75rem;background:rgba(0,0,0,0.15);border-radius:var(--radius-sm)}
+.gfg-funded .gff-title{font-size:0.85rem;color:var(--text);font-weight:600;margin-bottom:0.5rem}
+.gfg-funded select{
+  padding:0.35rem 0.5rem;background:var(--bg-input);border:1px solid var(--gold-dim);
+  border-radius:var(--radius-sm);color:var(--text);font-family:inherit;font-size:0.8rem;
+}
+.gfg-funded .gff-result{font-size:0.9rem;color:var(--gold);font-weight:600;margin-top:0.5rem}
+
+/* ========== Achievement Rarity Labels ========== */
+.rarity-label{
+  display:inline-block;padding:0.1rem 0.4rem;border-radius:8px;
+  font-size:0.65rem;font-weight:600;letter-spacing:0.03em;margin-left:0.3rem;
+}
+.rarity-common{background:rgba(158,154,142,0.15);color:#9e9a8e}
+.rarity-uncommon{background:rgba(74,222,128,0.15);color:#4ade80}
+.rarity-rare{background:rgba(96,165,250,0.15);color:#60a5fa}
+.rarity-very-rare{background:rgba(167,139,250,0.15);color:#a78bfa}
+.rarity-ultra-rare{
+  background:rgba(212,168,83,0.2);color:var(--gold);
+  box-shadow:0 0 6px rgba(212,168,83,0.4);
+  animation:rarity-glow 2s ease-in-out infinite;
+}
+@keyframes rarity-glow{0%,100%{box-shadow:0 0 6px rgba(212,168,83,0.4)}50%{box-shadow:0 0 12px rgba(212,168,83,0.7)}}
 </style>
 </head>
 <body>
@@ -363,8 +877,38 @@ a:hover{text-decoration:underline}
   </div>
 </div>
 
+<!-- RESET TIMER BAR -->
+<div class="reset-bar" id="resetBar">
+  <div class="reset-timer" id="dailyResetTimer">
+    <span class="rt-label">Daily reset in:</span>
+    <span class="rt-value" id="dailyResetValue">--</span>
+  </div>
+  <div class="reset-timer" id="weeklyResetTimer">
+    <span class="rt-label">Weekly reset in:</span>
+    <span class="rt-value" id="weeklyResetValue">--</span>
+  </div>
+</div>
+
 <!-- MAIN CONTENT -->
 <div class="main-content">
+
+  <!-- SESSION PLANNER -->
+  <section class="session-planner" id="sessionPlanner" style="display:none">
+    <h2>&#128337; Session Planner</h2>
+    <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.75rem">I have time to play:</div>
+    <div class="sp-time-btns" id="spTimeBtns">
+      <button class="filter-btn" data-minutes="30" onclick="selectSessionTime(30,this)">30 min</button>
+      <button class="filter-btn" data-minutes="60" onclick="selectSessionTime(60,this)">1 hour</button>
+      <button class="filter-btn" data-minutes="120" onclick="selectSessionTime(120,this)">2 hours</button>
+      <button class="filter-btn" data-minutes="240" onclick="selectSessionTime(240,this)">4+ hours</button>
+    </div>
+    <div class="sp-checklist" id="spChecklist"></div>
+    <div class="sp-footer" id="spFooter" style="display:none">
+      <span class="sp-total" id="spTotal"></span>
+      <button class="btn btn-sm" style="border-color:var(--purple);color:var(--purple)" id="startSessionBtn" onclick="startSession()">Start Session</button>
+      <button class="btn btn-sm" id="clearSessionBtn" onclick="clearSession()" style="display:none">End Session</button>
+    </div>
+  </section>
 
   <!-- DO NEXT PANEL -->
   <section class="do-next" id="doNextPanel">
@@ -397,7 +941,27 @@ a:hover{text-decoration:underline}
       </select>
     </div>
     <input type="text" class="search-input" id="searchInput" placeholder="Search tasks...">
+    <button class="bulk-select-btn" id="bulkSelectBtn" onclick="toggleBulkMode()">Bulk Select</button>
+    <button class="filter-btn" id="showHiddenBtn" onclick="toggleShowHidden()" style="display:none">Show hidden (0)</button>
+    <div class="sort-toggle" id="sortToggle" style="display:none">
+      <span class="sort-label">Sort:</span>
+      <div class="filter-group">
+        <button class="filter-btn active" data-sort="priority" onclick="setSortMode('priority',this)">Priority</button>
+        <button class="filter-btn" data-sort="nearest" onclick="setSortMode('nearest',this)">Nearest to Done</button>
+      </div>
+    </div>
+    <div class="filter-group view-density-group" id="viewDensityGroup">
+      <button class="filter-btn active" data-density="detailed" onclick="setViewDensity('detailed',this)">Detailed</button>
+      <button class="filter-btn" data-density="compact" onclick="setViewDensity('compact',this)">Compact</button>
+    </div>
+    <div class="filter-group" id="viewModeGroup">
+      <button class="filter-btn active" data-view="achievement" onclick="setViewMode('achievement',this)">By Achievement</button>
+      <button class="filter-btn" data-view="map" onclick="setViewMode('map',this)">By Map</button>
+    </div>
   </div>
+
+  <!-- MAP VIEW (rendered by JS) -->
+  <div id="mapView" style="display:none"></div>
 
   <!-- ACHIEVEMENT CARDS (rendered by JS) -->
   <div id="achievementCards"></div>
@@ -405,8 +969,14 @@ a:hover{text-decoration:underline}
   <!-- PINNED CUSTOM ACHIEVEMENTS -->
   <div id="pinnedCards"></div>
 
+  <!-- AP EFFICIENCY PANEL (Feature 3) -->
+  <div id="apEfficiencyPanel"></div>
+
   <!-- DYNAMIC PANELS (rendered by JS) -->
   <div id="dynamicPanels"></div>
+
+  <!-- PROGRESS STATS DASHBOARD (Feature 6) -->
+  <div id="progressStatsPanel"></div>
 </div>
 
 <!-- BROWSE & ADD ACHIEVEMENTS -->
@@ -429,6 +999,14 @@ a:hover{text-decoration:underline}
             <button class="btn btn-primary btn-sm" onclick="lookupAchievementById()">Look Up ID</button>
           </div>
           <div id="searchIndexStatus" style="font-size:0.7rem;color:var(--text-dim);margin-top:0.3rem"></div>
+        </div>
+        <!-- Browse Reward Filters -->
+        <div class="browse-filters" id="browseRewardFilters" style="display:none">
+          <button class="filter-btn btn-sm active" data-reward-filter="all" onclick="setBrowseRewardFilter('all',this)">All</button>
+          <button class="filter-btn btn-sm" data-reward-filter="skins" onclick="setBrowseRewardFilter('skins',this)">Has Skins</button>
+          <button class="filter-btn btn-sm" data-reward-filter="titles" onclick="setBrowseRewardFilter('titles',this)">Has Titles</button>
+          <button class="filter-btn btn-sm" data-reward-filter="highap" onclick="setBrowseRewardFilter('highap',this)">High AP (10+)</button>
+          <button class="filter-btn btn-sm" data-reward-filter="mastery" onclick="setBrowseRewardFilter('mastery',this)">Mastery Points</button>
         </div>
         <!-- Search results -->
         <div id="searchResults" style="max-height:300px;overflow-y:auto;display:none;margin-bottom:1rem;border:1px solid var(--gold-dim);border-radius:var(--radius-sm)"></div>
@@ -456,11 +1034,23 @@ a:hover{text-decoration:underline}
 <!-- FOOTER -->
 <footer class="site-footer">
   <div class="footer-actions">
+    <button class="btn" id="shareBtn">Share Progress</button>
     <button class="btn" id="exportBtn">Export Progress</button>
     <button class="btn" id="importBtn">Import Progress</button>
     <button class="btn btn-danger" id="resetBtn">Reset All Progress</button>
+    <button class="btn" id="printBtn" onclick="window.print()">Print Checklist</button>
+    <button class="pwa-install-btn" id="pwaInstallBtn" title="Install as app">&#128228; Install App</button>
+    <button class="notif-toggle-btn" id="notifToggleBtn" title="Toggle browser notifications">&#128276; Notifications</button>
   </div>
+  <div class="notif-status" id="notifStatus"></div>
   <div class="footer-info">Progress saved in your browser's localStorage. Use Export to back up. | Data sourced from <a href="https://wiki.guildwars2.com" target="_blank" rel="noopener">GW2 Wiki</a>.</div>
+  <div class="footer-info" style="margin-top:0.5rem">
+    <label style="cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem">
+      <input type="checkbox" id="celebrationsToggle" checked onchange="toggleCelebrations(this.checked)" style="accent-color:var(--gold)">
+      <span>Celebration animations</span>
+    </label>
+  </div>
+  <div class="footer-info kbd-hint" style="margin-top:0.5rem">Keyboard shortcuts: ?</div>
 </footer>
 
 <script>
@@ -1463,7 +2053,7 @@ function getDefaultState() {
     });
   });
   ACHIEVEMENTS.otter.prerequisites.forEach(p => { checked[p.key] = false; });
-  return { version: 2, checkedItems: checked, otterCount: 0, completionFilter: 'all', difficultyFilter: 'all' };
+  return { version: 2, checkedItems: checked, otterCount: 0, completionFilter: 'all', difficultyFilter: 'all', completionDates: {}, notes: {}, viewMode: 'achievement', sessionMinutes: null, sessionActive: false, sessionTasks: [], hiddenTasks: [], sortMode: 'priority', showHidden: false, celebrationsEnabled: true, viewDensity: 'detailed' };
 }
 
 function loadState() {
@@ -1477,6 +2067,18 @@ function loadState() {
       if (!(k in saved.checkedItems)) saved.checkedItems[k] = def.checkedItems[k];
     });
     if (saved.otterCount == null) saved.otterCount = 0;
+    if (!saved.completionDates) saved.completionDates = {};
+    if (!saved.notes) saved.notes = {};
+    if (!saved.viewMode) saved.viewMode = 'achievement';
+    if (saved.sessionMinutes == null) saved.sessionMinutes = null;
+    if (saved.sessionActive == null) saved.sessionActive = false;
+    if (!saved.sessionTasks) saved.sessionTasks = [];
+    if (!saved.hiddenTasks) saved.hiddenTasks = [];
+    if (!saved.sortMode) saved.sortMode = 'priority';
+    if (saved.showHidden == null) saved.showHidden = false;
+    if (!saved.pinnedPrereqs) saved.pinnedPrereqs = {};
+    if (saved.celebrationsEnabled == null) saved.celebrationsEnabled = true;
+    if (!saved.viewDensity) saved.viewDensity = 'detailed';
     return saved;
   } catch(e) { return getDefaultState(); }
 }
@@ -1611,6 +2213,10 @@ function renderChecklistCard(achievementKey) {
 function renderChecklistItem(item, achievementKey) {
   const checked = state.checkedItems[item.key] ? 'checked' : '';
   const doneClass = state.checkedItems[item.key] ? 'done' : '';
+  const isHidden = (state.hiddenTasks || []).includes(item.key);
+  const hiddenClass = isHidden ? ' hidden-task' + (state.showHidden ? ' show-hidden' : '') : '';
+  const isBlocked = item.blockedBy && !state.checkedItems[item.blockedBy];
+  const blockedClass = isBlocked ? ' blocked-item' : '';
   const searchText = [item.name, item.map, item.vendor, item.episode, item.location, item.cost].filter(Boolean).join(' ').toLowerCase();
 
   let detailRows = '';
@@ -1653,21 +2259,36 @@ function renderChecklistItem(item, achievementKey) {
     detailRows += `</div>`;
   }
 
+  const completionDateHtml = state.checkedItems[item.key] && state.completionDates[item.key] ? `<span class="completion-date">${formatCompletionDate(state.completionDates[item.key])}</span>` : '';
+  const hasNote = state.notes[item.key] ? ' has-note' : '';
+  const noteInline = state.notes[item.key] ? `<div class="note-inline">${escapeHtml(state.notes[item.key])}</div>` : '';
+
+  const blockedBadge = isBlocked ? `<span class="blocked-indicator"><span class="badge badge-blocked">BLOCKED</span></span>` : '';
+  const blockedByName = isBlocked ? getAllChecklistItems().find(i => i.key === item.blockedBy) : null;
+  const blockedByHtml = isBlocked && blockedByName ? `<div style="font-size:0.7rem;color:var(--text-dim);margin-left:1.8rem">Requires: ${blockedByName.name}</div>` : '';
+
   return `
-    <div class="checklist-item ${doneClass}" data-key="${item.key}" data-difficulty="${item.difficulty}" data-achievement="${achievementKey}" data-search="${searchText}">
+    <div class="checklist-item ${doneClass}${hiddenClass}${blockedClass}" data-key="${item.key}" data-difficulty="${item.difficulty}" data-achievement="${achievementKey}" data-search="${searchText}">
+      <div class="bulk-cb" onclick="event.stopPropagation();toggleBulkItem('${item.key}',this)"></div>
       <label class="cb-label">
         <input type="checkbox" ${checked} onchange="onCheck('${item.key}','${achievementKey}',this.checked)">
         <span class="cb-box"></span>
         <div class="item-info">
-          <div class="item-name">${item.name}</div>
+          <div class="item-name">${item.name}${completionDateHtml}</div>
           ${item.episode ? `<div class="item-episode">${item.episode}</div>` : ''}
         </div>
       </label>
       <div class="item-right">
+        ${blockedBadge}
         <span class="badge badge-${item.difficulty}">${item.difficulty}</span>
         <span class="time-est">${item.time || ''}</span>
+        <button class="hide-task-btn" onclick="event.stopPropagation();toggleHideTask('${item.key}')" title="${isHidden ? 'Unhide task' : 'Hide task'}">&#128065;</button>
+        <button class="notes-btn${hasNote}" onclick="toggleNoteArea(this,'${item.key}')" title="Add note">&#128221;</button>
         <button class="expand-btn" onclick="toggleDetails(this)" title="Show details">&#9662;</button>
       </div>
+      ${blockedByHtml}
+      ${noteInline}
+      <div class="note-area" style="display:none"><textarea placeholder="Add a note..." oninput="saveNote('${item.key}',this.value)">${escapeHtml(state.notes[item.key] || '')}</textarea></div>
       <div class="item-details">${detailRows}</div>
     </div>`;
 }
@@ -1785,6 +2406,9 @@ function renderDynamicPanels() {
     }
   }
 
+  // Festival calendar
+  html += renderFestivalCalendar();
+
   container.innerHTML = html;
 }
 
@@ -1793,26 +2417,110 @@ function renderAll() {
   renderHeaderProgress();
   renderDoNext();
   renderShoppingList();
+  renderCostCalculator();
+  renderAPEfficiency();
   renderDynamicPanels();
   renderPinnedAchievements();
+  renderSessionPlannerVisibility();
+  renderSortToggleVisibility();
+  renderHiddenToggleVisibility();
+  renderViewMode();
   applyFilters();
+  restoreSessionState();
+  renderProgressStats();
+  applyViewDensity();
+}
+
+function renderSessionPlannerVisibility() {
+  const planner = document.getElementById('sessionPlanner');
+  const hasActive = ['seasons','gizmos','otter'].some(k => isEnrichedPinned(k));
+  planner.style.display = hasActive ? '' : 'none';
+  if (hasActive && state.sessionMinutes) {
+    // Restore selected time button
+    document.querySelectorAll('#spTimeBtns .filter-btn').forEach(b => {
+      b.classList.toggle('active', parseInt(b.dataset.minutes) === state.sessionMinutes);
+    });
+    renderSessionPlan();
+  }
+}
+
+function restoreSessionState() {
+  if (state.sessionActive && state.sessionTasks && state.sessionTasks.length) {
+    document.getElementById('startSessionBtn').style.display = 'none';
+    document.getElementById('clearSessionBtn').style.display = '';
+    document.body.classList.add('session-active');
+    state.sessionTasks.forEach(key => {
+      const el = document.querySelector(`.checklist-item[data-key="${key}"]`);
+      if (el) el.classList.add('session-highlight');
+    });
+  }
 }
 
 /* ========== INTERACTIONS ========== */
 
 function onCheck(key, achievementKey, checked) {
+  // Push to undo stack BEFORE changing state
+  const allItemsForUndo = getAllChecklistItems();
+  const undoItem = allItemsForUndo.find(function(i) { return i.key === key; });
+  const undoName = undoItem ? undoItem.name : key;
+  pushUndo({type: checked ? 'check' : 'uncheck', key: key, achievement: achievementKey, name: undoName, previousDate: state.completionDates[key]});
+
+  const prevTier = achievementKey !== 'otter' ? getCurrentTier(achievementKey) : 0;
   state.checkedItems[key] = checked;
+  // Record completion date
+  if (checked) {
+    state.completionDates[key] = new Date().toISOString();
+  } else {
+    delete state.completionDates[key];
+  }
   saveState();
   // Update item visual
   const el = document.querySelector(`[data-key="${key}"]`);
-  if (el) { el.classList.toggle('done', checked); }
+  if (el) {
+    el.classList.toggle('done', checked);
+    // Celebration: task flash
+    if (checked) triggerTaskFlash(el);
+    // Update completion date display
+    const dateEl = el.querySelector('.completion-date');
+    if (checked && state.completionDates[key]) {
+      const dateStr = formatCompletionDate(state.completionDates[key]);
+      if (dateEl) { dateEl.textContent = dateStr; }
+      else {
+        const nameEl = el.querySelector('.item-name');
+        if (nameEl) { nameEl.insertAdjacentHTML('afterend', '<span class="completion-date">' + dateStr + '</span>'); }
+      }
+    } else if (dateEl) { dateEl.remove(); }
+  }
   updateProgress(achievementKey);
+  // Celebration: tier milestone
+  if (checked && achievementKey !== 'otter') {
+    const newTier = getCurrentTier(achievementKey);
+    if (newTier > prevTier) {
+      const tierDots = document.querySelectorAll('#tiers-' + achievementKey + ' .tier-dot');
+      const dotEl = tierDots[newTier - 1];
+      if (dotEl) triggerConfetti(dotEl);
+    }
+  }
+  // Celebration: 100% achievement complete
+  if (checked && achievementKey !== 'otter') {
+    const ach = ACHIEVEMENTS[achievementKey];
+    if (ach && countCompleted(achievementKey) === ach.total) {
+      triggerAchievementComplete();
+    }
+  }
   renderHeaderProgress();
   renderDoNext();
+  renderShoppingList();
+  renderCostCalculator();
+  if (state.viewMode === 'map') renderMapView();
   applyFilters();
 }
 
 function updateOtter(val) {
+  // Push to undo stack BEFORE changing state
+  pushUndo({type: 'otter', previousValue: state.otterCount});
+
+  const prevTier = getCurrentTier('otter');
   state.otterCount = Math.max(0, Math.min(320, val));
   saveState();
   document.getElementById('otterInput').value = state.otterCount;
@@ -1827,6 +2535,17 @@ function updateOtter(val) {
   });
   // Update tier dots
   updateTierDots('otter');
+  // Celebration: tier milestone
+  const newTier = getCurrentTier('otter');
+  if (newTier > prevTier) {
+    const tierDots = document.querySelectorAll('#tiers-otter .tier-dot');
+    const dotEl = tierDots[newTier - 1];
+    if (dotEl) triggerConfetti(dotEl);
+  }
+  // Celebration: 100%
+  if (state.otterCount >= 320 && prevTier < ACHIEVEMENTS.otter.tiers.length) {
+    triggerAchievementComplete();
+  }
   renderHeaderProgress();
   renderDoNext();
 }
@@ -1878,18 +2597,23 @@ function applyFilters() {
   const compFilter = state.completionFilter || 'all';
   const diffFilter = state.difficultyFilter || 'all';
   const search = (document.getElementById('searchInput').value || '').toLowerCase();
+  const hiddenTasks = state.hiddenTasks || [];
 
   document.querySelectorAll('.checklist-item').forEach(el => {
     const key = el.dataset.key;
     const done = state.checkedItems[key];
     const diff = el.dataset.difficulty;
     const searchText = el.dataset.search || '';
+    const isHidden = hiddenTasks.includes(key);
     let show = true;
     if (compFilter === 'completed' && !done) show = false;
     if (compFilter === 'incomplete' && done) show = false;
     if (diffFilter !== 'all' && diff !== diffFilter) show = false;
     if (search && !searchText.includes(search)) show = false;
     el.classList.toggle('filtered-out', !show);
+    // Hidden task handling
+    el.classList.toggle('hidden-task', isHidden);
+    el.classList.toggle('show-hidden', isHidden && state.showHidden);
   });
 }
 
@@ -2015,6 +2739,15 @@ function renderDoNext() {
         ${reasons.length ? `<div class="dn-reason">${reasons.join(' &middot; ')}</div>` : ''}
       </div>`;
   }).join('');
+
+  // Recent activity
+  const recent = getRecentCompletions(5);
+  if (recent.length > 0) {
+    list.innerHTML += `<div class="recent-activity">
+      <h3>Recent Activity</h3>
+      ${recent.map(r => `<div class="recent-item"><span class="ri-date">${r.date}</span><span>${r.name}</span></div>`).join('')}
+    </div>`;
+  }
 }
 
 /* ========== SHOPPING LIST ========== */
@@ -2346,9 +3079,16 @@ async function lookupAchievementById() {
   }
 }
 
-function renderBrowseResults(achievements) {
+function renderBrowseResults(achievements, skipStoreForFilter) {
   const results = document.getElementById('browseResults');
   const pinnedIds = (state.pinnedAchievements || []).map(a => a.id);
+
+  // Store for reward filtering (Feature 4) — only on initial load, not re-filter
+  if (!skipStoreForFilter) {
+    currentBrowseAchievements = achievements;
+    const filterBar = document.getElementById('browseRewardFilters');
+    filterBar.style.display = achievements.length > 0 ? '' : 'none';
+  }
 
   results.innerHTML = achievements.map(ach => {
     const isPinned = pinnedIds.includes(ach.id);
@@ -2378,6 +3118,7 @@ async function togglePinAchievement(id, btn) {
   if (idx >= 0) {
     state.pinnedAchievements.splice(idx, 1);
     if (state.pinnedProgress) delete state.pinnedProgress[id];
+    if (state.pinnedPrereqs) delete state.pinnedPrereqs[id];
     if (btn) { btn.textContent = '+ Add'; btn.className = 'btn btn-primary btn-sm'; }
   } else {
     try {
@@ -2385,12 +3126,47 @@ async function togglePinAchievement(id, btn) {
       const resp = await fetch('https://api.guildwars2.com/v2/achievements?ids=' + id);
       const [ach] = await resp.json();
       state.pinnedAchievements.push(ach);
+
+      // Feature 2: Fetch prerequisites if they exist
+      if (ach.prerequisites && ach.prerequisites.length) {
+        if (!state.pinnedPrereqs) state.pinnedPrereqs = {};
+        const prereqs = await fetchPrerequisites(id, 0);
+        state.pinnedPrereqs[id] = prereqs;
+
+        // Also fetch progress for prerequisite achievements if API key is available
+        const apiKey = localStorage.getItem(API_KEY_KEY);
+        if (apiKey) {
+          const allPrereqIds = [];
+          const collectIds = (pList) => {
+            pList.forEach(p => {
+              allPrereqIds.push(p.id);
+              if (p.subPrereqs) collectIds(p.subPrereqs);
+            });
+          };
+          collectIds(prereqs);
+          if (allPrereqIds.length) {
+            try {
+              const token = encodeURIComponent(apiKey);
+              const prereqProgResp = await fetch('https://api.guildwars2.com/v2/account/achievements?ids=' + allPrereqIds.join(',') + '&access_token=' + token);
+              if (prereqProgResp.ok) {
+                const prereqProg = await prereqProgResp.json();
+                if (!state.pinnedProgress) state.pinnedProgress = {};
+                prereqProg.forEach(p => {
+                  state.pinnedProgress[p.id] = { current: p.current || 0, max: p.max || 0, done: !!p.done, bits: p.bits || [] };
+                });
+              }
+            } catch(e) { /* non-fatal */ }
+          }
+        }
+      }
+
       if (btn) { btn.textContent = 'Remove'; btn.className = 'btn btn-danger btn-sm'; }
     } catch(e) { if (btn) btn.textContent = 'Error'; return; }
   }
 
   saveState();
   renderPinnedAchievements();
+  renderSortToggleVisibility();
 }
 
 const ENRICHED_KEYS = {5790:'seasons', 8732:'gizmos', 5350:'otter'};
@@ -2403,15 +3179,24 @@ function renderPinnedAchievements() {
     return;
   }
 
-  container.innerHTML = state.pinnedAchievements.map(ach => {
+  // Sort achievements if sort mode is 'nearest'
+  let sortedAchs = [...state.pinnedAchievements];
+  if (state.sortMode === 'nearest') {
+    sortedAchs.sort((a, b) => getCompletionPct(b) - getCompletionPct(a));
+  }
+
+  container.innerHTML = sortedAchs.map(ach => {
     // Enriched achievements use the rich renderers
     const enrichKey = ENRICHED_KEYS[ach.id];
+    const enrichPct = (getCompletionPct(ach) * 100).toFixed(1);
+    const enrichPctClass = parseFloat(enrichPct) >= 75 ? ' high' : '';
+    const enrichPctBadge = state.sortMode === 'nearest' ? `<span class="pct-badge${enrichPctClass}" style="position:absolute;top:0.5rem;left:0.5rem;z-index:1">${enrichPct}%</span>` : '';
     if (enrichKey === 'otter') {
-      return `<div style="position:relative">${renderOtterCard()}
+      return `<div style="position:relative">${enrichPctBadge}${renderOtterCard()}
         <button class="btn btn-danger btn-sm" onclick="togglePinAchievement(${ach.id})" title="Remove" style="position:absolute;top:0.5rem;right:0.5rem;font-size:0.7rem;padding:0.15rem 0.5rem;opacity:0.7">Remove</button></div>`;
     }
     if (enrichKey) {
-      return `<div style="position:relative">${renderChecklistCard(enrichKey)}
+      return `<div style="position:relative">${enrichPctBadge}${renderChecklistCard(enrichKey)}
         <button class="btn btn-danger btn-sm" onclick="togglePinAchievement(${ach.id})" title="Remove" style="position:absolute;top:0.5rem;right:0.5rem;font-size:0.7rem;padding:0.15rem 0.5rem;opacity:0.7">Remove</button></div>`;
     }
 
@@ -2451,10 +3236,28 @@ function renderPinnedAchievements() {
 
     const wikiName = encodeURIComponent(ach.name.replace(/ /g, '_'));
 
+    // Completion percentage badge (Feature 1)
+    const pctNum = parseFloat(pct);
+    const pctClass = pctNum >= 75 ? ' high' : '';
+    const pctBadge = `<span class="pct-badge${pctClass}">${pct}%</span>`;
+
+    // Prerequisites section (Feature 2)
+    const prereqs = (state.pinnedPrereqs || {})[ach.id];
+    const prereqHtml = renderPrereqSection(prereqs, state.pinnedProgress);
+
+    // Check if blocked by prerequisites
+    let prereqBlocked = false;
+    if (prereqs && prereqs.length) {
+      prereqBlocked = prereqs.some(p => {
+        const pProg = (state.pinnedProgress || {})[p.id];
+        return !pProg || !pProg.done;
+      });
+    }
+
     return `<section class="achievement-card" style="border-top-color:var(--blue)">
       <div class="card-header" aria-expanded="false" onclick="toggleCard(this)">
         <div class="card-title-area">
-          <h2 style="font-size:1.05rem">${ach.name}${isDone?' <span style="color:var(--green);font-size:0.8rem;font-family:Inter,sans-serif">&#10003; Complete</span>':''}</h2>
+          <h2 style="font-size:1.05rem">${ach.name}${isDone?' <span style="color:var(--green);font-size:0.8rem;font-family:Inter,sans-serif">&#10003; Complete</span>':''}${pctBadge}${prereqBlocked?'<span class="badge badge-blocked" style="margin-left:0.4rem">Blocked</span>':''}</h2>
           <div class="card-subtitle"><span class="badge badge-${diff.badge}">${diff.label}</span> ${totalAP} AP &middot; <a href="https://wiki.guildwars2.com/wiki/${wikiName}" target="_blank" class="wiki-link" onclick="event.stopPropagation()">Wiki</a> &middot; ID: ${ach.id}</div>
         </div>
         <div class="card-progress-area">
@@ -2469,6 +3272,7 @@ function renderPinnedAchievements() {
           ${ach.requirement ? '<div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem"><strong>Goal:</strong> ' + ach.requirement + '</div>' : ''}
           ${ach.description ? '<div style="font-size:0.8rem;color:var(--text-dim);margin-bottom:0.5rem;font-style:italic">' + ach.description + '</div>' : ''}
           <div class="tier-row">${tierHtml}</div>
+          ${prereqHtml}
           ${objectivesHtml}
           ${!ach.bits || !ach.bits.length ? '<div style="font-size:0.8rem;color:var(--text-dim);margin-top:0.5rem">Sync your API key to see detailed progress. <a href="https://wiki.guildwars2.com/wiki/' + wikiName + '" target="_blank" class="wiki-link">View full guide on Wiki</a></div>' : ''}
         </div>
@@ -2527,6 +3331,36 @@ const STARTER_PACKS = [
     desc: "Basic weapon and armor skin collections",
     color: "#f0a0d0",
     categoryId: 77
+  },
+  {
+    name: "World Completion",
+    desc: "Map completion achievements for all core Tyria zones",
+    color: "#60d6a5",
+    categoryId: 6
+  },
+  {
+    name: "Raid Ready",
+    desc: "Raid achievements and legendary armor collections",
+    color: "var(--red)",
+    categoryId: 124
+  },
+  {
+    name: "WvW Veteran",
+    desc: "World vs World achievements and reward tracks",
+    color: "#f0a0d0",
+    categoryId: 13
+  },
+  {
+    name: "Fashion Wars",
+    desc: "Weapon and armor skin collections for wardrobe completion",
+    color: "var(--purple)",
+    categoryId: 75
+  },
+  {
+    name: "Festivals",
+    desc: "All festival achievements across Lunar New Year, SAB, Dragon Bash, Halloween, Wintersday",
+    color: "var(--orange)",
+    categoryId: 221
   }
 ];
 
@@ -2690,7 +3524,1630 @@ function onAchSearch(query) {
   }, 200);
 }
 
+/* ========== HELPER: FORMAT DATES & ESCAPE HTML ========== */
+
+function formatCompletionDate(isoStr) {
+  if (!isoStr) return '';
+  const d = new Date(isoStr);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return 'Completed ' + months[d.getMonth()] + ' ' + d.getDate();
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ========== NOTES PER TASK ========== */
+
+function toggleNoteArea(btn, key) {
+  const item = btn.closest('.checklist-item');
+  const noteArea = item.querySelector('.note-area');
+  const isOpen = noteArea.style.display !== 'none';
+  noteArea.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) {
+    const ta = noteArea.querySelector('textarea');
+    ta.focus();
+  }
+}
+
+function saveNote(key, value) {
+  const trimmed = value.trim();
+  if (trimmed) {
+    state.notes[key] = trimmed;
+  } else {
+    delete state.notes[key];
+  }
+  saveState();
+  // Update the note button and inline display
+  const item = document.querySelector(`[data-key="${key}"]`);
+  if (item) {
+    const btn = item.querySelector('.notes-btn');
+    if (btn) btn.classList.toggle('has-note', !!trimmed);
+    let inlineEl = item.querySelector('.note-inline');
+    if (trimmed) {
+      if (inlineEl) { inlineEl.textContent = trimmed; }
+      else {
+        const noteArea = item.querySelector('.note-area');
+        noteArea.insertAdjacentHTML('beforebegin', '<div class="note-inline">' + escapeHtml(trimmed) + '</div>');
+      }
+    } else if (inlineEl) { inlineEl.remove(); }
+  }
+}
+
+/* ========== DAILY/WEEKLY RESET TIMER ========== */
+
+function updateResetTimers() {
+  const now = new Date();
+  const nowUtc = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
+
+  // Daily reset: 00:00 UTC
+  let nextDaily = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0);
+  const dailyMs = nextDaily - nowUtc;
+  const dailyH = Math.floor(dailyMs / 3600000);
+  const dailyM = Math.floor((dailyMs % 3600000) / 60000);
+  const dailyS = Math.floor((dailyMs % 60000) / 1000);
+  const dailyEl = document.getElementById('dailyResetValue');
+  dailyEl.textContent = dailyH + 'h ' + dailyM + 'm ' + dailyS + 's';
+  document.getElementById('dailyResetTimer').classList.toggle('warning', dailyMs < 3600000);
+
+  // Weekly reset: Monday 07:30 UTC
+  const dayOfWeek = now.getUTCDay(); // 0=Sun,1=Mon,...
+  let daysUntilMonday = (1 - dayOfWeek + 7) % 7;
+  if (daysUntilMonday === 0) {
+    // It's Monday — check if we're past 07:30 UTC
+    const mondayReset = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 7, 30, 0);
+    if (nowUtc >= mondayReset) daysUntilMonday = 7;
+  }
+  const nextWeekly = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + daysUntilMonday, 7, 30, 0);
+  const weeklyMs = nextWeekly - nowUtc;
+  const weeklyD = Math.floor(weeklyMs / 86400000);
+  const weeklyH = Math.floor((weeklyMs % 86400000) / 3600000);
+  const weeklyM = Math.floor((weeklyMs % 3600000) / 60000);
+  const weeklyEl = document.getElementById('weeklyResetValue');
+  weeklyEl.textContent = weeklyD + 'd ' + weeklyH + 'h ' + weeklyM + 'm';
+  document.getElementById('weeklyResetTimer').classList.toggle('warning', weeklyMs < 3600000);
+}
+
+/* ========== SESSION PLANNER ========== */
+
+function getTimeMinutes(timeStr) {
+  if (!timeStr) return 30;
+  const lower = timeStr.toLowerCase();
+  if (lower.includes('5 min') || lower.includes('5min')) return 5;
+  if (lower.includes('10 min')) return 10;
+  if (lower.includes('15 min')) return 15;
+  if (lower.includes('20 min')) return 20;
+  if (lower.includes('30-60') || lower.includes('30 min')) return 45;
+  if (lower.includes('1-2 hr')) return 90;
+  if (lower.includes('2-3 hr')) return 150;
+  if (lower.includes('2-4 hr')) return 180;
+  if (lower.includes('3-4 hr')) return 210;
+  if (lower.includes('3-5 hr')) return 240;
+  if (lower.includes('4+ hr') || lower.includes('4 hr')) return 270;
+  if (lower.includes('varies')) return 60;
+  return 30;
+}
+
+function selectSessionTime(minutes, btn) {
+  // Toggle off if same button
+  if (state.sessionMinutes === minutes) {
+    state.sessionMinutes = null;
+    btn.classList.remove('active');
+    document.getElementById('spChecklist').innerHTML = '';
+    document.getElementById('spFooter').style.display = 'none';
+    saveState();
+    return;
+  }
+
+  state.sessionMinutes = minutes;
+  document.querySelectorAll('#spTimeBtns .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  saveState();
+  renderSessionPlan();
+}
+
+function renderSessionPlan() {
+  const minutes = state.sessionMinutes;
+  if (!minutes) return;
+
+  const activeItems = getAllChecklistItems().filter(it => isEnrichedPinned(it.achievement));
+  const incomplete = activeItems.filter(it => !state.checkedItems[it.key]);
+
+  // Score and filter by time budget
+  const candidates = incomplete.map(it => {
+    const est = getTimeMinutes(it.time);
+    if (est > minutes) return null;
+    let score = 0;
+    const diffScores = {quick:100, short:80, medium:50, long:25, grind:10};
+    score += diffScores[it.difficulty] || 0;
+    // Efficiency: points per minute
+    score += Math.round((1 / Math.max(est, 1)) * 100);
+    if (it.synergy) {
+      const incompleteSyn = it.synergy.filter(s => !state.checkedItems[s]);
+      score += incompleteSyn.length * 15;
+    }
+    if (it.blockedBy && !state.checkedItems[it.blockedBy]) return null;
+    return {...it, score, est};
+  }).filter(Boolean);
+
+  candidates.sort((a, b) => b.score - a.score);
+
+  // Greedily fill the time budget
+  let totalTime = 0;
+  const plan = [];
+  for (const item of candidates) {
+    if (totalTime + item.est <= minutes) {
+      plan.push(item);
+      totalTime += item.est;
+    }
+  }
+
+  state.sessionTasks = plan.map(p => p.key);
+  saveState();
+
+  const checklist = document.getElementById('spChecklist');
+  if (plan.length === 0) {
+    checklist.innerHTML = '<div style="font-size:0.85rem;color:var(--text-dim)">No tasks fit in this time window. Try a longer session.</div>';
+    document.getElementById('spFooter').style.display = 'none';
+    return;
+  }
+
+  checklist.innerHTML = plan.map((it, i) => `
+    <div class="sp-checklist-item" data-sp-key="${it.key}">
+      <span style="color:var(--text-dim);font-size:0.75rem;min-width:1.5rem">${i+1}.</span>
+      <span class="badge badge-${it.difficulty}" style="flex-shrink:0">${it.difficulty}</span>
+      <span style="flex:1;min-width:0">${it.name}</span>
+      <span style="font-size:0.7rem;color:var(--text-dim);flex-shrink:0">${it.time || '~' + it.est + ' min'}</span>
+    </div>
+  `).join('');
+
+  document.getElementById('spFooter').style.display = 'flex';
+  document.getElementById('spTotal').textContent = plan.length + ' tasks, ~' + totalTime + ' min total';
+}
+
+function startSession() {
+  state.sessionActive = true;
+  saveState();
+  document.getElementById('startSessionBtn').style.display = 'none';
+  document.getElementById('clearSessionBtn').style.display = '';
+  document.body.classList.add('session-active');
+  // Highlight the tasks in the main checklist
+  state.sessionTasks.forEach(key => {
+    const el = document.querySelector(`.checklist-item[data-key="${key}"]`);
+    if (el) el.classList.add('session-highlight');
+  });
+}
+
+function clearSession() {
+  state.sessionActive = false;
+  state.sessionTasks = [];
+  state.sessionMinutes = null;
+  saveState();
+  document.getElementById('startSessionBtn').style.display = '';
+  document.getElementById('clearSessionBtn').style.display = 'none';
+  document.body.classList.remove('session-active');
+  document.querySelectorAll('.session-highlight').forEach(el => el.classList.remove('session-highlight'));
+  document.querySelectorAll('#spTimeBtns .filter-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('spChecklist').innerHTML = '';
+  document.getElementById('spFooter').style.display = 'none';
+}
+
+/* ========== MAP-BASED GROUPING VIEW ========== */
+
+function setViewMode(mode, btn) {
+  state.viewMode = mode;
+  saveState();
+  document.querySelectorAll('#viewModeGroup .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderViewMode();
+}
+
+function renderViewMode() {
+  const achCards = document.getElementById('achievementCards');
+  const mapView = document.getElementById('mapView');
+  if (state.viewMode === 'map') {
+    achCards.style.display = 'none';
+    mapView.style.display = '';
+    renderMapView();
+  } else {
+    achCards.style.display = '';
+    mapView.style.display = 'none';
+  }
+}
+
+function renderMapView() {
+  const mapView = document.getElementById('mapView');
+  const allItems = getAllChecklistItems().filter(it => isEnrichedPinned(it.achievement));
+
+  // Group by map
+  const mapGroups = {};
+  allItems.forEach(it => {
+    const mapName = it.map || 'Other / Instance';
+    if (!mapGroups[mapName]) mapGroups[mapName] = [];
+    mapGroups[mapName].push(it);
+  });
+
+  // Sort maps alphabetically, but put 'Other / Instance' last
+  const mapNames = Object.keys(mapGroups).sort((a, b) => {
+    if (a === 'Other / Instance') return 1;
+    if (b === 'Other / Instance') return -1;
+    return a.localeCompare(b);
+  });
+
+  if (mapNames.length === 0) {
+    mapView.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-dim)">No active achievements to show by map. Add achievements above.</div>';
+    return;
+  }
+
+  mapView.innerHTML = mapNames.map(mapName => {
+    const items = mapGroups[mapName];
+    const done = items.filter(it => state.checkedItems[it.key]).length;
+    const total = items.length;
+
+    const itemsHtml = items.map(it => {
+      const checked = state.checkedItems[it.key] ? 'checked' : '';
+      const doneClass = state.checkedItems[it.key] ? 'done' : '';
+      const achLabel = {seasons:'Seasons',gizmos:'Gizmos',otter:'Otter'}[it.achievement] || it.achievement;
+      const completionDateHtml = state.checkedItems[it.key] && state.completionDates[it.key] ? `<span class="completion-date">${formatCompletionDate(state.completionDates[it.key])}</span>` : '';
+
+      return `<div class="checklist-item ${doneClass}" data-key="${it.key}" data-difficulty="${it.difficulty}" data-achievement="${it.achievement}" data-search="${[it.name,it.map,it.episode].filter(Boolean).join(' ').toLowerCase()}">
+        <label class="cb-label">
+          <input type="checkbox" ${checked} onchange="onCheck('${it.key}','${it.achievement}',this.checked)">
+          <span class="cb-box"></span>
+          <div class="item-info">
+            <div class="item-name">${it.name}${completionDateHtml}</div>
+            <div class="item-episode" style="font-size:0.72rem;color:var(--text-dim)">${achLabel}${it.episode ? ' — ' + it.episode : ''}</div>
+          </div>
+        </label>
+        <div class="item-right">
+          <span class="badge badge-${it.difficulty}">${it.difficulty}</span>
+          <span class="time-est">${it.time || ''}</span>
+        </div>
+      </div>`;
+    }).join('');
+
+    return `<div class="map-group-card">
+      <div class="map-group-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none'">
+        <h3>${mapName}</h3>
+        <div class="map-group-count">${done}/${total} done</div>
+      </div>
+      <div class="map-group-body">${itemsHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ========== PROGRESS TIMELINE / RECENT ACTIVITY ========== */
+
+function getRecentCompletions(limit) {
+  const entries = Object.entries(state.completionDates || {});
+  entries.sort((a, b) => new Date(b[1]) - new Date(a[1]));
+  const allItems = getAllChecklistItems();
+  const itemMap = {};
+  allItems.forEach(it => { itemMap[it.key] = it; });
+  return entries.slice(0, limit).map(([key, date]) => ({
+    key,
+    name: itemMap[key] ? itemMap[key].name : key,
+    date: formatCompletionDate(date)
+  }));
+}
+
+/* ========== COST CALCULATOR ========== */
+
+let mysticCoinPrice = null;
+
+async function fetchMysticCoinPrice() {
+  try {
+    const resp = await fetch('https://api.guildwars2.com/v2/commerce/prices/19976');
+    if (resp.ok) {
+      const data = await resp.json();
+      mysticCoinPrice = data.buys ? data.buys.unit_price : null;
+      return mysticCoinPrice;
+    }
+  } catch(e) { /* non-fatal */ }
+  return null;
+}
+
+function formatGold(coppers) {
+  if (coppers == null || isNaN(coppers)) return '--';
+  const gold = Math.floor(coppers / 10000);
+  const silver = Math.floor((coppers % 10000) / 100);
+  const copper = coppers % 100;
+  let parts = [];
+  if (gold > 0) parts.push('<span class="gold-coin">' + gold.toLocaleString() + 'g</span>');
+  if (silver > 0 || gold > 0) parts.push('<span class="silver-coin">' + silver + 's</span>');
+  parts.push('<span class="copper-coin">' + copper + 'c</span>');
+  return parts.join(' ');
+}
+
+function renderCostCalculator() {
+  const body = document.getElementById('shoppingListBody');
+  const panel = document.getElementById('shoppingList');
+  if (!body || !panel) return;
+
+  // Only show if gizmos achievement is active
+  if (!isEnrichedPinned('gizmos')) return;
+
+  // Count remaining city scrolls needing Mystic Coins
+  const cityScrollKeys = ['g-bc-scroll','g-dr-scroll','g-hoelbrak-scroll','g-la-scroll','g-rata-scroll','g-grove-scroll','g-ebonhawke-scroll'];
+  let coinsNeeded = 0;
+  const remainingScrolls = [];
+  cityScrollKeys.forEach(key => {
+    if (!state.checkedItems[key]) {
+      coinsNeeded += 50;
+      remainingScrolls.push(key);
+    }
+  });
+
+  // Other gold costs
+  let otherGoldCoppers = 0;
+  const otherGoldItems = [];
+  if (!state.checkedItems['g-griffon']) { otherGoldCoppers += 2500000; otherGoldItems.push('Griffon Mount (250g)'); }
+  if (!state.checkedItems['g-la-device']) { otherGoldCoppers += 60000; otherGoldItems.push('LA Teleportation Device (~6g)'); }
+  if (!state.checkedItems['g-hom-stone']) { otherGoldCoppers += 75000; otherGoldItems.push('HoM Portal Stone (~7g 50s)'); }
+
+  // S4 scrolls gold cost (1g each)
+  const s4ScrollKeys = ['g-istan-scroll','g-sandswept-scroll','g-kourna-scroll','g-jahai-scroll','g-thunderhead-scroll','g-dragonfall-scroll'];
+  s4ScrollKeys.forEach(key => {
+    if (!state.checkedItems[key]) { otherGoldCoppers += 10000; otherGoldItems.push(key.replace('g-','').replace('-scroll','') + ' scroll (1g)'); }
+  });
+  // IBS scrolls gold
+  ['g-grothmar-scroll','g-bjora-scroll','g-drizzlewood-scroll'].forEach(key => {
+    if (!state.checkedItems[key]) { otherGoldCoppers += 10000; }
+  });
+
+  if (coinsNeeded === 0 && otherGoldCoppers === 0) return;
+
+  // Ensure panel is visible if we have cost data
+  panel.style.display = '';
+
+  let costHtml = '<div class="cost-calc"><h4>Cost Estimator</h4>';
+
+  if (coinsNeeded > 0) {
+    costHtml += `<div style="font-size:0.83rem;margin-bottom:0.4rem">
+      <span style="color:var(--text)">Mystic Coins needed:</span>
+      <span style="color:var(--gold);font-weight:600">${coinsNeeded}</span>
+      <span style="color:var(--text-dim);font-size:0.75rem">(${remainingScrolls.length} city scrolls x 50)</span>
+    </div>`;
+
+    if (mysticCoinPrice) {
+      const totalCoppers = coinsNeeded * mysticCoinPrice;
+      costHtml += `<div style="font-size:0.83rem;margin-bottom:0.4rem">
+        <span style="color:var(--text)">TP buy price per coin:</span>
+        <span class="gold-display">${formatGold(mysticCoinPrice)}</span>
+      </div>
+      <div style="font-size:0.83rem;margin-bottom:0.4rem">
+        <span style="color:var(--text)">Total coin cost:</span>
+        <span class="gold-display" style="font-size:0.95rem">${formatGold(totalCoppers)}</span>
+      </div>`;
+    } else {
+      costHtml += '<div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.4rem">TP price loading...</div>';
+    }
+  }
+
+  if (otherGoldCoppers > 0) {
+    costHtml += `<div style="font-size:0.83rem;margin-top:0.5rem">
+      <span style="color:var(--text)">Other gold needed:</span>
+      <span class="gold-display">${formatGold(otherGoldCoppers)}</span>
+    </div>`;
+  }
+
+  // Grand total
+  const coinCoppers = mysticCoinPrice ? coinsNeeded * mysticCoinPrice : 0;
+  const grandTotal = coinCoppers + otherGoldCoppers;
+  if (grandTotal > 0 && mysticCoinPrice) {
+    costHtml += `<div style="font-size:0.9rem;margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid rgba(138,114,52,0.2)">
+      <span style="color:var(--gold);font-weight:600">Estimated total:</span>
+      <span class="gold-display" style="font-size:1rem">${formatGold(grandTotal)}</span>
+    </div>`;
+  }
+
+  costHtml += '</div>';
+  body.insertAdjacentHTML('beforeend', costHtml);
+}
+
+/* ========== FESTIVAL CALENDAR ========== */
+
+const FESTIVALS = [
+  { name: 'Lunar New Year', startMonth: 1, startDay: 21, endMonth: 2, endDay: 14, color: '#ef4444' },
+  { name: 'Super Adventure Box', startMonth: 4, startDay: 14, endMonth: 5, endDay: 12, color: '#4ade80' },
+  { name: 'Dragon Bash', startMonth: 6, startDay: 17, endMonth: 7, endDay: 8, color: '#60a5fa' },
+  { name: 'Festival of the Four Winds', startMonth: 7, startDay: 22, endMonth: 8, endDay: 19, color: '#f59e0b' },
+  { name: 'Shadow of the Mad King', startMonth: 10, startDay: 14, endMonth: 11, endDay: 4, color: '#f97316' },
+  { name: 'Wintersday', startMonth: 12, startDay: 17, endMonth: 1, endDay: 7, color: '#38bdf8' }
+];
+
+function isFestivalActive(fest, now) {
+  const month = now.getMonth() + 1;
+  const day = now.getDate();
+  if (fest.endMonth >= fest.startMonth) {
+    // Same year span
+    return (month > fest.startMonth || (month === fest.startMonth && day >= fest.startDay)) &&
+           (month < fest.endMonth || (month === fest.endMonth && day <= fest.endDay));
+  } else {
+    // Crosses year boundary (e.g., Wintersday Dec-Jan)
+    return (month > fest.startMonth || (month === fest.startMonth && day >= fest.startDay)) ||
+           (month < fest.endMonth || (month === fest.endMonth && day <= fest.endDay));
+  }
+}
+
+function getNextFestival(now) {
+  const month = now.getMonth() + 1;
+  const day = now.getDate();
+  const year = now.getFullYear();
+
+  // Find the next festival that hasn't started yet
+  let closest = null;
+  let closestMs = Infinity;
+
+  FESTIVALS.forEach(fest => {
+    let startDate = new Date(year, fest.startMonth - 1, fest.startDay);
+    if (startDate <= now) {
+      startDate = new Date(year + 1, fest.startMonth - 1, fest.startDay);
+    }
+    const diff = startDate - now;
+    if (diff > 0 && diff < closestMs) {
+      closestMs = diff;
+      closest = { ...fest, date: startDate, ms: diff };
+    }
+  });
+
+  return closest;
+}
+
+function renderFestivalCalendar() {
+  if (!isEnrichedPinned('gizmos')) return '';
+
+  const now = new Date();
+  const festivalDone = state.checkedItems['g-festival'];
+  const nextFest = getNextFestival(now);
+
+  let nextUpHtml = '';
+  if (nextFest) {
+    const days = Math.floor(nextFest.ms / 86400000);
+    const weeks = Math.floor(days / 7);
+    let timeStr = days < 7 ? days + ' days' : (weeks < 5 ? '~' + weeks + ' weeks' : '~' + Math.round(days / 30) + ' months');
+    nextUpHtml = `<div style="font-size:0.85rem;color:var(--gold);margin-bottom:1rem;font-weight:600">Next up: ${nextFest.name} in approximately ${timeStr}</div>`;
+  }
+
+  const festHtml = FESTIVALS.map(fest => {
+    const active = isFestivalActive(fest, now);
+    const isNext = nextFest && nextFest.name === fest.name;
+    const cls = active ? ' active' : (isNext ? ' next-up' : '');
+    const months = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `<div class="festival-card${cls}" style="${active ? 'border-left-color:' + fest.color : ''}">
+      <div class="fv-name" style="${active ? 'color:' + fest.color : ''}">${fest.name}</div>
+      <div class="fv-dates">${months[fest.startMonth]} ${fest.startDay} - ${months[fest.endMonth]} ${fest.endDay}</div>
+      ${active ? '<div class="fv-status active-status">Active now!</div>' : ''}
+      ${isNext && !active ? '<div class="fv-status next-status">Coming next</div>' : ''}
+    </div>`;
+  }).join('');
+
+  return `<section class="festival-panel" id="festivalPanel">
+    <h2 style="display:flex;align-items:center;gap:0.5rem">&#127878; Festival Calendar ${festivalDone ? '<span style="color:var(--green);font-size:0.8rem;font-family:Inter,sans-serif">&#10003; Festival Frequenter complete</span>' : ''}</h2>
+    ${nextUpHtml}
+    <div class="festival-grid">${festHtml}</div>
+  </section>`;
+}
+
+/* ========== SHAREABLE PROGRESS LINKS ========== */
+
+function encodeProgress() {
+  // Get all checklist keys in deterministic order
+  const allItems = getAllChecklistItems();
+  const keys = allItems.map(it => it.key);
+
+  // Build bitmask
+  const bytes = [];
+  for (let i = 0; i < keys.length; i += 8) {
+    let byte = 0;
+    for (let bit = 0; bit < 8 && i + bit < keys.length; bit++) {
+      if (state.checkedItems[keys[i + bit]]) byte |= (1 << bit);
+    }
+    bytes.push(byte);
+  }
+
+  // Append otter count as 2 bytes (big-endian)
+  bytes.push((state.otterCount >> 8) & 0xFF);
+  bytes.push(state.otterCount & 0xFF);
+
+  // Convert to base64
+  const binary = String.fromCharCode(...bytes);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function decodeProgress(encoded) {
+  try {
+    // Restore base64
+    let b64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+    while (b64.length % 4) b64 += '=';
+    const binary = atob(b64);
+    const bytes = [];
+    for (let i = 0; i < binary.length; i++) bytes.push(binary.charCodeAt(i));
+
+    // Extract otter count from last 2 bytes
+    const otterCount = (bytes[bytes.length - 2] << 8) | bytes[bytes.length - 1];
+    const bitmaskBytes = bytes.slice(0, -2);
+
+    // Decode bitmask
+    const allItems = getAllChecklistItems();
+    const keys = allItems.map(it => it.key);
+    const checkedItems = {};
+    for (let i = 0; i < keys.length; i++) {
+      const byteIdx = Math.floor(i / 8);
+      const bitIdx = i % 8;
+      checkedItems[keys[i]] = byteIdx < bitmaskBytes.length && (bitmaskBytes[byteIdx] & (1 << bitIdx)) !== 0;
+    }
+
+    return { checkedItems, otterCount };
+  } catch(e) { return null; }
+}
+
+function shareProgress() {
+  const encoded = encodeProgress();
+  const url = window.location.href.split('#')[0] + '#share=' + encoded;
+
+  // Copy to clipboard
+  const doCopy = () => {
+    const ta = document.createElement('textarea');
+    ta.value = url; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).catch(doCopy);
+  } else { doCopy(); }
+
+  // Show toast
+  const toast = document.createElement('div');
+  toast.className = 'share-toast';
+  toast.textContent = 'Link copied to clipboard!';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+}
+
+function checkShareLink() {
+  const hash = window.location.hash;
+  if (!hash.startsWith('#share=')) return;
+  const encoded = hash.slice(7);
+  const decoded = decodeProgress(encoded);
+  if (!decoded) return;
+
+  if (confirm('This link contains shared progress data. Load it? (This will replace your current progress)')) {
+    const allItems = getAllChecklistItems();
+    allItems.forEach(it => {
+      if (decoded.checkedItems[it.key] != null) {
+        state.checkedItems[it.key] = decoded.checkedItems[it.key];
+      }
+    });
+    state.otterCount = decoded.otterCount || 0;
+    saveState();
+    renderAll();
+  }
+  // Clear the hash
+  history.replaceState(null, '', window.location.pathname + window.location.search);
+}
+
+/* ========== FEATURE 1: NEAREST TO COMPLETION SORT ========== */
+
+function renderSortToggleVisibility() {
+  const sortToggle = document.getElementById('sortToggle');
+  const hasPinned = (state.pinnedAchievements || []).length > 0;
+  sortToggle.style.display = hasPinned ? '' : 'none';
+  if (hasPinned) {
+    document.querySelectorAll('#sortToggle .filter-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.sort === (state.sortMode || 'priority'));
+    });
+  }
+}
+
+function setSortMode(mode, btn) {
+  state.sortMode = mode;
+  saveState();
+  document.querySelectorAll('#sortToggle .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPinnedAchievements();
+}
+
+function getCompletionPct(ach) {
+  const enrichKey = ENRICHED_KEYS[ach.id];
+  if (enrichKey === 'otter') {
+    return state.otterCount / ACHIEVEMENTS.otter.total;
+  }
+  if (enrichKey) {
+    const count = countCompleted(enrichKey);
+    return count / ACHIEVEMENTS[enrichKey].total;
+  }
+  // Generic pinned
+  const prog = (state.pinnedProgress || {})[ach.id];
+  if (prog && prog.done) return 1;
+  if (!prog) return 0;
+  const maxTier = ach.tiers && ach.tiers.length ? ach.tiers[ach.tiers.length-1] : null;
+  if (!maxTier || maxTier.count <= 0) return prog.done ? 1 : 0;
+  return Math.min(1, (prog.current || 0) / maxTier.count);
+}
+
+/* ========== FEATURE 2: PREREQUISITE AUTO-DISCOVERY ========== */
+
+let prereqCache = {};
+
+async function fetchPrerequisites(achId, depth) {
+  if (depth > 2) return [];
+  if (prereqCache[achId]) return prereqCache[achId];
+
+  try {
+    const resp = await fetch('https://api.guildwars2.com/v2/achievements?ids=' + achId);
+    if (!resp.ok) return [];
+    const [ach] = await resp.json();
+    if (!ach.prerequisites || !ach.prerequisites.length) {
+      prereqCache[achId] = [];
+      return [];
+    }
+
+    const prereqIds = ach.prerequisites;
+    const prereqResp = await fetch('https://api.guildwars2.com/v2/achievements?ids=' + prereqIds.join(','));
+    if (!prereqResp.ok) return [];
+    const prereqs = await prereqResp.json();
+
+    // Recursively fetch sub-prerequisites
+    const results = [];
+    for (const p of prereqs) {
+      const subPrereqs = await fetchPrerequisites(p.id, depth + 1);
+      results.push({ ...p, subPrereqs });
+    }
+
+    prereqCache[achId] = results;
+    return results;
+  } catch(e) {
+    return [];
+  }
+}
+
+function renderPrereqSection(prereqs, progData) {
+  if (!prereqs || !prereqs.length) return '';
+
+  let html = '<div class="prereqs-section"><h4>Prerequisites</h4>';
+  prereqs.forEach(p => {
+    const prog = progData ? progData[p.id] : null;
+    const isDone = prog && prog.done;
+    const maxTier = p.tiers && p.tiers.length ? p.tiers[p.tiers.length-1] : {count:1};
+    const current = prog ? (prog.current || 0) : 0;
+    const pct = maxTier.count > 0 ? Math.min(100, current / maxTier.count * 100) : (isDone ? 100 : 0);
+    const statusBadge = isDone ? '<span class="badge badge-quick">Done</span>' : '<span class="badge badge-blocked">Blocked</span>';
+
+    html += `<div class="prereq-item">
+      ${statusBadge}
+      <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</span>
+      <span style="font-size:0.7rem;color:var(--text-dim)">${current}/${maxTier.count}</span>
+      <div class="prereq-bar"><div class="prereq-fill" style="width:${pct.toFixed(1)}%"></div></div>
+    </div>`;
+
+    // Render sub-prerequisites
+    if (p.subPrereqs && p.subPrereqs.length) {
+      html += '<div style="margin-left:1rem;border-left:2px solid rgba(138,114,52,0.2);padding-left:0.5rem">';
+      p.subPrereqs.forEach(sp => {
+        const spProg = progData ? progData[sp.id] : null;
+        const spDone = spProg && spProg.done;
+        const spMax = sp.tiers && sp.tiers.length ? sp.tiers[sp.tiers.length-1] : {count:1};
+        const spCurrent = spProg ? (spProg.current || 0) : 0;
+        const spPct = spMax.count > 0 ? Math.min(100, spCurrent / spMax.count * 100) : (spDone ? 100 : 0);
+        const spBadge = spDone ? '<span class="badge badge-quick" style="font-size:0.6rem">Done</span>' : '<span class="badge badge-blocked" style="font-size:0.6rem">Blocked</span>';
+        html += `<div class="prereq-item" style="font-size:0.75rem">
+          ${spBadge}
+          <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sp.name}</span>
+          <span style="font-size:0.65rem;color:var(--text-dim)">${spCurrent}/${spMax.count}</span>
+          <div class="prereq-bar" style="width:60px"><div class="prereq-fill" style="width:${spPct.toFixed(1)}%"></div></div>
+        </div>`;
+      });
+      html += '</div>';
+    }
+  });
+  html += '</div>';
+  return html;
+}
+
+/* ========== FEATURE 3: AP EFFICIENCY RANKER ========== */
+
+function renderAPEfficiency() {
+  const container = document.getElementById('apEfficiencyPanel');
+  const hasEnriched = ['seasons','gizmos','otter'].some(k => isEnrichedPinned(k));
+  if (!hasEnriched) { container.innerHTML = ''; return; }
+
+  const timeEstimates = {quick:5, short:30, medium:120, long:240, grind:600};
+  const items = [];
+
+  ['seasons','gizmos'].forEach(ak => {
+    if (!isEnrichedPinned(ak)) return;
+    ACHIEVEMENTS[ak].sections.forEach(sec => {
+      sec.items.forEach(it => {
+        if (state.checkedItems[it.key]) return;
+        const ach = ACHIEVEMENTS[ak];
+        // Calculate AP remaining from next incomplete tier
+        let apRemaining = 0;
+        ach.tiers.forEach(t => {
+          if (t.ap && countCompleted(ak) < t.count) apRemaining += t.ap;
+        });
+        // Distribute AP across remaining items
+        const remaining = ach.total - countCompleted(ak);
+        const apPerItem = remaining > 0 ? apRemaining / remaining : 0;
+        const estMin = timeEstimates[it.difficulty] || 60;
+        const apPerHour = estMin > 0 ? (apPerItem / estMin * 60) : 0;
+        items.push({
+          name: it.name,
+          ap: Math.round(apPerItem * 10) / 10,
+          estMin,
+          apPerHour: Math.round(apPerHour * 10) / 10,
+          difficulty: it.difficulty,
+          achievement: ak
+        });
+      });
+    });
+  });
+
+  if (items.length === 0) { container.innerHTML = ''; return; }
+
+  items.sort((a,b) => b.apPerHour - a.apPerHour);
+  const top10 = items.slice(0, 10);
+
+  container.innerHTML = `<section class="ap-efficiency">
+    <h2 onclick="this.nextElementSibling.classList.toggle('open')">&#9889; AP Efficiency Ranker <span style="font-size:0.75rem;font-family:Inter,sans-serif;color:var(--text-dim);font-weight:400">(click to expand)</span></h2>
+    <div class="ap-body">
+      <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:0.5rem">Incomplete tasks ranked by estimated AP-per-hour efficiency</div>
+      ${top10.map((it,i) => `<div class="ap-row">
+        <span style="color:var(--text-dim);font-size:0.75rem;min-width:1.5rem">${i+1}.</span>
+        <span class="badge badge-${it.difficulty}" style="flex-shrink:0">${it.difficulty}</span>
+        <span class="ap-name">${it.name}</span>
+        <span class="ap-stat">${it.ap} AP</span>
+        <span class="ap-stat">~${it.estMin < 60 ? it.estMin + 'm' : Math.round(it.estMin/60) + 'h'}</span>
+        <span class="ap-ratio">${it.apPerHour} AP/h</span>
+      </div>`).join('')}
+    </div>
+  </section>`;
+}
+
+/* ========== FEATURE 4: REWARD-TYPE FILTERS IN BROWSE ========== */
+
+let currentBrowseAchievements = [];
+let currentBrowseRewardFilter = 'all';
+
+function setBrowseRewardFilter(filter, btn) {
+  currentBrowseRewardFilter = filter;
+  document.querySelectorAll('#browseRewardFilters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyBrowseRewardFilter();
+}
+
+function applyBrowseRewardFilter() {
+  if (!currentBrowseAchievements.length) return;
+
+  const filter = currentBrowseRewardFilter;
+  if (filter === 'all') {
+    renderBrowseResults(currentBrowseAchievements, true);
+    return;
+  }
+
+  const filtered = currentBrowseAchievements.filter(ach => {
+    if (filter === 'skins') {
+      const hasRewardSkin = (ach.rewards || []).some(r => r.type === 'Skin');
+      const nameHasSkin = /skin|wardrobe|armor|weapon set/i.test(ach.name);
+      return hasRewardSkin || nameHasSkin;
+    }
+    if (filter === 'titles') {
+      return (ach.rewards || []).some(r => r.type === 'Title');
+    }
+    if (filter === 'highap') {
+      const totalAP = (ach.tiers || []).reduce((s,t) => s + t.points, 0);
+      return totalAP >= 10;
+    }
+    if (filter === 'mastery') {
+      return (ach.rewards || []).some(r => r.type === 'Mastery');
+    }
+    return true;
+  });
+  renderBrowseResults(filtered, true);
+}
+
+/* ========== FEATURE 6: COMPLETION VELOCITY & STATS DASHBOARD ========== */
+
+function renderProgressStats() {
+  const container = document.getElementById('progressStatsPanel');
+  const dates = state.completionDates || {};
+  const dateEntries = Object.entries(dates);
+
+  if (dateEntries.length === 0) { container.innerHTML = ''; return; }
+
+  // Total tasks completed vs total (enriched only)
+  const allItems = getAllChecklistItems();
+  const totalTasks = allItems.length;
+  const completedTasks = allItems.filter(it => state.checkedItems[it.key]).length;
+  const overallPct = totalTasks > 0 ? (completedTasks / totalTasks * 100).toFixed(1) : 0;
+
+  // Recent completions
+  const now = new Date();
+  const weekAgo = new Date(now - 7 * 86400000);
+  const monthAgo = new Date(now - 30 * 86400000);
+  const last7 = dateEntries.filter(([k,d]) => new Date(d) >= weekAgo).length;
+  const last30 = dateEntries.filter(([k,d]) => new Date(d) >= monthAgo).length;
+
+  // Estimated completion date
+  const remaining = totalTasks - completedTasks;
+  let estDateHtml = '';
+  if (last7 > 0 && remaining > 0) {
+    const tasksPerWeek = last30 > 0 ? last30 / (30 / 7) : last7;
+    const weeksNeeded = remaining / tasksPerWeek;
+    const estDate = new Date(now.getTime() + weeksNeeded * 7 * 86400000);
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    estDateHtml = months[estDate.getMonth()] + ' ' + estDate.getDate() + ', ' + estDate.getFullYear();
+  } else if (remaining === 0) {
+    estDateHtml = 'All done!';
+  } else {
+    estDateHtml = 'Complete more tasks to estimate';
+  }
+
+  // ASCII progress bar
+  const barLen = 30;
+  const filledLen = Math.round(completedTasks / totalTasks * barLen);
+  const asciiBar = '<span class="filled">' + '|'.repeat(filledLen) + '</span>' + '-'.repeat(barLen - filledLen);
+
+  container.innerHTML = `<section class="progress-stats">
+    <h2 onclick="this.nextElementSibling.classList.toggle('open')">&#128200; Progress Stats <span style="font-size:0.75rem;font-family:Inter,sans-serif;color:var(--text-dim);font-weight:400">(click to expand)</span></h2>
+    <div class="ps-body">
+      <div class="ps-grid">
+        <div class="ps-stat">
+          <div class="ps-value">${completedTasks}/${totalTasks}</div>
+          <div class="ps-label">Tasks completed (${overallPct}%)</div>
+        </div>
+        <div class="ps-stat">
+          <div class="ps-value">${last7}</div>
+          <div class="ps-label">Completed last 7 days</div>
+        </div>
+        <div class="ps-stat">
+          <div class="ps-value">${last30}</div>
+          <div class="ps-label">Completed last 30 days</div>
+        </div>
+        <div class="ps-stat">
+          <div class="ps-value" style="font-size:1rem">${estDateHtml}</div>
+          <div class="ps-label">Est. completion date</div>
+        </div>
+      </div>
+      <div class="ascii-bar">[${asciiBar}] ${overallPct}%</div>
+      ${renderHeatmap()}
+      ${renderProgressChart()}
+    </div>
+  </section>`;
+}
+
+/* ========== FEATURE 7: HIDE/DISMISS TASKS ========== */
+
+function toggleHideTask(key) {
+  if (!state.hiddenTasks) state.hiddenTasks = [];
+  const idx = state.hiddenTasks.indexOf(key);
+  if (idx >= 0) {
+    state.hiddenTasks.splice(idx, 1);
+  } else {
+    state.hiddenTasks.push(key);
+  }
+  saveState();
+
+  // Update the element
+  const el = document.querySelector(`[data-key="${key}"]`);
+  if (el) {
+    const isNowHidden = state.hiddenTasks.includes(key);
+    el.classList.toggle('hidden-task', isNowHidden);
+    el.classList.toggle('show-hidden', isNowHidden && state.showHidden);
+    const hideBtn = el.querySelector('.hide-task-btn');
+    if (hideBtn) hideBtn.title = isNowHidden ? 'Unhide task' : 'Hide task';
+  }
+  renderHiddenToggleVisibility();
+}
+
+function toggleShowHidden() {
+  state.showHidden = !state.showHidden;
+  saveState();
+  document.querySelectorAll('.checklist-item.hidden-task').forEach(el => {
+    el.classList.toggle('show-hidden', state.showHidden);
+  });
+  renderHiddenToggleVisibility();
+}
+
+function renderHiddenToggleVisibility() {
+  const btn = document.getElementById('showHiddenBtn');
+  const count = (state.hiddenTasks || []).length;
+  if (count > 0) {
+    btn.style.display = '';
+    btn.textContent = state.showHidden ? 'Hide hidden (' + count + ')' : 'Show hidden (' + count + ')';
+    btn.classList.toggle('active', state.showHidden);
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+/* ========== FEATURE: CELEBRATION ANIMATIONS ========== */
+
+function triggerConfetti(originEl) {
+  if (!state.celebrationsEnabled) return;
+  const rect = originEl.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const colors = ['#d4a853','#e8c96a','#60a5fa','#4ade80','#a78bfa','#f59e0b'];
+  for (let i = 0; i < 50; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-particle';
+    p.style.left = cx + 'px';
+    p.style.top = cy + 'px';
+    p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 40 + Math.random() * 80;
+    const tx = Math.cos(angle) * dist;
+    const ty = Math.sin(angle) * dist - 20;
+    const rot = Math.random() * 720 - 360;
+    p.style.animation = 'none';
+    p.offsetHeight; // force reflow
+    p.style.setProperty('animation', 'confetti-burst 1.5s ease-out forwards');
+    p.style.setProperty('--tx', tx + 'px');
+    p.style.setProperty('--ty', ty + 'px');
+    // Use inline keyframes via transform
+    p.animate([
+      { transform: 'translate(0,0) rotate(0deg) scale(1)', opacity: 1 },
+      { transform: `translate(${tx}px,${ty}px) rotate(${rot}deg) scale(0.5)`, opacity: 0 }
+    ], { duration: 1500, easing: 'ease-out', fill: 'forwards' });
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 1600);
+  }
+}
+
+function triggerTaskFlash(el) {
+  if (!state.celebrationsEnabled) return;
+  el.classList.remove('celebrating');
+  el.offsetHeight; // force reflow
+  el.classList.add('celebrating');
+  setTimeout(() => el.classList.remove('celebrating'), 500);
+}
+
+function triggerAchievementComplete() {
+  if (!state.celebrationsEnabled) return;
+  const banner = document.createElement('div');
+  banner.className = 'ach-complete-banner';
+  banner.innerHTML = 'Achievement Complete!<div class="shimmer-bar"></div>';
+  document.body.appendChild(banner);
+  setTimeout(() => { banner.classList.add('fade-out'); }, 2000);
+  setTimeout(() => banner.remove(), 2500);
+}
+
+function toggleCelebrations(enabled) {
+  state.celebrationsEnabled = enabled;
+  saveState();
+}
+
+/* ========== FEATURE: COMPLETION HEATMAP CALENDAR ========== */
+
+function renderHeatmap() {
+  const dates = state.completionDates || {};
+  const dateEntries = Object.values(dates);
+  if (dateEntries.length === 0) return '';
+
+  // Count completions per day for last 90 days
+  const now = new Date();
+  const dayCounts = {};
+  const dayMs = 86400000;
+
+  dateEntries.forEach(isoStr => {
+    const d = new Date(isoStr);
+    const key = d.toISOString().split('T')[0];
+    dayCounts[key] = (dayCounts[key] || 0) + 1;
+  });
+
+  // Build 90-day grid (13 weeks)
+  const weeks = 13;
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dayOfWeek = today.getDay(); // 0=Sun
+  // Start from the beginning of the oldest week
+  const startDate = new Date(today.getTime() - ((weeks * 7 - 1 + dayOfWeek) * dayMs));
+
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dayLabels = ['','M','','W','','F',''];
+
+  // Build month headers
+  let monthHeaders = '<div class="heatmap-label"></div>'; // empty corner
+  let lastMonth = -1;
+  for (let w = 0; w < weeks; w++) {
+    const weekStartDate = new Date(startDate.getTime() + w * 7 * dayMs);
+    const m = weekStartDate.getMonth();
+    if (m !== lastMonth) {
+      monthHeaders += `<div class="heatmap-month">${months[m]}</div>`;
+      lastMonth = m;
+    } else {
+      monthHeaders += '<div class="heatmap-month"></div>';
+    }
+  }
+
+  // Build grid rows (7 days: Sun-Sat)
+  let rows = '';
+  for (let d = 0; d < 7; d++) {
+    rows += `<div class="heatmap-label">${dayLabels[d]}</div>`;
+    for (let w = 0; w < weeks; w++) {
+      const cellDate = new Date(startDate.getTime() + (w * 7 + d) * dayMs);
+      const key = cellDate.toISOString().split('T')[0];
+      const count = dayCounts[key] || 0;
+      const isFuture = cellDate > today;
+
+      let level = 'level-0';
+      if (!isFuture && count >= 4) level = 'level-3';
+      else if (!isFuture && count >= 2) level = 'level-2';
+      else if (!isFuture && count >= 1) level = 'level-1';
+
+      const tooltipDate = months[cellDate.getMonth()] + ' ' + cellDate.getDate();
+      const tooltipText = isFuture ? '' : count + ' task' + (count !== 1 ? 's' : '') + ' completed on ' + tooltipDate;
+
+      rows += `<div class="heatmap-cell ${level}"${isFuture ? ' style="opacity:0.3"' : ''}>
+        ${!isFuture ? '<div class="heatmap-tooltip">' + tooltipText + '</div>' : ''}
+      </div>`;
+    }
+  }
+
+  return `<div class="heatmap-section">
+    <h3>Activity</h3>
+    <div class="heatmap-grid">${monthHeaders}${rows}</div>
+  </div>`;
+}
+
+/* ========== FEATURE: PROGRESS CHART (Canvas) ========== */
+
+function renderProgressChart() {
+  const dates = state.completionDates || {};
+  const dateEntries = Object.entries(dates);
+  if (dateEntries.length < 2) {
+    return `<div class="chart-section">
+      <h3 aria-expanded="false" onclick="toggleChartSection(this)"><span class="chart-chevron">&#9662;</span> Progress Over Time</h3>
+      <div class="chart-body collapsed"><div class="chart-empty">Complete more tasks to see your progress chart</div></div>
+    </div>`;
+  }
+
+  return `<div class="chart-section">
+    <h3 aria-expanded="false" onclick="toggleChartSection(this)"><span class="chart-chevron">&#9662;</span> Progress Over Time</h3>
+    <div class="chart-body collapsed"><canvas id="progressChartCanvas" class="chart-canvas"></canvas></div>
+  </div>`;
+}
+
+function toggleChartSection(header) {
+  const expanded = header.getAttribute('aria-expanded') === 'true';
+  header.setAttribute('aria-expanded', !expanded);
+  header.nextElementSibling.classList.toggle('collapsed', expanded);
+  if (!expanded) {
+    // Draw chart when expanded
+    setTimeout(() => drawProgressChart(), 50);
+  }
+}
+
+function drawProgressChart() {
+  const canvas = document.getElementById('progressChartCanvas');
+  if (!canvas) return;
+
+  const dates = state.completionDates || {};
+  const dateEntries = Object.entries(dates);
+  if (dateEntries.length < 2) return;
+
+  // Sort by date
+  dateEntries.sort((a, b) => new Date(a[1]) - new Date(b[1]));
+
+  // Build cumulative data for last 60 days
+  const now = new Date();
+  const dayMs = 86400000;
+  const startDate = new Date(now.getTime() - 60 * dayMs);
+  const allDates = [];
+
+  // Count all completions before the start date
+  let cumulativeBefore = 0;
+  dateEntries.forEach(([k, d]) => {
+    if (new Date(d) < startDate) cumulativeBefore++;
+  });
+
+  // Build daily cumulative counts
+  const dailyCounts = {};
+  dateEntries.forEach(([k, d]) => {
+    const dt = new Date(d);
+    if (dt >= startDate) {
+      const key = dt.toISOString().split('T')[0];
+      dailyCounts[key] = (dailyCounts[key] || 0) + 1;
+    }
+  });
+
+  let cumulative = cumulativeBefore;
+  const dataPoints = [];
+  for (let i = 0; i <= 60; i++) {
+    const d = new Date(startDate.getTime() + i * dayMs);
+    const key = d.toISOString().split('T')[0];
+    if (dailyCounts[key]) cumulative += dailyCounts[key];
+    dataPoints.push({ date: d, count: cumulative });
+  }
+
+  // Set canvas size for high DPI
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = 200 * dpr;
+  canvas.style.height = '200px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const w = rect.width;
+  const h = 200;
+  const padL = 45;
+  const padR = 15;
+  const padT = 15;
+  const padB = 30;
+  const chartW = w - padL - padR;
+  const chartH = h - padT - padB;
+
+  // Clear
+  ctx.fillStyle = 'rgba(0,0,0,0.2)';
+  ctx.fillRect(0, 0, w, h);
+
+  const minVal = dataPoints[0].count;
+  const maxVal = dataPoints[dataPoints.length - 1].count;
+  const range = Math.max(maxVal - minVal, 1);
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(94,90,78,0.3)';
+  ctx.lineWidth = 1;
+  const gridLines = 4;
+  for (let i = 0; i <= gridLines; i++) {
+    const y = padT + (chartH / gridLines) * i;
+    ctx.beginPath();
+    ctx.moveTo(padL, y);
+    ctx.lineTo(w - padR, y);
+    ctx.stroke();
+
+    // Y-axis labels
+    const val = Math.round(maxVal - (range / gridLines) * i);
+    ctx.fillStyle = '#5e5a4e';
+    ctx.font = '10px Inter, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(val, padL - 5, y + 3);
+  }
+
+  // X-axis labels (every ~15 days)
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  ctx.fillStyle = '#5e5a4e';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  for (let i = 0; i <= 60; i += 15) {
+    const x = padL + (i / 60) * chartW;
+    const d = dataPoints[i].date;
+    ctx.fillText(months[d.getMonth()] + ' ' + d.getDate(), x, h - 5);
+  }
+
+  // Gradient fill below line
+  const grad = ctx.createLinearGradient(0, padT, 0, padT + chartH);
+  grad.addColorStop(0, 'rgba(212,168,83,0.3)');
+  grad.addColorStop(1, 'rgba(212,168,83,0.02)');
+
+  ctx.beginPath();
+  ctx.moveTo(padL, padT + chartH);
+  for (let i = 0; i < dataPoints.length; i++) {
+    const x = padL + (i / 60) * chartW;
+    const y = padT + chartH - ((dataPoints[i].count - minVal) / range) * chartH;
+    ctx.lineTo(x, y);
+  }
+  ctx.lineTo(padL + chartW, padT + chartH);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  for (let i = 0; i < dataPoints.length; i++) {
+    const x = padL + (i / 60) * chartW;
+    const y = padT + chartH - ((dataPoints[i].count - minVal) / range) * chartH;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.strokeStyle = '#d4a853';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Data points (dots) at every 10 days
+  for (let i = 0; i <= 60; i += 10) {
+    const x = padL + (i / 60) * chartW;
+    const y = padT + chartH - ((dataPoints[i].count - minVal) / range) * chartH;
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#d4a853';
+    ctx.fill();
+  }
+}
+
+/* ========== FEATURE: COMPACT/DETAILED VIEW TOGGLE ========== */
+
+function setViewDensity(density, btn) {
+  state.viewDensity = density;
+  saveState();
+  document.querySelectorAll('#viewDensityGroup .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyViewDensity();
+}
+
+function applyViewDensity() {
+  const container = document.querySelector('.main-content');
+  if (state.viewDensity === 'compact') {
+    container.classList.add('compact-mode');
+  } else {
+    container.classList.remove('compact-mode');
+  }
+}
+
+/* ========== FEATURE: KEYBOARD SHORTCUTS ========== */
+
+let kbFocusedIndex = -1;
+
+function getVisibleChecklistItems() {
+  return Array.from(document.querySelectorAll('.checklist-item:not(.filtered-out):not(.hidden-task)'));
+}
+
+function clearKbFocus() {
+  document.querySelectorAll('.checklist-item.keyboard-focused').forEach(function(el) { el.classList.remove('keyboard-focused'); });
+}
+
+function setKbFocus(idx) {
+  var items = getVisibleChecklistItems();
+  if (items.length === 0) return;
+  clearKbFocus();
+  kbFocusedIndex = Math.max(0, Math.min(idx, items.length - 1));
+  var el = items[kbFocusedIndex];
+  el.classList.add('keyboard-focused');
+  el.scrollIntoView({block: 'nearest', behavior: 'smooth'});
+}
+
+function toggleKbShortcutsOverlay() {
+  var overlay = document.getElementById('kbdOverlay');
+  if (overlay) {
+    overlay.remove();
+    return;
+  }
+  overlay = document.createElement('div');
+  overlay.className = 'kbd-overlay';
+  overlay.id = 'kbdOverlay';
+  overlay.innerHTML = '<div class="kbd-overlay-inner">' +
+    '<h2>Keyboard Shortcuts</h2>' +
+    '<div class="kbd-grid">' +
+    '<span class="kbd-key">?</span><span class="kbd-desc">Toggle this help overlay</span>' +
+    '<span class="kbd-key">Esc</span><span class="kbd-desc">Close overlay / exit bulk mode</span>' +
+    '<span class="kbd-key">/</span><span class="kbd-desc">Focus the search input</span>' +
+    '<span class="kbd-key">j</span><span class="kbd-desc">Move down to next checklist item</span>' +
+    '<span class="kbd-key">k</span><span class="kbd-desc">Move up to previous checklist item</span>' +
+    '<span class="kbd-key">Space / Enter</span><span class="kbd-desc">Toggle checkbox of focused item</span>' +
+    '<span class="kbd-key">e</span><span class="kbd-desc">Expand/collapse details of focused item</span>' +
+    '<span class="kbd-key">1</span><span class="kbd-desc">Filter: All</span>' +
+    '<span class="kbd-key">2</span><span class="kbd-desc">Filter: Incomplete</span>' +
+    '<span class="kbd-key">3</span><span class="kbd-desc">Filter: Completed</span>' +
+    '<span class="kbd-key">Ctrl+Z</span><span class="kbd-desc">Undo last action</span>' +
+    '<span class="kbd-key">Ctrl+Shift+Z</span><span class="kbd-desc">Redo last undone action</span>' +
+    '</div>' +
+    '<div style="text-align:center;margin-top:1.5rem">' +
+    '<button class="btn btn-sm" onclick="document.getElementById(\'kbdOverlay\').remove()">Close</button>' +
+    '</div>' +
+    '</div>';
+  overlay.addEventListener('click', function(ev) {
+    if (ev.target === overlay) overlay.remove();
+  });
+  document.body.appendChild(overlay);
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+    if (e.key === 'Escape') {
+      e.target.blur();
+      e.preventDefault();
+    }
+    return;
+  }
+
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'z' || e.key === 'Z')) {
+    e.preventDefault();
+    performRedo();
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
+    e.preventDefault();
+    performUndo();
+    return;
+  }
+
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+  switch(e.key) {
+    case '?':
+      e.preventDefault();
+      toggleKbShortcutsOverlay();
+      break;
+    case 'Escape':
+      e.preventDefault();
+      if (document.getElementById('kbdOverlay')) {
+        document.getElementById('kbdOverlay').remove();
+      } else if (bulkMode) {
+        cancelBulkMode();
+      } else {
+        clearKbFocus();
+        kbFocusedIndex = -1;
+      }
+      break;
+    case '/':
+      e.preventDefault();
+      document.getElementById('searchInput').focus();
+      break;
+    case 'j':
+      e.preventDefault();
+      setKbFocus(kbFocusedIndex + 1);
+      break;
+    case 'k':
+      e.preventDefault();
+      setKbFocus(kbFocusedIndex <= 0 ? 0 : kbFocusedIndex - 1);
+      break;
+    case ' ':
+    case 'Enter':
+      if (kbFocusedIndex >= 0) {
+        e.preventDefault();
+        var visItems = getVisibleChecklistItems();
+        if (kbFocusedIndex < visItems.length) {
+          var focusedEl = visItems[kbFocusedIndex];
+          var cb = focusedEl.querySelector('input[type="checkbox"]');
+          if (cb) {
+            cb.checked = !cb.checked;
+            cb.dispatchEvent(new Event('change'));
+          }
+        }
+      }
+      break;
+    case 'e':
+      if (kbFocusedIndex >= 0) {
+        e.preventDefault();
+        var visItems2 = getVisibleChecklistItems();
+        if (kbFocusedIndex < visItems2.length) {
+          var focusedEl2 = visItems2[kbFocusedIndex];
+          var expandBtn = focusedEl2.querySelector('.expand-btn');
+          if (expandBtn) expandBtn.click();
+        }
+      }
+      break;
+    case '1':
+      e.preventDefault();
+      document.querySelectorAll('#completionFilter .filter-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelector('#completionFilter .filter-btn[data-filter="all"]').classList.add('active');
+      state.completionFilter = 'all';
+      saveState();
+      applyFilters();
+      break;
+    case '2':
+      e.preventDefault();
+      document.querySelectorAll('#completionFilter .filter-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelector('#completionFilter .filter-btn[data-filter="incomplete"]').classList.add('active');
+      state.completionFilter = 'incomplete';
+      saveState();
+      applyFilters();
+      break;
+    case '3':
+      e.preventDefault();
+      document.querySelectorAll('#completionFilter .filter-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelector('#completionFilter .filter-btn[data-filter="completed"]').classList.add('active');
+      state.completionFilter = 'completed';
+      saveState();
+      applyFilters();
+      break;
+  }
+});
+
+/* ========== FEATURE: UNDO / REDO SYSTEM ========== */
+
+let undoStack = [];
+let redoStack = [];
+
+function pushUndo(action) {
+  undoStack.push(action);
+  if (undoStack.length > 20) undoStack.shift();
+  redoStack = [];
+}
+
+function showUndoToast(message) {
+  var existing = document.querySelector('.undo-toast');
+  if (existing) existing.remove();
+  var toast = document.createElement('div');
+  toast.className = 'undo-toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 2100);
+}
+
+function performUndo() {
+  if (undoStack.length === 0) return;
+  var action = undoStack.pop();
+
+  if (action.type === 'check' || action.type === 'uncheck') {
+    var reverseChecked = action.type === 'check' ? false : true;
+    state.checkedItems[action.key] = reverseChecked;
+    if (reverseChecked) {
+      state.completionDates[action.key] = action.previousDate || new Date().toISOString();
+    } else {
+      delete state.completionDates[action.key];
+    }
+    saveState();
+    var el = document.querySelector('[data-key="' + action.key + '"]');
+    if (el) {
+      el.classList.toggle('done', reverseChecked);
+      var cb = el.querySelector('input[type="checkbox"]');
+      if (cb) cb.checked = reverseChecked;
+    }
+    updateProgress(action.achievement);
+    renderHeaderProgress();
+    renderDoNext();
+    applyFilters();
+    var itemName = action.name || action.key;
+    var verb = action.type === 'check' ? 'unchecked' : 'rechecked';
+    showUndoToast('Undid: ' + verb + ' \'' + itemName + '\'');
+    redoStack.push(action);
+  } else if (action.type === 'otter') {
+    var currentVal = state.otterCount;
+    state.otterCount = action.previousValue;
+    saveState();
+    var otterInput = document.getElementById('otterInput');
+    if (otterInput) otterInput.value = state.otterCount;
+    var pct = (state.otterCount / 320 * 100).toFixed(1);
+    var otterBarFill = document.getElementById('otterBarFill');
+    if (otterBarFill) otterBarFill.style.width = pct + '%';
+    var progFill = document.getElementById('prog-fill-otter');
+    if (progFill) progFill.style.width = pct + '%';
+    var progText = document.getElementById('prog-text-otter');
+    if (progText) progText.textContent = state.otterCount + ' / 320 Memories';
+    updateTierDots('otter');
+    renderHeaderProgress();
+    showUndoToast('Undid: otter count ' + currentVal + ' -> ' + state.otterCount);
+    redoStack.push({type: 'otter', previousValue: currentVal});
+  }
+}
+
+function performRedo() {
+  if (redoStack.length === 0) return;
+  var action = redoStack.pop();
+
+  if (action.type === 'check' || action.type === 'uncheck') {
+    var checked = action.type === 'check';
+    state.checkedItems[action.key] = checked;
+    if (checked) {
+      state.completionDates[action.key] = new Date().toISOString();
+    } else {
+      delete state.completionDates[action.key];
+    }
+    saveState();
+    var el = document.querySelector('[data-key="' + action.key + '"]');
+    if (el) {
+      el.classList.toggle('done', checked);
+      var cb = el.querySelector('input[type="checkbox"]');
+      if (cb) cb.checked = checked;
+    }
+    updateProgress(action.achievement);
+    renderHeaderProgress();
+    renderDoNext();
+    applyFilters();
+    var itemName = action.name || action.key;
+    var verb = checked ? 'rechecked' : 'unchecked';
+    showUndoToast('Redid: ' + verb + ' \'' + itemName + '\'');
+    undoStack.push(action);
+    if (undoStack.length > 20) undoStack.shift();
+  } else if (action.type === 'otter') {
+    var currentVal = state.otterCount;
+    state.otterCount = action.previousValue;
+    saveState();
+    var otterInput = document.getElementById('otterInput');
+    if (otterInput) otterInput.value = state.otterCount;
+    var pct = (state.otterCount / 320 * 100).toFixed(1);
+    var otterBarFill = document.getElementById('otterBarFill');
+    if (otterBarFill) otterBarFill.style.width = pct + '%';
+    var progFill = document.getElementById('prog-fill-otter');
+    if (progFill) progFill.style.width = pct + '%';
+    var progText = document.getElementById('prog-text-otter');
+    if (progText) progText.textContent = state.otterCount + ' / 320 Memories';
+    updateTierDots('otter');
+    renderHeaderProgress();
+    showUndoToast('Redid: otter count ' + currentVal + ' -> ' + state.otterCount);
+    undoStack.push({type: 'otter', previousValue: currentVal});
+    if (undoStack.length > 20) undoStack.shift();
+  }
+}
+
+/* ========== FEATURE: BULK OPERATIONS ========== */
+
+let bulkMode = false;
+let bulkSelected = new Set();
+
+function toggleBulkMode() {
+  bulkMode = !bulkMode;
+  var btn = document.getElementById('bulkSelectBtn');
+  btn.classList.toggle('active', bulkMode);
+  document.querySelector('.main-content').classList.toggle('bulk-mode', bulkMode);
+
+  if (bulkMode) {
+    bulkSelected.clear();
+    showBulkActionBar();
+  } else {
+    cancelBulkMode();
+  }
+}
+
+function cancelBulkMode() {
+  bulkMode = false;
+  bulkSelected.clear();
+  var btn = document.getElementById('bulkSelectBtn');
+  btn.classList.remove('active');
+  document.querySelector('.main-content').classList.remove('bulk-mode');
+  document.querySelectorAll('.bulk-cb.selected').forEach(function(el) { el.classList.remove('selected'); });
+  var bar = document.getElementById('bulkActionBar');
+  if (bar) bar.remove();
+}
+
+function toggleBulkItem(key, cbEl) {
+  if (!bulkMode) return;
+  if (bulkSelected.has(key)) {
+    bulkSelected.delete(key);
+    cbEl.classList.remove('selected');
+  } else {
+    bulkSelected.add(key);
+    cbEl.classList.add('selected');
+  }
+  updateBulkCount();
+}
+
+function showBulkActionBar() {
+  var bar = document.getElementById('bulkActionBar');
+  if (bar) bar.remove();
+
+  bar = document.createElement('div');
+  bar.className = 'bulk-action-bar';
+  bar.id = 'bulkActionBar';
+  bar.innerHTML = '<span class="bulk-count" id="bulkCount">0 selected</span>' +
+    '<button class="btn btn-primary btn-sm" onclick="bulkMarkDone()">Mark Done</button>' +
+    '<button class="btn btn-sm" onclick="bulkMarkUndone()">Mark Undone</button>' +
+    '<button class="btn btn-danger btn-sm" onclick="cancelBulkMode()">Cancel</button>';
+  document.body.appendChild(bar);
+}
+
+function updateBulkCount() {
+  var el = document.getElementById('bulkCount');
+  if (el) el.textContent = bulkSelected.size + ' selected';
+}
+
+function bulkMarkDone() {
+  var allItems = getAllChecklistItems();
+  var itemMap = {};
+  allItems.forEach(function(it) { itemMap[it.key] = it; });
+  bulkSelected.forEach(function(key) {
+    var it = itemMap[key];
+    if (it && !state.checkedItems[key]) {
+      pushUndo({type: 'check', key: key, achievement: it.achievement, name: it.name, previousDate: state.completionDates[key]});
+      onCheck(key, it.achievement, true);
+    }
+  });
+  cancelBulkMode();
+}
+
+function bulkMarkUndone() {
+  var allItems = getAllChecklistItems();
+  var itemMap = {};
+  allItems.forEach(function(it) { itemMap[it.key] = it; });
+  bulkSelected.forEach(function(key) {
+    var it = itemMap[key];
+    if (it && state.checkedItems[key]) {
+      pushUndo({type: 'uncheck', key: key, achievement: it.achievement, name: it.name, previousDate: state.completionDates[key]});
+      onCheck(key, it.achievement, false);
+    }
+  });
+  cancelBulkMode();
+}
+
 /* ========== INIT ========== */
+
+// Check for shared progress link
+checkShareLink();
+
 renderAll();
 populateGroups();
 renderStarterPacks();
@@ -2725,6 +5182,39 @@ async function initSearchIndex() {
 }
 initSearchIndex();
 
+// Start reset timers
+updateResetTimers();
+setInterval(updateResetTimers, 1000);
+
+// Fetch Mystic Coin price for cost calculator
+if (isEnrichedPinned('gizmos')) {
+  fetchMysticCoinPrice().then(() => {
+    renderShoppingList();
+    renderCostCalculator();
+  });
+}
+
+// Share button
+document.getElementById('shareBtn').addEventListener('click', shareProgress);
+
+// Restore view mode button state
+if (state.viewMode === 'map') {
+  document.querySelectorAll('#viewModeGroup .filter-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.view === 'map');
+  });
+}
+
+// Restore celebrations toggle state
+document.getElementById('celebrationsToggle').checked = state.celebrationsEnabled !== false;
+
+// Restore view density button state
+if (state.viewDensity === 'compact') {
+  document.querySelectorAll('#viewDensityGroup .filter-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.density === 'compact');
+  });
+  applyViewDensity();
+}
+
 // Show last sync time if available
 if (state.lastSync) {
   const d = new Date(state.lastSync);
@@ -2735,6 +5225,421 @@ if (state.lastSync) {
 if (savedKey) {
   setTimeout(() => { document.getElementById('syncBtn').click(); }, 500);
 }
+
+/* ========== FEATURE: PWA SUPPORT ========== */
+
+(function setupPWA() {
+  // Generate SVG icon as data URI (gold shield with star)
+  const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e8c96a"/><stop offset="100%" stop-color="#8a7234"/></linearGradient></defs>
+    <path d="M256 32l192 64v160c0 106-80 186-192 224C144 442 64 362 64 256V96z" fill="url(#g)" stroke="#d4a853" stroke-width="8"/>
+    <path d="M256 120l30 62 68 10-49 48 12 68-61-32-61 32 12-68-49-48 68-10z" fill="#1a1a2e"/>
+  </svg>`;
+  const iconDataUri = 'data:image/svg+xml;base64,' + btoa(svgIcon);
+
+  // Generate manifest as blob URL
+  const manifest = {
+    name: 'GW2 Achievement Tracker',
+    short_name: 'GW2 Tracker',
+    description: 'Track Guild Wars 2 achievement progress',
+    start_url: './',
+    display: 'standalone',
+    background_color: '#1a1a2e',
+    theme_color: '#d4a853',
+    icons: [
+      { src: iconDataUri, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
+    ]
+  };
+  const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+  const manifestUrl = URL.createObjectURL(manifestBlob);
+  const manifestLink = document.createElement('link');
+  manifestLink.rel = 'manifest';
+  manifestLink.href = manifestUrl;
+  document.head.appendChild(manifestLink);
+
+  // Add apple-touch-icon
+  const appleIcon = document.createElement('link');
+  appleIcon.rel = 'apple-touch-icon';
+  appleIcon.href = iconDataUri;
+  document.head.appendChild(appleIcon);
+
+  // Register service worker from blob URL
+  if ('serviceWorker' in navigator) {
+    const swCode = `
+      const CACHE_NAME = 'gw2-tracker-v1';
+      const CACHE_URLS = ['./', './index.html', './search-index.json'];
+
+      self.addEventListener('install', event => {
+        event.waitUntil(
+          caches.open(CACHE_NAME).then(cache => cache.addAll(CACHE_URLS))
+        );
+        self.skipWaiting();
+      });
+
+      self.addEventListener('activate', event => {
+        event.waitUntil(
+          caches.keys().then(keys =>
+            Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+          )
+        );
+        self.clients.claim();
+      });
+
+      self.addEventListener('fetch', event => {
+        const url = new URL(event.request.url);
+        // Cache-first for own files
+        if (url.origin === location.origin) {
+          event.respondWith(
+            caches.match(event.request).then(cached => cached || fetch(event.request).then(resp => {
+              const clone = resp.clone();
+              caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+              return resp;
+            }))
+          );
+          return;
+        }
+        // Network-first for API calls
+        if (url.hostname === 'api.guildwars2.com') {
+          event.respondWith(
+            fetch(event.request).catch(() => caches.match(event.request))
+          );
+          return;
+        }
+        event.respondWith(fetch(event.request));
+      });
+    `;
+    const swBlob = new Blob([swCode], { type: 'application/javascript' });
+    const swUrl = URL.createObjectURL(swBlob);
+    navigator.serviceWorker.register(swUrl, { scope: './' }).catch(() => {
+      // Blob URL SW registration may fail in some browsers; that is acceptable
+    });
+  }
+
+  // Handle install prompt
+  let deferredPrompt = null;
+  const installBtn = document.getElementById('pwaInstallBtn');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.classList.add('visible');
+  });
+
+  installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const result = await deferredPrompt.userChoice;
+    if (result.outcome === 'accepted') {
+      installBtn.classList.remove('visible');
+    }
+    deferredPrompt = null;
+  });
+
+  window.addEventListener('appinstalled', () => {
+    installBtn.classList.remove('visible');
+    deferredPrompt = null;
+  });
+})();
+
+/* ========== FEATURE: BROWSER NOTIFICATIONS ========== */
+
+function setupNotifications() {
+  // Load saved state
+  if (state.notificationsEnabled == null) state.notificationsEnabled = false;
+  const btn = document.getElementById('notifToggleBtn');
+  const statusEl = document.getElementById('notifStatus');
+
+  function updateNotifUI() {
+    btn.classList.toggle('active', state.notificationsEnabled);
+    btn.innerHTML = state.notificationsEnabled ? '&#128276; Notifications On' : '&#128276; Notifications';
+    if (state.notificationsEnabled) {
+      if (Notification.permission === 'denied') {
+        statusEl.textContent = 'Notifications blocked by browser. Please enable in browser settings.';
+        statusEl.style.color = 'var(--red)';
+      } else if (Notification.permission === 'granted') {
+        statusEl.textContent = 'Notifications active — daily reset & meta event reminders';
+        statusEl.style.color = 'var(--green)';
+      } else {
+        statusEl.textContent = '';
+      }
+    } else {
+      statusEl.textContent = '';
+    }
+  }
+
+  btn.addEventListener('click', async () => {
+    if (!('Notification' in window)) {
+      statusEl.textContent = 'Notifications not supported in this browser.';
+      statusEl.style.color = 'var(--red)';
+      return;
+    }
+
+    if (state.notificationsEnabled) {
+      // Turn off
+      state.notificationsEnabled = false;
+      saveState();
+      updateNotifUI();
+      return;
+    }
+
+    // Turn on — request permission
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      state.notificationsEnabled = true;
+      saveState();
+      updateNotifUI();
+    } else if (permission === 'denied') {
+      state.notificationsEnabled = false;
+      saveState();
+      statusEl.textContent = 'Notifications were denied. Enable them in your browser settings for this site.';
+      statusEl.style.color = 'var(--red)';
+    }
+  });
+
+  updateNotifUI();
+
+  // Start checking timers
+  setInterval(checkNotificationTimers, 60000);
+}
+
+function checkNotificationTimers() {
+  if (!state.notificationsEnabled) return;
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+  const now = new Date();
+  const utcH = now.getUTCHours();
+  const utcM = now.getUTCMinutes();
+
+  // Daily reset notification: warn at 23:45 UTC (15 min before reset)
+  if (utcH === 23 && utcM >= 45 && utcM <= 46) {
+    new Notification('GW2 Daily Reset Soon!', {
+      body: 'Daily reset in ' + (60 - utcM) + ' minutes. Finish your dailies!',
+      icon: 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#d4a853"/><text x="32" y="44" font-size="36" text-anchor="middle" fill="#1a1a2e">!</text></svg>'),
+      tag: 'gw2-daily-reset'
+    });
+  }
+
+  // Palawadan meta: every even hour UTC (0, 2, 4, 6, ...)
+  if (utcH % 2 === 0 && utcM >= 0 && utcM <= 1) {
+    new Notification('Palawadan Meta Starting!', {
+      body: 'Great Hall of Istan meta event is starting now.',
+      tag: 'gw2-palawadan'
+    });
+  }
+
+  // Drakkar: every odd hour UTC starting 1:00 (1, 3, 5, 7, ...)
+  if (utcH % 2 === 1 && utcM >= 0 && utcM <= 1) {
+    new Notification('Drakkar World Boss!', {
+      body: 'Drakkar in Bjora Marches is starting now.',
+      tag: 'gw2-drakkar'
+    });
+  }
+}
+
+setupNotifications();
+
+/* ========== FEATURE: GOLD FARMING CALCULATOR ========== */
+
+function renderGoldFarmingGuide() {
+  const container = document.getElementById('dynamicPanels');
+  if (!container) return;
+
+  // Only show if gizmos or otter is active
+  const gizmosActive = isEnrichedPinned('gizmos');
+  const otterActive = isEnrichedPinned('otter');
+  if (!gizmosActive && !otterActive) return;
+
+  // Calculate total gold needed
+  let totalGoldCoppers = 0;
+  let goldBreakdown = [];
+
+  if (gizmosActive) {
+    // Griffon cost
+    if (!state.checkedItems['g-griffon']) {
+      totalGoldCoppers += 2500000;
+      goldBreakdown.push({ name: 'Griffon Mount', coppers: 2500000 });
+    }
+
+    // Vendor purchases (LA device, HoM stone)
+    if (!state.checkedItems['g-la-device']) {
+      totalGoldCoppers += 60000;
+      goldBreakdown.push({ name: 'LA Teleportation Device', coppers: 60000 });
+    }
+    if (!state.checkedItems['g-hom-stone']) {
+      totalGoldCoppers += 75000;
+      goldBreakdown.push({ name: 'HoM Portal Stone', coppers: 75000 });
+    }
+
+    // S4 + IBS scroll gold costs
+    const scrollGoldKeys = [
+      'g-istan-scroll', 'g-sandswept-scroll', 'g-kourna-scroll',
+      'g-jahai-scroll', 'g-thunderhead-scroll', 'g-dragonfall-scroll',
+      'g-grothmar-scroll', 'g-bjora-scroll', 'g-drizzlewood-scroll'
+    ];
+    let scrollGold = 0;
+    scrollGoldKeys.forEach(k => {
+      if (!state.checkedItems[k]) scrollGold += 10000;
+    });
+    if (scrollGold > 0) {
+      totalGoldCoppers += scrollGold;
+      goldBreakdown.push({ name: 'Portal Scrolls (vendor)', coppers: scrollGold });
+    }
+
+    // Mystic Coin costs for city scrolls
+    const cityScrollKeys = ['g-bc-scroll','g-dr-scroll','g-hoelbrak-scroll','g-la-scroll','g-rata-scroll','g-grove-scroll','g-ebonhawke-scroll'];
+    let coinsNeeded = 0;
+    cityScrollKeys.forEach(k => {
+      if (!state.checkedItems[k]) coinsNeeded += 50;
+    });
+    if (coinsNeeded > 0 && mysticCoinPrice) {
+      const coinCost = coinsNeeded * mysticCoinPrice;
+      totalGoldCoppers += coinCost;
+      goldBreakdown.push({ name: coinsNeeded + ' Mystic Coins (TP)', coppers: coinCost });
+    }
+  }
+
+  if (totalGoldCoppers === 0) return;
+
+  const totalGold = (totalGoldCoppers / 10000).toFixed(0);
+
+  // Farming methods
+  const methods = [
+    { name: 'Daily Fractals', rate: '~20g/day', note: 'Tier 4 + CM daily clears', synergy: false },
+    { name: 'Drizzlewood Coast Meta', rate: '~12g/run', note: 'Also farms Otter Memories!', synergy: otterActive },
+    { name: 'Daily Crafting', rate: '~6g/day', note: 'Ascended time-gated materials', synergy: false },
+    { name: 'RIBA Silverwastes', rate: '~10g/hr', note: 'Shovel + keys farm', synergy: false }
+  ];
+
+  const methodsHtml = methods.map(m => {
+    return `<div class="gfg-method${m.synergy ? ' synergy' : ''}">
+      <div class="gfm-name">${m.name}</div>
+      <div class="gfm-rate">${m.rate}</div>
+      <div class="gfm-note">${m.note}${m.synergy ? ' &#9733;' : ''}</div>
+    </div>`;
+  }).join('');
+
+  const breakdownHtml = goldBreakdown.map(b =>
+    `<div style="display:flex;justify-content:space-between;font-size:0.8rem;padding:0.2rem 0;border-bottom:1px solid rgba(138,114,52,0.1)">
+      <span style="color:var(--text-secondary)">${b.name}</span>
+      <span class="gold-display">${formatGold(b.coppers)}</span>
+    </div>`
+  ).join('');
+
+  const guideHtml = `<section class="gold-farming-guide" id="goldFarmingGuide">
+    <h2 onclick="this.nextElementSibling.classList.toggle('open')">&#128176; Gold Farming Guide <span style="font-size:0.75rem;font-family:Inter,sans-serif;color:var(--text-dim);font-weight:400">(click to expand)</span></h2>
+    <div class="gfg-body">
+      <div class="gfg-summary">
+        <div class="gfg-stat">
+          <div class="gfg-value">${totalGold}g</div>
+          <div class="gfg-label">Total gold needed</div>
+        </div>
+        <div class="gfg-stat">
+          <div class="gfg-value">${goldBreakdown.length}</div>
+          <div class="gfg-label">Remaining purchases</div>
+        </div>
+      </div>
+      <div style="margin-bottom:1rem">${breakdownHtml}</div>
+      <div style="font-size:0.85rem;color:var(--text);font-weight:600;margin-bottom:0.5rem">Farming Methods</div>
+      <div class="gfg-methods">${methodsHtml}</div>
+      <div class="gfg-funded">
+        <div class="gff-title">Days until funded</div>
+        <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap">
+          <select id="goldRateSelect" onchange="updateGoldFundingEstimate()">
+            <option value="50000">Casual (~5g/day)</option>
+            <option value="150000" selected>Moderate (~15g/day)</option>
+            <option value="300000">Active (~30g/day)</option>
+          </select>
+          <span class="gff-result" id="goldFundingResult"></span>
+        </div>
+      </div>
+    </div>
+  </section>`;
+
+  // Insert after existing content in dynamicPanels
+  container.insertAdjacentHTML('beforeend', guideHtml);
+  updateGoldFundingEstimate();
+}
+
+function updateGoldFundingEstimate() {
+  const select = document.getElementById('goldRateSelect');
+  const result = document.getElementById('goldFundingResult');
+  if (!select || !result) return;
+
+  const dailyCoppers = parseInt(select.value);
+
+  // Recalculate total gold needed
+  let totalGoldCoppers = 0;
+  if (isEnrichedPinned('gizmos')) {
+    if (!state.checkedItems['g-griffon']) totalGoldCoppers += 2500000;
+    if (!state.checkedItems['g-la-device']) totalGoldCoppers += 60000;
+    if (!state.checkedItems['g-hom-stone']) totalGoldCoppers += 75000;
+    const scrollGoldKeys = ['g-istan-scroll','g-sandswept-scroll','g-kourna-scroll','g-jahai-scroll','g-thunderhead-scroll','g-dragonfall-scroll','g-grothmar-scroll','g-bjora-scroll','g-drizzlewood-scroll'];
+    scrollGoldKeys.forEach(k => { if (!state.checkedItems[k]) totalGoldCoppers += 10000; });
+    const cityScrollKeys = ['g-bc-scroll','g-dr-scroll','g-hoelbrak-scroll','g-la-scroll','g-rata-scroll','g-grove-scroll','g-ebonhawke-scroll'];
+    let coinsNeeded = 0;
+    cityScrollKeys.forEach(k => { if (!state.checkedItems[k]) coinsNeeded += 50; });
+    if (coinsNeeded > 0 && mysticCoinPrice) totalGoldCoppers += coinsNeeded * mysticCoinPrice;
+  }
+
+  const days = Math.ceil(totalGoldCoppers / dailyCoppers);
+  result.textContent = days + ' day' + (days !== 1 ? 's' : '') + ' (~' + Math.ceil(days / 7) + ' weeks)';
+}
+
+// Call gold farming guide after init
+setTimeout(renderGoldFarmingGuide, 200);
+
+/* ========== FEATURE: ACHIEVEMENT RARITY DISPLAY ========== */
+
+function getRarityFromDifficulty(difficulty) {
+  const map = {
+    quick:  { label: 'Common',    cssClass: 'rarity-common' },
+    short:  { label: 'Uncommon',  cssClass: 'rarity-uncommon' },
+    medium: { label: 'Rare',      cssClass: 'rarity-rare' },
+    long:   { label: 'Very Rare', cssClass: 'rarity-very-rare' },
+    grind:  { label: 'Ultra Rare', cssClass: 'rarity-ultra-rare' }
+  };
+  return map[difficulty] || { label: 'Common', cssClass: 'rarity-common' };
+}
+
+function applyRarityLabels() {
+  document.querySelectorAll('.checklist-item').forEach(el => {
+    // Skip if rarity already applied
+    if (el.querySelector('.rarity-label')) return;
+
+    const difficulty = el.dataset.difficulty;
+    if (!difficulty) return;
+
+    const badge = el.querySelector('.badge');
+    if (!badge) return;
+
+    const rarity = getRarityFromDifficulty(difficulty);
+    const raritySpan = document.createElement('span');
+    raritySpan.className = 'rarity-label ' + rarity.cssClass;
+    raritySpan.textContent = rarity.label;
+    badge.insertAdjacentElement('afterend', raritySpan);
+  });
+}
+
+// Apply rarity labels after renderAll completes
+setTimeout(applyRarityLabels, 100);
+
+// Re-apply rarity labels whenever renderAll is called
+// We wrap by observing mutations on the achievement cards container
+(function observeForRarity() {
+  const targets = [
+    document.getElementById('achievementCards'),
+    document.getElementById('pinnedCards'),
+    document.getElementById('mapView')
+  ].filter(Boolean);
+
+  const observer = new MutationObserver(() => {
+    setTimeout(applyRarityLabels, 50);
+  });
+
+  targets.forEach(target => {
+    observer.observe(target, { childList: true, subtree: true });
+  });
+})();
 </script>
 </body>
 </html>

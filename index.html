@@ -324,6 +324,34 @@ a:hover{text-decoration:underline}
 .guide-box strong{color:var(--text)}
 @media(min-width:768px){.objectives-list.two-col{columns:2;column-gap:1.5rem}}
 
+/* Completion Celebration */
+@keyframes confetti-fall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(100px) rotate(720deg);opacity:0}}
+@keyframes pulse-green{0%{box-shadow:0 0 0 0 rgba(74,222,128,0.5)}70%{box-shadow:0 0 0 15px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
+@keyframes slide-up{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.celebrate{animation:pulse-green 0.6s ease 2}
+.card-enter{animation:slide-up 0.3s ease}
+.confetti-piece{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:9999;animation:confetti-fall 1.5s ease-out forwards}
+
+/* Stats Dashboard */
+.stats-bar{display:flex;gap:1rem;padding:1rem 1.5rem;flex-wrap:wrap;justify-content:center}
+.stat-card{background:var(--bg-card);border:1px solid var(--gold-dim);border-radius:var(--radius);padding:0.75rem 1.25rem;text-align:center;min-width:100px;flex:1;max-width:180px}
+.stat-value{font-size:1.5rem;font-weight:700;color:var(--gold);font-family:'Cinzel',serif}
+.stat-label{font-size:0.7rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.05em}
+
+/* Achievement Icon */
+.ach-icon{width:32px;height:32px;border-radius:4px;flex-shrink:0;object-fit:contain;background:rgba(0,0,0,0.2)}
+.ach-icon-lg{width:48px;height:48px}
+
+/* Empty State */
+.empty-state{text-align:center;padding:3rem 1.5rem}
+.empty-state h2{color:var(--gold);margin-bottom:0.75rem;font-size:1.3rem}
+.empty-state p{color:var(--text-secondary);font-size:0.9rem;margin-bottom:1.5rem;max-width:500px;margin-left:auto;margin-right:auto}
+.empty-state .btn{font-size:0.9rem;padding:0.6rem 1.5rem}
+
+/* Share Banner */
+.share-bar{background:var(--bg-header);padding:0.4rem 1rem;text-align:center;font-size:0.75rem;color:var(--text-dim);border-bottom:1px solid var(--gold-dim)}
+.share-bar a{color:var(--blue);cursor:pointer}
+
 /* Collapsible */
 .collapsible-body{transition:max-height 0.3s ease,opacity 0.2s;overflow:hidden}
 .collapsible-body.collapsed{max-height:0!important;opacity:0;margin:0!important;padding:0!important}
@@ -907,6 +935,14 @@ button,a.timer-link{touch-action:manipulation}
     <span class="rt-label">Weekly reset in:</span>
     <span class="rt-value" id="weeklyResetValue">--</span>
   </div>
+</div>
+
+<!-- STATS DASHBOARD -->
+<div class="stats-bar" id="statsDashboard"></div>
+
+<!-- SHARE BAR -->
+<div class="share-bar" id="shareBar" style="display:none">
+  <span id="shareBarText"></span>
 </div>
 
 <!-- MAIN CONTENT -->
@@ -2448,6 +2484,7 @@ function renderAll() {
   applyFilters();
   restoreSessionState();
   renderProgressStats();
+  renderStatsDashboard();
   applyViewDensity();
 }
 
@@ -3235,7 +3272,7 @@ function renderPinnedAchievements() {
   const container = document.getElementById('pinnedCards');
 
   if (!state.pinnedAchievements || !state.pinnedAchievements.length) {
-    container.innerHTML = '<div style="text-align:center;padding:2rem 1rem;color:var(--text-dim);font-size:0.9rem">No achievements tracked yet. Search or browse below to add achievements to your dashboard.</div>';
+    container.innerHTML = renderEmptyState();
     return;
   }
 
@@ -3314,11 +3351,17 @@ function renderPinnedAchievements() {
       });
     }
 
-    return `<section class="achievement-card" style="border-top-color:var(--blue)">
+    const iconUrl = ach.icon || '';
+    const iconHtml = iconUrl ? `<img class="ach-icon" src="${iconUrl}" alt="" loading="lazy">` : '';
+
+    return `<section class="achievement-card card-enter${isDone?' celebrate':''}" style="border-top-color:${isDone?'var(--green)':'var(--blue)'}">
       <div class="card-header" aria-expanded="false" onclick="toggleCard(this)">
-        <div class="card-title-area">
-          <h2 style="font-size:1.05rem">${ach.name}${isDone?' <span style="color:var(--green);font-size:0.8rem;font-family:Inter,sans-serif">&#10003; Complete</span>':''}${pctBadge}${prereqBlocked?'<span class="badge badge-blocked" style="margin-left:0.4rem">Blocked</span>':''}</h2>
-          <div class="card-subtitle"><span class="badge badge-${diff.badge}">${diff.label}</span> ${totalAP} AP &middot; <a href="https://wiki.guildwars2.com/wiki/${wikiName}" target="_blank" class="wiki-link" onclick="event.stopPropagation()">Wiki</a> &middot; ID: ${ach.id}</div>
+        <div class="card-title-area" style="display:flex;gap:0.75rem;align-items:center">
+          ${iconHtml}
+          <div>
+            <h2 style="font-size:1.05rem">${ach.name}${isDone?' <span style="color:var(--green);font-size:0.8rem;font-family:Inter,sans-serif">&#10003; Complete</span>':''}${pctBadge}${prereqBlocked?'<span class="badge badge-blocked" style="margin-left:0.4rem">Blocked</span>':''}</h2>
+            <div class="card-subtitle"><span class="badge badge-${diff.badge}">${diff.label}</span> ${totalAP} AP &middot; <a href="https://wiki.guildwars2.com/wiki/${wikiName}" target="_blank" class="wiki-link" onclick="event.stopPropagation()">Wiki</a> &middot; ID: ${ach.id}</div>
+          </div>
         </div>
         <div class="card-progress-area">
           <span class="progress-text">${current} / ${maxCount}</span>
@@ -5203,10 +5246,138 @@ function bulkMarkUndone() {
   cancelBulkMode();
 }
 
+/* ========== STATS DASHBOARD ========== */
+
+function renderStatsDashboard() {
+  const el = document.getElementById('statsDashboard');
+  const pinned = state.pinnedAchievements || [];
+  if (pinned.length === 0) { el.innerHTML = ''; return; }
+
+  const prog = state.pinnedProgress || {};
+  let totalCompleted = 0, totalTracked = pinned.length, totalAP = 0, totalAPEarned = 0;
+
+  pinned.forEach(ach => {
+    const p = prog[ach.id];
+    const ap = (ach.tiers||[]).reduce((s,t)=>s+t.points,0);
+    totalAP += ap;
+    if (p && p.done) {
+      totalCompleted++;
+      totalAPEarned += ap;
+    } else if (p && ach.tiers) {
+      // Partial AP from completed tiers
+      ach.tiers.forEach(t => { if (p.current >= t.count) totalAPEarned += t.points; });
+    }
+  });
+
+  const pct = totalTracked > 0 ? Math.round(totalCompleted / totalTracked * 100) : 0;
+
+  el.innerHTML = `
+    <div class="stat-card"><div class="stat-value">${totalTracked}</div><div class="stat-label">Tracked</div></div>
+    <div class="stat-card"><div class="stat-value">${totalCompleted}</div><div class="stat-label">Completed</div></div>
+    <div class="stat-card"><div class="stat-value">${pct}%</div><div class="stat-label">Done</div></div>
+    <div class="stat-card"><div class="stat-value">${totalAPEarned}</div><div class="stat-label">AP Earned</div></div>
+    <div class="stat-card" style="cursor:pointer" onclick="generateShareUrl()" title="Share your tracked achievements">
+      <div class="stat-value" style="font-size:1.1rem">&#128279;</div><div class="stat-label">Share</div>
+    </div>
+  `;
+}
+
+/* ========== CONFETTI CELEBRATION ========== */
+
+function launchConfetti() {
+  const colors = ['#d4a853','#4ade80','#60a5fa','#f59e0b','#a78bfa','#ef4444'];
+  for (let i = 0; i < 40; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = (Math.random() * 100) + 'vw';
+    piece.style.top = '-10px';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDelay = (Math.random() * 0.5) + 's';
+    piece.style.animationDuration = (1 + Math.random()) + 's';
+    document.body.appendChild(piece);
+    setTimeout(() => piece.remove(), 2500);
+  }
+}
+
+/* ========== SHAREABLE URLs ========== */
+
+function generateShareUrl() {
+  const pinned = state.pinnedAchievements || [];
+  if (pinned.length === 0) return;
+  const ids = pinned.map(a => a.id).join(',');
+  const url = window.location.origin + window.location.pathname + '?pin=' + ids;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url);
+  }
+
+  const bar = document.getElementById('shareBar');
+  bar.style.display = '';
+  document.getElementById('shareBarText').innerHTML =
+    'Share link copied! <a onclick="document.getElementById(\'shareBar\').style.display=\'none\'">dismiss</a> &mdash; ' +
+    '<code style="font-size:0.7rem;color:var(--gold)">' + url + '</code>';
+}
+
+function loadFromShareUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const pinParam = params.get('pin');
+  if (!pinParam) return false;
+
+  const ids = pinParam.split(',').map(Number).filter(n => n > 0);
+  if (ids.length === 0) return false;
+
+  // Only load if user has no pinned achievements yet (fresh visit)
+  if (state.pinnedAchievements && state.pinnedAchievements.length > 0) {
+    const bar = document.getElementById('shareBar');
+    bar.style.display = '';
+    document.getElementById('shareBarText').innerHTML =
+      `Shared link has ${ids.length} achievements. <a onclick="importSharedAchievements([${ids}])">Import them</a> or <a onclick="document.getElementById('shareBar').style.display='none'">dismiss</a>`;
+    return false;
+  }
+
+  importSharedAchievements(ids);
+  return true;
+}
+
+async function importSharedAchievements(ids) {
+  document.getElementById('shareBar').style.display = 'none';
+  try {
+    for (let i = 0; i < ids.length; i += 200) {
+      const batch = ids.slice(i, i + 200);
+      const resp = await fetch('https://api.guildwars2.com/v2/achievements?ids=' + batch.join(','));
+      if (resp.ok) {
+        const data = await resp.json();
+        if (!state.pinnedAchievements) state.pinnedAchievements = [];
+        const existing = new Set(state.pinnedAchievements.map(a => a.id));
+        data.forEach(ach => { if (!existing.has(ach.id)) state.pinnedAchievements.push(ach); });
+      }
+    }
+    saveState();
+    renderAll();
+  } catch(e) { /* silent fail */ }
+}
+
+/* ========== BETTER EMPTY STATE ========== */
+
+function renderEmptyState() {
+  return `<div class="empty-state">
+    <h2>Welcome to GW2 Achievement Tracker</h2>
+    <p>Pin achievements you're working toward. Search by name, browse by category, or pick a starter pack to get going.</p>
+    <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem">
+      <button class="btn btn-primary" onclick="document.getElementById('achSearchInput').focus();document.querySelector('[aria-expanded=&quot;false&quot;]').click()">Search Achievements</button>
+      <button class="btn" onclick="document.getElementById('achSearchInput').focus();document.querySelector('[aria-expanded=&quot;false&quot;]').click()">Browse Categories</button>
+    </div>
+    <div style="font-size:0.8rem;color:var(--text-dim)">
+      Popular starting points: Seasons of the Dragons (ID 5790) &middot; Jumping Puzzles &middot; Legendary Collections
+    </div>
+  </div>`;
+}
+
 /* ========== INIT ========== */
 
 // Check for shared progress link
 checkShareLink();
+loadFromShareUrl();
 
 renderAll();
 populateGroups();

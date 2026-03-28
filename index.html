@@ -13070,12 +13070,12 @@ async function buildSearchIndex() {
 }
 
 function estimateDifficulty(ach) {
-  // For achievements with enrichment data, use that
   if (!ach) return {badge:'medium',label:'Medium'};
-  const max = ach.max || (ach.tiers && ach.tiers.length ? ach.tiers[ach.tiers.length-1].count : 1);
-  const tiers = ach.tiers ? ach.tiers.length : (ach.tierCount || 1);
+  const tiersIsArray = Array.isArray(ach.tiers);
+  const max = ach.max || (tiersIsArray && ach.tiers.length ? ach.tiers[ach.tiers.length-1].count : 1);
+  const tiers = tiersIsArray ? ach.tiers.length : (ach.tiers || ach.tierCount || 1);
   const bits = ach.bits ? (Array.isArray(ach.bits) ? ach.bits.length : ach.bits) : 0;
-  const ap = ach.ap || (ach.tiers||[]).reduce((s,t)=>s+(t.points||0),0);
+  const ap = ach.ap || (tiersIsArray ? ach.tiers.reduce((s,t)=>s+(t.points||0),0) : 0);
 
   if (max <= 1 && bits <= 3) return {badge:'quick',label:'Quick'};
   if (max <= 10 && bits <= 7) return {badge:'short',label:'Short'};

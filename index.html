@@ -3623,6 +3623,22 @@ function buildItemDetailRows(item) {
     detailRows += `</div>`;
   }
 
+  // Sub-achievement API progress (detailed view)
+  const subProg = getItemSubProgress(item);
+  if (subProg) {
+    const max = subProg.max || 1;
+    const current = subProg.current || 0;
+    const pct = Math.min(100, Math.round(current / max * 100));
+    const color = subProg.done ? 'var(--green)' : (pct >= 70 ? 'var(--gold)' : 'var(--text-secondary)');
+    detailRows += `<div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid rgba(138,114,52,0.15)">`;
+    detailRows += `<div style="font-size:0.78rem;color:${color};font-weight:600;margin-bottom:0.3rem">GW2 Progress: ${subProg.done ? 'Complete!' : current + '/' + max + ' (' + pct + '%)'}</div>`;
+    detailRows += `<div style="height:6px;background:var(--progress-bg);border-radius:3px;overflow:hidden;margin-bottom:0.3rem"><div style="height:100%;width:${pct}%;background:${subProg.done ? 'var(--green)' : 'linear-gradient(90deg,var(--gold-dim),var(--gold))'};border-radius:3px;transition:width 0.3s"></div></div>`;
+    if (subProg.bits && subProg.bits.length > 0) {
+      detailRows += `<div style="font-size:0.75rem;color:var(--text-dim)">${subProg.bits.length} objective${subProg.bits.length !== 1 ? 's' : ''} completed</div>`;
+    }
+    detailRows += `</div>`;
+  }
+
   // Related achievements cross-reference
   const related = findRelatedAchievements(item);
   if (related.length > 0) {
@@ -3643,6 +3659,23 @@ function buildItemDetailRows(item) {
   return detailRows;
 }
 
+function getItemSubProgress(item) {
+  if (!state.subAchMapping || !state.subAchProgress) return null;
+  const apiId = state.subAchMapping[item.key];
+  if (!apiId) return null;
+  return state.subAchProgress[apiId] || null;
+}
+
+function renderInlineProgress(item) {
+  const prog = getItemSubProgress(item);
+  if (!prog) return '';
+  if (prog.done) return '<span style="font-size:0.7rem;color:var(--green);font-weight:600;white-space:nowrap" title="Achievement complete">&#10003; Done</span>';
+  const max = prog.max || (prog.bits ? prog.bits.length : 0) || 1;
+  const current = prog.current || 0;
+  const pct = Math.round(current / max * 100);
+  return `<span style="font-size:0.7rem;color:var(--text-secondary);white-space:nowrap" title="GW2 API progress: ${current}/${max}">${current}/${max}</span>`;
+}
+
 function renderChecklistItem(item, achievementKey) {
   const checked = state.checkedItems[item.key] ? 'checked' : '';
   const doneClass = state.checkedItems[item.key] ? 'done' : '';
@@ -3651,6 +3684,7 @@ function renderChecklistItem(item, achievementKey) {
   const isBlocked = item.blockedBy && !state.checkedItems[item.blockedBy];
   const blockedClass = isBlocked ? ' blocked-item' : '';
   const searchText = [item.name, item.map, item.vendor, item.episode, item.location, item.cost].filter(Boolean).join(' ').toLowerCase();
+  const inlineProgress = renderInlineProgress(item);
 
   const detailRows = buildItemDetailRows(item);
 
@@ -3674,6 +3708,7 @@ function renderChecklistItem(item, achievementKey) {
         </div>
       </label>
       <div class="item-right">
+        ${inlineProgress}
         ${blockedBadge}
         <span class="badge badge-${item.difficulty}">${item.difficulty}</span>
         <span class="time-est">${item.time || ''}</span>
@@ -4132,12 +4167,58 @@ function renderDoNext() {
   const top = items.slice(0, 6);
   panel.style.display = '';
 
+  // "Move on to..." suggestions for near-complete achievements
+  let moveOnHtml = '';
+  const ENRICHED_ORDER = ['seasons', 'gizmos', 'otter'];
+  const ENRICHED_NAMES = {seasons: 'Seasons of the Dragons', gizmos: 'Teleportation Gizmos Collector', otter: 'Significant Otter'};
+  const ENRICHED_IDS = {seasons: 5790, gizmos: 8732, otter: 5350};
+  ENRICHED_ORDER.forEach((achKey, idx) => {
+    if (!isEnrichedPinned(achKey)) return;
+    const ach = ACHIEVEMENTS[achKey];
+    const cur = countCompleted(achKey);
+    const total = ach.total;
+    const pct = cur / total;
+    if (pct >= 0.9 && pct < 1) {
+      const remaining = total - cur;
+      // Suggest the next achievement in the order that isn't already tracked
+      const nextKeys = ENRICHED_ORDER.filter(k => k !== achKey && !isEnrichedPinned(k));
+      let suggestionHtml = '';
+      if (nextKeys.length > 0) {
+        const nextKey = nextKeys[0];
+        const nextAch = ACHIEVEMENTS[nextKey];
+        const nextId = ENRICHED_IDS[nextKey];
+        suggestionHtml = `<div style="margin-top:0.4rem;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">
+          <span style="font-size:0.8rem;color:var(--text)">Consider starting <strong>${nextAch.name}</strong> (${nextAch.total} tasks, ${nextAch.reward})</span>
+          <button class="btn btn-primary btn-sm" onclick="togglePinAchievement(${nextId},this)">+ Add</button>
+        </div>`;
+      }
+      // Also check for related pinned achievements nearing completion
+      let pinnedSuggestions = '';
+      if (state.pinnedAchievements && state.pinnedProgress) {
+        state.pinnedAchievements.filter(a => !ENRICHED_KEYS[a.id]).forEach(pa => {
+          const prog = state.pinnedProgress[pa.id];
+          if (!prog || prog.done) return;
+          const paMax = pa.tiers && pa.tiers.length ? pa.tiers[pa.tiers.length - 1].count : (pa.max || 1);
+          const paPct = paMax > 0 ? (prog.current || 0) / paMax : 0;
+          if (paPct >= 0.9 && paPct < 1) {
+            pinnedSuggestions += `<div style="font-size:0.8rem;color:var(--text-secondary);margin-top:0.2rem">Also close: <strong>${pa.name}</strong> (${prog.current}/${paMax})</div>`;
+          }
+        });
+      }
+      moveOnHtml += `<div style="padding:0.6rem;margin-bottom:0.5rem;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:var(--radius-sm);border-left:3px solid var(--green)">
+        <div style="font-size:0.85rem;color:var(--green);font-weight:600">Almost there! ${ENRICHED_NAMES[achKey]}: ${cur}/${total} (${remaining} left)</div>
+        <div style="font-size:0.78rem;color:var(--text-dim);margin-top:0.2rem">You're so close to finishing — keep pushing!</div>
+        ${suggestionHtml}${pinnedSuggestions}
+      </div>`;
+    }
+  });
+
   // Motivational message + festival calendar
   const motivation = getMotivationalMessage();
   const festival = renderFestivalCalendar();
   const motivHtml = `<div style="font-size:0.8rem;color:var(--gold-light);padding:0.4rem 0.6rem;margin-bottom:0.5rem;background:rgba(212,168,83,0.06);border-radius:var(--radius-sm);border-left:3px solid var(--gold)">${motivation}</div>`;
 
-  list.innerHTML = motivHtml + festival + top.map(it => {
+  list.innerHTML = moveOnHtml + motivHtml + festival + top.map(it => {
     const reasons = [];
     if (it.difficulty === 'quick') reasons.push('Quick win');
     if (it.source === 'pinned') reasons.push('Almost done!');
@@ -4267,9 +4348,16 @@ document.getElementById('apiToggle').addEventListener('click', function() {
   document.getElementById('apiBody').classList.toggle('open', !expanded);
 });
 
-// Load saved API key
+// Load saved API key and auto-expand API bar so key is always visible
 const savedKey = localStorage.getItem(API_KEY_KEY);
-if (savedKey) document.getElementById('apiKeyInput').value = savedKey;
+if (savedKey) {
+  document.getElementById('apiKeyInput').value = savedKey;
+  // Auto-expand the API bar so the user can see their key
+  document.getElementById('apiToggle').setAttribute('aria-expanded', 'true');
+  document.getElementById('apiBody').classList.add('open');
+  // Show connected indicator on the toggle button
+  document.getElementById('apiToggle').innerHTML = '<span class="chevron" style="transform:rotate(180deg)">&#9662;</span> GW2 API Sync <span style="color:var(--green);font-size:0.75rem;margin-left:0.5rem">&#10003; Key saved</span>';
+}
 
 document.getElementById('syncBtn').addEventListener('click', async () => {
   const key = document.getElementById('apiKeyInput').value.trim();
@@ -4367,6 +4455,28 @@ document.getElementById('syncBtn').addEventListener('click', async () => {
         }
       } catch(e) { /* non-fatal */ }
     }
+
+    // Fetch sub-achievement progress for checklist items
+    try {
+      const subMapping = getSubAchievementIds();
+      const subIds = [...new Set(Object.values(subMapping))];
+      if (subIds.length > 0) {
+        if (!state.subAchProgress) state.subAchProgress = {};
+        const batchSize = 200;
+        for (let i = 0; i < subIds.length; i += batchSize) {
+          const batch = subIds.slice(i, i + batchSize);
+          const subResp = await fetch(`${base}/account/achievements?ids=${batch.join(',')}&access_token=${token}`).catch(() => null);
+          if (subResp && subResp.ok) {
+            const subData = await subResp.json();
+            subData.forEach(s => {
+              state.subAchProgress[s.id] = { current: s.current || 0, max: s.max || 0, done: !!s.done, bits: s.bits || [] };
+            });
+          }
+        }
+        // Also store the key→id mapping for rendering
+        state.subAchMapping = subMapping;
+      }
+    } catch(e) { console.error('Sub-achievement sync error:', e); }
 
     state.lastSync = new Date().toISOString();
     saveState();
@@ -13070,6 +13180,27 @@ const EMBEDDED_SEARCH_INDEX = `3147|Walking on Fire|1|1|0|1
 
 let searchIndex = null;
 let searchNameLookup = null; // lowercase name → {id, name} for cross-referencing
+
+// Map checklist item names to GW2 API achievement IDs for progress tracking
+function getSubAchievementId(itemName) {
+  if (!searchNameLookup) return null;
+  const nl = itemName.toLowerCase();
+  // Exact match
+  if (searchNameLookup[nl]) return searchNameLookup[nl].id;
+  // Try with " 1" suffix (split achievements like Bjora Marches 1/2)
+  if (searchNameLookup[nl + ' 1']) return searchNameLookup[nl + ' 1'].id;
+  return null;
+}
+
+function getSubAchievementIds() {
+  if (!searchNameLookup) return {};
+  const mapping = {}; // itemKey → apiAchievementId
+  getAllChecklistItems().forEach(item => {
+    const id = getSubAchievementId(item.name);
+    if (id) mapping[item.key] = id;
+  });
+  return mapping;
+}
 
 function loadEmbeddedSearchIndex() {
   if (typeof EMBEDDED_SEARCH_INDEX === 'undefined') return false;

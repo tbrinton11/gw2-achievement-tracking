@@ -2034,16 +2034,16 @@ html[data-theme="light"] .stat-card {
 
   <!-- SESSION PLANNER -->
   <section class="session-planner" id="sessionPlanner" style="display:none">
-    <h2>&#128337; Session Planner</h2>
-    <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.75rem">I have time to play:</div>
-    <div class="sp-time-btns" id="spTimeBtns">
+    <h2 style="cursor:pointer;display:flex;align-items:center;gap:0.5rem" onclick="this.parentElement.querySelectorAll('.sp-collapsible').forEach(el=>el.classList.toggle('collapsed'));this.querySelector('.collapse-icon').classList.toggle('open')">&#128337; Session Planner <span class="collapse-icon open" style="font-size:0.7rem;transition:transform 0.2s">&#9662;</span></h2>
+    <div class="sp-collapsible collapsible-body" style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.75rem">I have time to play:</div>
+    <div class="sp-time-btns sp-collapsible collapsible-body" id="spTimeBtns">
       <button class="filter-btn" data-minutes="30" onclick="selectSessionTime(30,this)">30 min</button>
       <button class="filter-btn" data-minutes="60" onclick="selectSessionTime(60,this)">1 hour</button>
       <button class="filter-btn" data-minutes="120" onclick="selectSessionTime(120,this)">2 hours</button>
       <button class="filter-btn" data-minutes="240" onclick="selectSessionTime(240,this)">4+ hours</button>
     </div>
-    <div class="sp-checklist" id="spChecklist"></div>
-    <div class="sp-footer" id="spFooter" style="display:none">
+    <div class="sp-checklist sp-collapsible collapsible-body" id="spChecklist"></div>
+    <div class="sp-footer sp-collapsible collapsible-body" id="spFooter" style="display:none">
       <span class="sp-total" id="spTotal"></span>
       <button class="btn btn-sm" style="border-color:var(--purple);color:var(--purple)" id="startSessionBtn" onclick="startSession()">Start Session</button>
       <button class="btn btn-sm" id="clearSessionBtn" onclick="clearSession()" style="display:none">End Session</button>

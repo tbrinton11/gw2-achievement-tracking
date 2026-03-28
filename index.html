@@ -2404,6 +2404,20 @@ html[data-theme="light"] .stat-card {
 </div><!-- /dailyView -->
 
 <script>
+/* ========== GLOBAL ERROR HANDLER (debug) ========== */
+window.onerror = function(msg, src, line, col, err) {
+  console.error('JS Error:', msg, 'at line', line);
+  var banner = document.getElementById('jsErrorBanner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'jsErrorBanner';
+    banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#7f1d1d;color:#fca5a5;padding:0.5rem 1rem;font-size:0.8rem;font-family:monospace;max-height:120px;overflow-y:auto;cursor:pointer';
+    banner.onclick = function() { banner.remove(); };
+    document.body.appendChild(banner);
+  }
+  banner.innerHTML += '<div>Error: ' + msg + ' (line ' + line + ')</div>';
+};
+
 /* ========== DATA MODEL ========== */
 
 const ACHIEVEMENTS = {
@@ -13072,8 +13086,16 @@ function estimateDifficulty(ach) {
 
 function onAchSearch() {
   const resultsDiv = document.getElementById('searchResults');
+  if (!resultsDiv) return;
   const input = document.getElementById('achSearchInput');
   const q = input ? input.value.trim() : '';
+  try { return _onAchSearchInner(resultsDiv, q); } catch(e) {
+    console.error('Search error:', e);
+    resultsDiv.style.display = 'block';
+    resultsDiv.innerHTML = '<div style="padding:0.75rem;font-size:0.85rem;color:var(--red)">Search error: ' + e.message + '</div>';
+  }
+}
+function _onAchSearchInner(resultsDiv, q) {
 
   if (!q) { resultsDiv.style.display = 'none'; return; }
   if (!searchIndex) {
@@ -15779,67 +15801,72 @@ function initTOCScroll() {
 
 /* ========== INIT ========== */
 
-// Check for shared progress link
-checkShareLink();
-loadFromShareUrl();
-
-// Handle ?add= URL parameter
-handleAddFromUrl();
-
-trackDailyLogin();
-checkStreakValidity();
-renderAll();
-populateGroups();
-renderStarterPacks();
-renderStreakDisplay();
-checkBadges();
-initDragDrop();
-initTOCScroll();
-
-// Auto-start tour for first-time visitors
-if (shouldShowTour()) { setTimeout(startTour, 800); }
-
-// Load search index: try static file first, then localStorage cache, then build at runtime
-// Load embedded search index (instant, no network)
+// Load search index FIRST — must succeed before anything else
 loadEmbeddedSearchIndex();
 const _statusEl = document.getElementById('searchIndexStatus');
 if (_statusEl) _statusEl.textContent = searchIndex ? `Search ready (${searchIndex.entries.length} achievements)` : 'Search index unavailable';
 
+// Check for shared progress link
+try { checkShareLink(); } catch(e) { console.error('Init error (checkShareLink):', e); }
+try { loadFromShareUrl(); } catch(e) { console.error('Init error (loadFromShareUrl):', e); }
+
+// Handle ?add= URL parameter
+try { handleAddFromUrl(); } catch(e) { console.error('Init error (handleAddFromUrl):', e); }
+
+try { trackDailyLogin(); } catch(e) { console.error('Init error (trackDailyLogin):', e); }
+try { checkStreakValidity(); } catch(e) { console.error('Init error (checkStreakValidity):', e); }
+try { renderAll(); } catch(e) { console.error('Init error (renderAll):', e); }
+try { populateGroups(); } catch(e) { console.error('Init error (populateGroups):', e); }
+try { renderStarterPacks(); } catch(e) { console.error('Init error (renderStarterPacks):', e); }
+try { renderStreakDisplay(); } catch(e) { console.error('Init error (renderStreakDisplay):', e); }
+try { checkBadges(); } catch(e) { console.error('Init error (checkBadges):', e); }
+try { initDragDrop(); } catch(e) { console.error('Init error (initDragDrop):', e); }
+try { initTOCScroll(); } catch(e) { console.error('Init error (initTOCScroll):', e); }
+
+// Auto-start tour for first-time visitors
+if (shouldShowTour()) { setTimeout(startTour, 800); }
+
 // Start reset timers
-updateResetTimers();
-setInterval(updateResetTimers, 1000);
+try { updateResetTimers(); } catch(e) { console.error('Init error (updateResetTimers):', e); }
+setInterval(function() { try { updateResetTimers(); } catch(e) {} }, 1000);
 
 // Fetch Mystic Coin price for cost calculator
-if (isEnrichedPinned('gizmos')) {
-  fetchMysticCoinPrice().then(() => {
-    renderShoppingList();
-    renderCostCalculator();
-  });
-}
+try {
+  if (isEnrichedPinned('gizmos')) {
+    fetchMysticCoinPrice().then(() => {
+      renderShoppingList();
+      renderCostCalculator();
+    });
+  }
+} catch(e) { console.error('Init error (mysticCoin):', e); }
 
 // Share button
-document.getElementById('shareBtn').addEventListener('click', shareProgress);
+try { document.getElementById('shareBtn').addEventListener('click', shareProgress); } catch(e) { console.error('Init error (shareBtn):', e); }
 
 // Restore view mode button state
-if (state.viewMode === 'map') {
-  document.querySelectorAll('#viewModeGroup .filter-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.view === 'map');
-  });
-}
+try {
+  if (state.viewMode === 'map') {
+    document.querySelectorAll('#viewModeGroup .filter-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.view === 'map');
+    });
+  }
+} catch(e) { console.error('Init error (viewMode):', e); }
 
 // Restore celebrations toggle state
-document.getElementById('celebrationsToggle').checked = state.celebrationsEnabled !== false;
+try { document.getElementById('celebrationsToggle').checked = state.celebrationsEnabled !== false; } catch(e) { console.error('Init error (celebrationsToggle):', e); }
 
 // Restore view density button state
-if (state.viewDensity === 'compact') {
-  document.querySelectorAll('#viewDensityGroup .filter-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.density === 'compact');
-  });
-  applyViewDensity();
-}
+try {
+  if (state.viewDensity === 'compact') {
+    document.querySelectorAll('#viewDensityGroup .filter-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.density === 'compact');
+    });
+    applyViewDensity();
+  }
+} catch(e) { console.error('Init error (viewDensity):', e); }
 
 // Restore compact overlay mode
-restoreCompactMode();
+try { restoreCompactMode(); } catch(e) { console.error('Init error (restoreCompactMode):', e); }
 
 /* ========== VISUAL POLISH: JS-DRIVEN ANIMATIONS ========== */
 

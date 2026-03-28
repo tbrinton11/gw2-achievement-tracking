@@ -3620,6 +3620,24 @@ function buildItemDetailRows(item) {
     if (obj.guide) detailRows += `<div class="guide-box">${obj.guide}</div>`;
     detailRows += `</div>`;
   }
+
+  // Related achievements cross-reference
+  const related = findRelatedAchievements(item);
+  if (related.length > 0) {
+    const pinnedIds = (state.pinnedAchievements || []).map(a => a.id);
+    detailRows += `<div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid rgba(138,114,52,0.15)">`;
+    detailRows += `<div style="font-size:0.78rem;color:var(--gold);font-weight:600;margin-bottom:0.3rem">Related Achievements</div>`;
+    related.forEach(r => {
+      const isPinned = pinnedIds.includes(r.id);
+      detailRows += `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.2rem 0;font-size:0.8rem">`;
+      detailRows += `<span style="flex:1;color:var(--text)">${r.name}</span>`;
+      detailRows += `<span style="color:var(--gold);font-size:0.75rem">${r.ap} AP</span>`;
+      detailRows += `<button class="btn ${isPinned?'btn-danger':'btn-primary'} btn-sm" onclick="event.stopPropagation();togglePinAchievement(${r.id},this)">${isPinned ? 'Remove' : '+ Add'}</button>`;
+      detailRows += `</div>`;
+    });
+    detailRows += `</div>`;
+  }
+
   return detailRows;
 }
 
@@ -13025,6 +13043,7 @@ const EMBEDDED_SEARCH_INDEX = `3147|Walking on Fire|1|1|0|1
 8647|(Annual) Taking a Cat's Coin|0|1000|0|1`;
 
 let searchIndex = null;
+let searchNameLookup = null; // lowercase name → {id, name} for cross-referencing
 
 function loadEmbeddedSearchIndex() {
   if (typeof EMBEDDED_SEARCH_INDEX === 'undefined') return false;
@@ -13033,8 +13052,65 @@ function loadEmbeddedSearchIndex() {
     const p = line.split('|');
     if (p.length >= 2) entries.push({id:parseInt(p[0]),name:p[1],ap:parseInt(p[2])||0,max:parseInt(p[3])||0,bits:parseInt(p[4])||0,tiers:parseInt(p[5])||0});
   });
-  if (entries.length > 0) { searchIndex = {entries}; return true; }
+  if (entries.length > 0) {
+    searchIndex = {entries};
+    // Build name lookup for cross-referencing (only names with 3+ chars)
+    searchNameLookup = {};
+    entries.forEach(e => {
+      if (e.name.length >= 3) searchNameLookup[e.name.toLowerCase()] = {id: e.id, name: e.name, ap: e.ap};
+    });
+    return true;
+  }
   return false;
+}
+
+function findRelatedAchievements(item) {
+  if (!searchNameLookup) return [];
+  // Gather all text from item fields
+  const texts = [item.tips, item.episode].filter(Boolean);
+  const obj = typeof OBJECTIVES !== 'undefined' ? OBJECTIVES[item.key] : null;
+  if (obj) {
+    if (obj.note) texts.push(obj.note);
+    if (obj.guide) texts.push(obj.guide);
+    if (obj.req) texts.push(obj.req);
+    if (obj.list) obj.list.forEach(l => texts.push(l));
+  }
+  const combined = texts.join(' ');
+  const found = new Map();
+
+  // Pattern 1: Text in single quotes — e.g., Complete 'Lion's Pride' achievement
+  const singleQuoted = combined.match(/'([^']{3,}?)'/g);
+  if (singleQuoted) {
+    singleQuoted.forEach(q => {
+      const name = q.slice(1, -1).toLowerCase();
+      const match = searchNameLookup[name];
+      if (match && !found.has(match.id)) found.set(match.id, match);
+    });
+  }
+
+  // Pattern 2: "Complete <Name>" or "Requires <Name>" patterns
+  const patterns = combined.match(/(?:Complete|Requires|Unlock|Finish)\s+(?:the\s+)?([A-Z][A-Za-z'':\s\-]+?)(?:\s+(?:achievement|collection|meta|mastery)|\s*[\.!,]|\s*$)/g);
+  if (patterns) {
+    patterns.forEach(p => {
+      const nameMatch = p.match(/(?:Complete|Requires|Unlock|Finish)\s+(?:the\s+)?(.+?)(?:\s+(?:achievement|collection|meta|mastery)|\s*[\.!,]|\s*$)/);
+      if (nameMatch) {
+        const name = nameMatch[1].trim().toLowerCase();
+        const match = searchNameLookup[name];
+        if (match && !found.has(match.id)) found.set(match.id, match);
+      }
+    });
+  }
+
+  // Pattern 3: Direct name matches for multi-word achievement names (4+ words to avoid false positives)
+  if (searchIndex) {
+    searchIndex.entries.forEach(e => {
+      if (e.name.split(/\s+/).length >= 4 && e.name.length >= 15 && !found.has(e.id)) {
+        if (combined.includes(e.name)) found.set(e.id, {id: e.id, name: e.name, ap: e.ap});
+      }
+    });
+  }
+
+  return Array.from(found.values());
 }
 
 async function buildSearchIndex() {

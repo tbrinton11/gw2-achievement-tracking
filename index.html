@@ -4047,6 +4047,15 @@ function expandCollapseAll(expand) {
     if (expand && !isExpanded) toggleSub(h);
     else if (!expand && isExpanded) toggleSub(h);
   });
+  // Collapsible panels (Do Next, Shopping List, Session Planner)
+  document.querySelectorAll('.collapsible-body').forEach(el => {
+    if (expand) el.classList.remove('collapsed');
+    else el.classList.add('collapsed');
+  });
+  document.querySelectorAll('.collapse-icon').forEach(icon => {
+    if (expand) icon.classList.add('open');
+    else icon.classList.remove('open');
+  });
 }
 
 /* ========== FILTERS ========== */

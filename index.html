@@ -24,8 +24,8 @@
 html[data-theme="light"]{
   --bg-body:#f0ece4;--bg-card:#ffffff;--bg-card-hover:#f8f6f2;
   --bg-header:#e8e0d4;--bg-input:#ffffff;
-  --gold:#8a6914;--gold-light:#6b5210;--gold-dim:#c4a45a;
-  --text:#1a1a2e;--text-secondary:#4a4540;--text-dim:#6a655a;
+  --gold:#8a6914;--gold-light:#6b5210;--gold-dim:#8a7234;
+  --text:#1a1a2e;--text-secondary:#3d3832;--text-dim:#5a554a;
   --green:#16a34a;--green-dark:#166534;--red:#dc2626;--orange:#d97706;
   --blue:#2563eb;--purple:#7c3aed;
   --progress-bg:#d4d0c8;
@@ -206,6 +206,7 @@ a:hover{text-decoration:underline}
 .checklist-item.done{opacity:0.5}
 .checklist-item.done .item-name{text-decoration:line-through}
 .checklist-item.filtered-out{display:none}
+.synergy-highlight{background:rgba(96,165,250,0.1)!important;border-left:3px solid var(--blue)!important;transition:background 0.3s}
 
 /* Custom Checkboxes */
 .cb-label{display:flex;align-items:flex-start;gap:0.5rem;cursor:pointer;flex:1;min-width:0}
@@ -352,7 +353,7 @@ a:hover{text-decoration:underline}
 .streak-milestone .streak-num{animation:streak-pop 0.4s ease;color:var(--green)}
 
 /* Badge Toast */
-.badge-unlock-toast{position:fixed;bottom:2rem;right:2rem;display:flex;align-items:center;gap:1rem;background:linear-gradient(135deg,#2a1f0a,#1a1530);border:2px solid var(--gold);border-radius:var(--radius);padding:1rem 1.5rem;z-index:2000;animation:badge-slide-in 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;box-shadow:0 4px 24px rgba(212,168,83,0.3)}
+.badge-unlock-toast{position:fixed;bottom:2rem;right:2rem;display:flex;align-items:center;gap:1rem;background:linear-gradient(135deg,#2a1f0a,#1a1530);border:2px solid var(--gold);border-radius:var(--radius);padding:1rem 1.5rem;z-index:1000;animation:badge-slide-in 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;box-shadow:0 4px 24px rgba(212,168,83,0.3)}
 .badge-unlock-icon{font-size:2rem}
 .badge-unlock-title{font-size:0.78rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em}
 .badge-unlock-name{font-family:'Cinzel',serif;font-size:1rem;color:var(--gold);font-weight:700}
@@ -377,7 +378,7 @@ a:hover{text-decoration:underline}
 @keyframes slide-up{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
 .celebrate{animation:pulse-green 0.6s ease 2}
 .card-enter{animation:slide-up 0.3s ease}
-.confetti-piece{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:9999;animation:confetti-fall 1.5s ease-out forwards}
+.confetti-piece{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:9000;animation:confetti-fall 1.5s ease-out forwards}
 
 /* Stats Dashboard */
 .stats-bar{display:flex;gap:1rem;padding:1rem 1.5rem;flex-wrap:wrap;justify-content:center;border-bottom:1px solid rgba(138,114,52,0.2)}
@@ -560,6 +561,24 @@ body.compact-mode .toc-sidebar,body.compact-mode .toc-toggle{display:none!import
   .filter-bar{flex-direction:row;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;padding-bottom:0.5rem}
   .filter-group{flex-shrink:0}
   .notes-btn{min-height:44px;min-width:44px}
+}
+@media(max-width:360px){
+  .site-header{padding:0.5rem 0.75rem}
+  .site-header h1.site-title{font-size:0.9rem}
+  .header-progress{gap:0.3rem}
+  .header-prog-item .prog-label{font-size:0.6rem}
+  .main-content{padding:0.75rem}
+  .filter-bar{gap:0.4rem}
+  .filter-btn,.btn-sm{font-size:0.7rem;padding:0.2rem 0.4rem}
+  .card-header{padding:0.75rem 1rem}
+  .card-header h2{font-size:0.95rem}
+  .checklist-item{padding:0.4rem 0.5rem}
+  .item-name{font-size:0.82rem}
+  .badge{font-size:0.65rem;padding:0.1rem 0.35rem}
+  .tab-btn{font-size:0.8rem;padding:0.5rem 0.75rem}
+  .do-next{padding:0.75rem 1rem}
+  .search-bar-wrapper #achSearchInput{font-size:0.85rem;padding:0.5rem 0.75rem}
+  .search-section{padding:0.5rem 0.75rem 0.25rem}
 }
 
 /* Reset Timer Bar */
@@ -812,7 +831,7 @@ button,a.timer-link{touch-action:manipulation}
 }
 .ach-complete-banner{
   position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
-  z-index:2000;padding:1.5rem 3rem;
+  z-index:3000;padding:1.5rem 3rem;
   background:linear-gradient(135deg,#2a1f0a,#1a1530);
   border:2px solid var(--gold);border-radius:var(--radius);
   font-family:'Cinzel',Georgia,serif;font-size:1.5rem;color:var(--gold);
@@ -2412,20 +2431,6 @@ html[data-theme="light"] .stat-card {
 </div><!-- /dailyView -->
 
 <script>
-/* ========== GLOBAL ERROR HANDLER (debug) ========== */
-window.onerror = function(msg, src, line, col, err) {
-  console.error('JS Error:', msg, 'at line', line);
-  var banner = document.getElementById('jsErrorBanner');
-  if (!banner) {
-    banner = document.createElement('div');
-    banner.id = 'jsErrorBanner';
-    banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#7f1d1d;color:#fca5a5;padding:0.5rem 1rem;font-size:0.8rem;font-family:monospace;max-height:120px;overflow-y:auto;cursor:pointer';
-    banner.onclick = function() { banner.remove(); };
-    document.body.appendChild(banner);
-  }
-  banner.innerHTML += '<div>Error: ' + msg + ' (line ' + line + ')</div>';
-};
-
 /* ========== DATA MODEL ========== */
 
 const ACHIEVEMENTS = {
@@ -3509,14 +3514,45 @@ function copyToClipboard(text, btn) {
 
 /* ========== RENDERING ========== */
 
+function estimateItemMinutes(item) {
+  // Parse time string like "30-60 min", "2-3 hrs", or use difficulty defaults
+  if (item.time) {
+    const m = item.time.match(/^(\d+)/);
+    if (m) {
+      const val = parseInt(m[1]);
+      if (item.time.includes('hr')) return val * 60;
+      return val;
+    }
+  }
+  const defaults = {quick:5,short:30,medium:120,long:240,grind:600};
+  return defaults[item.difficulty] || 60;
+}
+
+function formatTimeEstimate(mins) {
+  if (mins < 60) return '~' + mins + 'm';
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m > 0 ? '~' + h + 'h ' + m + 'm' : '~' + h + 'h';
+}
+
 function renderHeaderProgress() {
   const el = document.getElementById('headerProgress');
   const data = [];
 
-  // Featured achievements (only if active)
-  if (isEnrichedPinned('seasons')) data.push({label:'Seasons',count:countCompleted('seasons'),total:24});
-  if (isEnrichedPinned('gizmos')) data.push({label:'Gizmos',count:countCompleted('gizmos'),total:35});
-  if (isEnrichedPinned('otter')) data.push({label:'Otter',count:state.otterCount,total:320});
+  // Featured achievements (only if active) — with time estimates
+  ['seasons','gizmos'].forEach(achKey => {
+    if (!isEnrichedPinned(achKey)) return;
+    const ach = ACHIEVEMENTS[achKey];
+    const count = countCompleted(achKey);
+    let mins = 0;
+    ach.sections.forEach(sec => {
+      sec.items.forEach(it => { if (!state.checkedItems[it.key]) mins += estimateItemMinutes(it); });
+    });
+    data.push({label: achKey === 'seasons' ? 'Seasons' : 'Gizmos', count, total: ach.total, timeLeft: mins});
+  });
+  if (isEnrichedPinned('otter')) {
+    data.push({label:'Otter', count:state.otterCount, total:320, timeLeft: null});
+  }
 
   // Pinned achievements with progress
   if (state.pinnedAchievements && state.pinnedProgress) {
@@ -3526,7 +3562,7 @@ function renderHeaderProgress() {
       const maxTier = ach.tiers && ach.tiers.length ? ach.tiers[ach.tiers.length-1] : null;
       if (!maxTier || maxTier.count <= 1) return;
       const shortName = ach.name.length > 15 ? ach.name.slice(0,14) + '…' : ach.name;
-      data.push({label:shortName, count:prog.current||0, total:maxTier.count});
+      data.push({label:shortName, count:prog.current||0, total:maxTier.count, timeLeft: null});
     });
   }
 
@@ -3534,7 +3570,7 @@ function renderHeaderProgress() {
   el.innerHTML = data.slice(0, 5).map(d => `
     <div class="header-prog-item">
       <span class="prog-label">${d.label}</span>
-      <span class="prog-count">${d.count}/${d.total}</span>
+      <span class="prog-count">${d.count}/${d.total}${d.timeLeft != null ? ' <span style="color:var(--text-dim);font-size:0.65rem">' + formatTimeEstimate(d.timeLeft) + '</span>' : ''}</span>
       <div class="mini-bar"><div class="mini-bar-fill" style="width:${(d.count/d.total*100).toFixed(1)}%"></div></div>
     </div>
   `).join('');
@@ -3948,6 +3984,29 @@ function onCheck(key, achievementKey, checked) {
   renderCostCalculator();
   if (state.viewMode === 'map') renderMapView();
   applyFilters();
+
+  // Synergy highlighting: highlight incomplete items on the same map
+  if (checked) {
+    const allSyn = getAllChecklistItems();
+    const completedItem = allSyn.find(function(i) { return i.key === key; });
+    if (completedItem && completedItem.map && completedItem.map !== 'Instance') {
+      const highlighted = [];
+      allSyn.forEach(function(i) {
+        if (i.map === completedItem.map && i.key !== key && !state.checkedItems[i.key]) {
+          const itemEl = document.querySelector('[data-key="' + i.key + '"]');
+          if (itemEl && !itemEl.classList.contains('done')) {
+            itemEl.classList.add('synergy-highlight');
+            highlighted.push(itemEl);
+          }
+        }
+      });
+      if (highlighted.length > 0) {
+        setTimeout(function() {
+          highlighted.forEach(function(el) { el.classList.remove('synergy-highlight'); });
+        }, 8000);
+      }
+    }
+  }
 }
 
 function updateOtter(val) {

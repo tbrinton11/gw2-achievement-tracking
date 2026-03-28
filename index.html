@@ -589,7 +589,13 @@ body.compact-mode .toc-sidebar,body.compact-mode .toc-toggle{display:none!import
 .sp-checklist-item{
   display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.6rem;
   background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);font-size:0.85rem;
+  flex-wrap:wrap;
 }
+.sp-checklist-item .item-details{
+  display:none;width:100%;margin:0.4rem 0 0;padding:0.6rem 0.75rem;
+  background:rgba(0,0,0,0.2);border-radius:var(--radius-sm);font-size:0.83rem;
+}
+.sp-checklist-item .item-details.open{display:block}
 .sp-checklist-item.session-highlight{background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3)}
 .sp-footer{display:flex;gap:0.75rem;margin-top:1rem;align-items:center;flex-wrap:wrap}
 .sp-total{font-size:0.8rem;color:var(--text-secondary)}
@@ -3576,15 +3582,7 @@ function renderChecklistCard(achievementKey) {
     </section>`;
 }
 
-function renderChecklistItem(item, achievementKey) {
-  const checked = state.checkedItems[item.key] ? 'checked' : '';
-  const doneClass = state.checkedItems[item.key] ? 'done' : '';
-  const isHidden = (state.hiddenTasks || []).includes(item.key);
-  const hiddenClass = isHidden ? ' hidden-task' + (state.showHidden ? ' show-hidden' : '') : '';
-  const isBlocked = item.blockedBy && !state.checkedItems[item.blockedBy];
-  const blockedClass = isBlocked ? ' blocked-item' : '';
-  const searchText = [item.name, item.map, item.vendor, item.episode, item.location, item.cost].filter(Boolean).join(' ').toLowerCase();
-
+function buildItemDetailRows(item) {
   let detailRows = '';
   if (item.episode) detailRows += `<div class="detail-row"><span class="detail-label">Episode:</span> ${item.episode}</div>`;
   if (item.vendor) detailRows += `<div class="detail-row"><span class="detail-label">Vendor:</span> ${item.vendor} &mdash; ${item.location || ''}</div>`;
@@ -3609,9 +3607,7 @@ function renderChecklistItem(item, achievementKey) {
   if (item.tips) detailRows += `<div class="detail-row" style="color:var(--text-secondary)"><span class="detail-label">Tips:</span> ${item.tips}</div>`;
   if (item.wikiUrl) detailRows += `<div class="detail-row"><a href="${item.wikiUrl}" target="_blank" class="wiki-link">GW2 Wiki &rarr;</a></div>`;
   if (item.timer) detailRows += `<div class="detail-row"><a href="https://gw2.ninja/timer" target="_blank" class="wiki-link" style="color:var(--orange)">Event Timer (${item.timer}) &rarr;</a></div>`;
-
-  // Objectives from lookup table
-  const obj = OBJECTIVES[item.key];
+  const obj = typeof OBJECTIVES !== 'undefined' ? OBJECTIVES[item.key] : null;
   if (obj) {
     detailRows += `<div class="objectives-section">`;
     if (obj.meta) detailRows += `<div class="objectives-meta">Meta-achievement: ${obj.meta}</div>`;
@@ -3624,6 +3620,19 @@ function renderChecklistItem(item, achievementKey) {
     if (obj.guide) detailRows += `<div class="guide-box">${obj.guide}</div>`;
     detailRows += `</div>`;
   }
+  return detailRows;
+}
+
+function renderChecklistItem(item, achievementKey) {
+  const checked = state.checkedItems[item.key] ? 'checked' : '';
+  const doneClass = state.checkedItems[item.key] ? 'done' : '';
+  const isHidden = (state.hiddenTasks || []).includes(item.key);
+  const hiddenClass = isHidden ? ' hidden-task' + (state.showHidden ? ' show-hidden' : '') : '';
+  const isBlocked = item.blockedBy && !state.checkedItems[item.blockedBy];
+  const blockedClass = isBlocked ? ' blocked-item' : '';
+  const searchText = [item.name, item.map, item.vendor, item.episode, item.location, item.cost].filter(Boolean).join(' ').toLowerCase();
+
+  const detailRows = buildItemDetailRows(item);
 
   const completionDateHtml = state.checkedItems[item.key] && state.completionDates[item.key] ? `<span class="completion-date">${formatCompletionDate(state.completionDates[item.key])}</span>` : '';
   const hasNote = state.notes[item.key] ? ' has-note' : '';
@@ -4043,26 +4052,24 @@ function renderDoNext() {
 
   items = items.concat(scored);
 
-  // Items from pinned achievements close to completion
-  if (state.pinnedAchievements && state.pinnedProgress) {
+  // Items from pinned achievements (all incomplete ones)
+  if (state.pinnedAchievements) {
     state.pinnedAchievements.filter(a => !ENRICHED_KEYS[a.id]).forEach(ach => {
-      const prog = state.pinnedProgress[ach.id];
-      if (!prog || prog.done) return;
+      const prog = (state.pinnedProgress || {})[ach.id];
+      if (prog && prog.done) return;
       const maxTier = ach.tiers && ach.tiers.length ? ach.tiers[ach.tiers.length-1] : null;
-      if (!maxTier) return;
-      const pctDone = prog.current / maxTier.count;
-      if (pctDone >= 0.7) {
-        // Close to completion — suggest it
-        const diff = estimateDifficulty(ach);
-        items.push({
-          name: ach.name,
-          difficulty: diff.badge,
-          time: `${prog.current}/${maxTier.count}`,
-          score: 60 + Math.round(pctDone * 40),
-          source: 'pinned',
-          achName: ach.name
-        });
-      }
+      const maxCount = maxTier ? maxTier.count : (ach.max || 1);
+      const current = prog ? (prog.current || 0) : 0;
+      const pctDone = maxCount > 0 ? current / maxCount : 0;
+      const diff = estimateDifficulty(ach);
+      items.push({
+        name: ach.name,
+        difficulty: diff.badge,
+        time: `${current}/${maxCount}`,
+        score: 40 + Math.round(pctDone * 60),
+        source: 'pinned',
+        achName: ach.name
+      });
     });
   }
 
@@ -13332,14 +13339,19 @@ function renderSessionPlan() {
     return;
   }
 
-  checklist.innerHTML = plan.map((it, i) => `
+  checklist.innerHTML = plan.map((it, i) => {
+    const detailRows = buildItemDetailRows(it);
+    const hasDetails = detailRows.length > 0;
+    return `
     <div class="sp-checklist-item" data-sp-key="${it.key}">
       <span style="color:var(--text-dim);font-size:0.75rem;min-width:1.5rem">${i+1}.</span>
       <span class="badge badge-${it.difficulty}" style="flex-shrink:0">${it.difficulty}</span>
       <span style="flex:1;min-width:0">${it.name}</span>
       <span style="font-size:0.78rem;color:var(--text-dim);flex-shrink:0">${it.time || '~' + it.est + ' min'}</span>
-    </div>
-  `).join('');
+      ${hasDetails ? `<button class="expand-btn" onclick="event.stopPropagation();var d=this.parentElement.querySelector('.item-details');d.classList.toggle('open');this.classList.toggle('open')" title="Show details" style="flex-shrink:0">&#9662;</button>` : ''}
+      ${hasDetails ? `<div class="item-details">${detailRows}</div>` : ''}
+    </div>`;
+  }).join('');
 
   document.getElementById('spFooter').style.display = 'flex';
   document.getElementById('spTotal').textContent = plan.length + ' tasks, ~' + totalTime + ' min total';

@@ -2063,6 +2063,8 @@ html[data-theme="light"] .stat-card {
     </div>
     <input type="text" class="search-input" id="searchInput" placeholder="Search tasks...">
     <button class="bulk-select-btn" id="bulkSelectBtn" onclick="toggleBulkMode()">Bulk Select</button>
+    <button class="filter-btn" onclick="expandCollapseAll(true)" title="Expand all items">Expand All</button>
+    <button class="filter-btn" onclick="expandCollapseAll(false)" title="Collapse all items">Collapse All</button>
     <button class="filter-btn" id="showHiddenBtn" onclick="toggleShowHidden()" style="display:none">Show hidden (0)</button>
     <div class="sort-toggle" id="sortToggle" style="display:none">
       <span class="sort-label">Sort:</span>
@@ -3983,9 +3985,33 @@ function toggleSub(header) {
 }
 
 function toggleDetails(btn) {
-  const details = btn.closest('.checklist-item').querySelector('.item-details');
+  const details = btn.closest('.checklist-item, .sp-checklist-item').querySelector('.item-details');
   details.classList.toggle('open');
   btn.classList.toggle('open');
+}
+
+function expandCollapseAll(expand) {
+  // Achievement cards
+  document.querySelectorAll('.card-header').forEach(h => {
+    const isExpanded = h.getAttribute('aria-expanded') === 'true';
+    if (expand && !isExpanded) toggleCard(h);
+    else if (!expand && isExpanded) toggleCard(h);
+  });
+  // Individual item details
+  document.querySelectorAll('.checklist-item .item-details, .sp-checklist-item .item-details').forEach(d => {
+    if (expand) d.classList.add('open');
+    else d.classList.remove('open');
+  });
+  document.querySelectorAll('.expand-btn').forEach(b => {
+    if (expand) b.classList.add('open');
+    else b.classList.remove('open');
+  });
+  // Sub-sections
+  document.querySelectorAll('.sub-header').forEach(h => {
+    const isExpanded = h.getAttribute('aria-expanded') === 'true';
+    if (expand && !isExpanded) toggleSub(h);
+    else if (!expand && isExpanded) toggleSub(h);
+  });
 }
 
 /* ========== FILTERS ========== */
